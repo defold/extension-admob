@@ -7,7 +7,7 @@
 #define DLIB_LOG_DOMAIN LIB_NAME
 #include <dmsdk/sdk.h>
 
-#if defined(DM_PLATFORM_IOS)
+#if defined(DM_PLATFORM_IOS) || defined(DM_PLATFORM_ANDROID)
 
 // https://github.com/googleads/googleads-mobile-ios-examples
 #include <assert.h>
@@ -149,6 +149,15 @@ static void LuaInit(lua_State* L)
 }
 
 
+#if defined(DM_PLATFORM_ANDROID)
+static JNIEnv* GetJNIEnv()
+{
+    JNIEnv* env = 0;
+    dmGraphics::GetNativeAndroidJavaVM()->AttachCurrentThread(&env, NULL);
+    return env;
+}
+#endif
+
 static dmExtension::Result AppInitializeExtension(dmExtension::AppParams* params)
 {
     if (g_App) {
@@ -168,7 +177,7 @@ static dmExtension::Result AppInitializeExtension(dmExtension::AppParams* params
         return dmExtension::RESULT_OK;
     } else {
 #if defined(__ANDROID__)
-        g_App = ::firebase::App::Create(GetJniEnv(), GetActivity());
+        g_App = ::firebase::App::Create(GetJNIEnv(), dmGraphics::GetNativeAndroidActivity());
 #else
         g_App = ::firebase::App::Create();
 #endif  // defined(__ANDROID__)
