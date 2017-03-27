@@ -1,16 +1,18 @@
 [project]
-title = My project
+title = AdMob
 version = 0.1
+dependencies = https://github.com/andsve/dirtylarry/archive/master.zip
+bundle_resources = /res
 
 [bootstrap]
-main_collection = /main/main.collectionc
+main_collection = /main/admob_example.collectionc
 
 [input]
 game_binding = /input/game.input_bindingc
 
 [display]
-width = 1280
-height = 720
+width = 720
+height = 1280
 
 [physics]
 scale = 0.02
@@ -18,3 +20,14 @@ scale = 0.02
 [script]
 shared_state = 1
 
+[ios]
+bundle_identifier = com.defold.adtest
+
+[android]
+package = com.defold.adtest
+
+[osx]
+bundle_identifier = com.defold.adtest
+
+[admob]
+app_id = ca-app-pub-9240950311969112~9073338586

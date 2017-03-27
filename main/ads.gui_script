@@ -1,0 +1,31 @@
+local dirtylarry = require "dirtylarry/dirtylarry"
+
+function init(self)
+    msg.post(".", "acquire_input_focus")
+    self.ad_type = "banner"
+    
+end
+
+function on_input(self, action_id, action)
+
+    self.ad_type = dirtylarry:radio("ad_type_banner", action_id, action, "banner", self.ad_type)
+    self.ad_type = dirtylarry:radio("ad_type_interstitial", action_id, action, "interstitial", self.ad_type)
+
+    dirtylarry:button("load_ad", action_id, action, function ()
+        if self.ad_type == "banner" then
+            admobex.load_banner_ad("ca-app-pub-9240950311969112/1550071783", 320, 50)
+        else
+            admobex.load_interstitial_ad("ca-app-pub-9240950311969112/1343628582")
+        end
+    end)
+
+    dirtylarry:button("show_ad", action_id, action, function ()
+        if self.ad_type == "banner" then
+            admobex.show_banner_ad()
+        else
+            admobex.show_interstitial_ad()
+        end
+    end)
+	
+end
+
