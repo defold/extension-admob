@@ -25,9 +25,11 @@ bundle_identifier = com.defold.adtest
 
 [android]
 package = com.defold.adtest
+manifest = /AndroidManifest.xml
 
 [osx]
 bundle_identifier = com.defold.adtest
 
 [admob]
 app_id = ca-app-pub-9240950311969112~9073338586
+

@@ -1,4 +1,10 @@
 
+/*
+https://github.com/yinjimmy/firebase
+
+*/
+
+
 #define EXTENSION_NAME AdMob
 #define MODULE_NAME "admobex"
 #define LIB_NAME "AdMobExample"
@@ -55,10 +61,10 @@ static void SetupAdRequest()
     static const char* kTestDeviceIDs[] =
     {   "199e2e182e2f89a2c22a47e03e048772",
         "ea71229c04c0e221e30a2be8a076f1aa",
-        "d6fafe1dc659201e741c1dfdf00223fc", //DVS-1190
+        "d6fafe1dc659201e741c1dfdf00223fc", //DVS-1190,
+        "8497A7462C631CD09AA9DDD6C1D23B0F", //DVS-1004
     };
-    g_AdRequest.test_device_id_count =
-        sizeof(kTestDeviceIDs) / sizeof(kTestDeviceIDs[0]);
+    g_AdRequest.test_device_id_count = sizeof(kTestDeviceIDs) / sizeof(kTestDeviceIDs[0]);
     g_AdRequest.test_device_ids = kTestDeviceIDs;
 }
 
@@ -177,11 +183,13 @@ static dmExtension::Result AppInitializeExtension(dmExtension::AppParams* params
         return dmExtension::RESULT_OK;
     } else {
 #if defined(__ANDROID__)
-        g_App = ::firebase::App::Create(GetJNIEnv(), dmGraphics::GetNativeAndroidActivity());
+dmLogWarning("MAWE: ::firebase::App::Create()\n");
+        g_App = ::firebase::App::Create(::firebase::AppOptions(), GetJNIEnv(), dmGraphics::GetNativeAndroidActivity());
 #else
-        g_App = ::firebase::App::Create();
+        g_App = ::firebase::App::Create(::firebase::AppOptions());
 #endif  // defined(__ANDROID__)
 
+dmLogWarning("MAWE: firebase::admob::Initialize()\n");
         firebase::InitResult res = firebase::admob::Initialize(*g_App, app_id);
         if (!g_App || res != firebase::kInitResultSuccess)
         {
