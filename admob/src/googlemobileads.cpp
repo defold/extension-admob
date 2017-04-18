@@ -1,7 +1,6 @@
 
 /*
 https://github.com/yinjimmy/firebase
-
 */
 
 
@@ -62,7 +61,8 @@ static void SetupAdRequest()
     {   "199e2e182e2f89a2c22a47e03e048772",
         "ea71229c04c0e221e30a2be8a076f1aa",
         "d6fafe1dc659201e741c1dfdf00223fc", //DVS-1190,
-        "8497A7462C631CD09AA9DDD6C1D23B0F", //DVS-1004
+        "8497A7462C631CD09AA9DDD6C1D23B0F", //DVS-1004,
+        "ED455496C7B5BC4ADF3137A45385199B", //Nexus 6P, Android 7.0
     };
     g_AdRequest.test_device_id_count = sizeof(kTestDeviceIDs) / sizeof(kTestDeviceIDs[0]);
     g_AdRequest.test_device_ids = kTestDeviceIDs;
@@ -154,7 +154,7 @@ static void LuaInit(lua_State* L)
     assert(top == lua_gettop(L));
 }
 
-
+ 
 #if defined(DM_PLATFORM_ANDROID)
 static JNIEnv* GetJNIEnv()
 {

@@ -33,3 +33,7 @@ bundle_identifier = com.defold.adtest
 [admob]
 app_id = ca-app-pub-9240950311969112~9073338586
 
+[native_extension]
+app_manifest = game.appmanifest
+
+
