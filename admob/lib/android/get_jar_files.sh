@@ -1,5 +1,5 @@
 
-TMP=./tmp
+TMP=../_defoldtmp
 mkdir $TMP
 
 RES=../../res/android

@@ -1,9 +1,52 @@
 local dirtylarry = require "dirtylarry/dirtylarry"
 
+local admob_messages = { "MESSAGE_LOADED", "MESSAGE_FAILED_TO_LOAD", "MESSAGE_SHOW", "MESSAGE_HIDE", "MESSAGE_APP_LEAVE", "MESSAGE_UNLOADED" }
+
+
+local function callback(self, id, info)
+    print("CALLBACK ad id:", id)
+    --pprint(info)
+    local status = string.format("Message: %s (%d)\nfirebase: %d '%s'", admob_messages[info.message+1], info.message, info.result, info.result_string)
+    gui.set_text(gui.get_node("status"), status)
+    print(status)
+end
+
 function init(self)
     msg.post(".", "acquire_input_focus")
     self.ad_type = "banner"
     
+    self.testdevices = {
+        "199e2e182e2f89a2c22a47e03e048772",
+        "ea71229c04c0e221e30a2be8a076f1aa",
+        "d6fafe1dc659201e741c1dfdf00223fc", -- DVS-1190,
+        "8497A7462C631CD09AA9DDD6C1D23B0F", -- DVS-1004,
+        "ED455496C7B5BC4ADF3137A45385199B", -- Nexus 6P, Android 7.0
+    }
+    
+    self.keywords = {"development", "games", "fun"}
+    
+    self.id = nil
+    self.showing = false
+    
+    self.time = 0.0
+    
+    if sys.get_sys_info().system_name == 'iPhone OS' then
+        self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716"
+        self.interstitial_ad_unit = "ca-app-pub-3940256099942544/4411468910"
+        self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/2562852117"
+        self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/1712485313"
+    else
+        self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111"
+        self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712"
+        self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/1072772517"
+        self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917"
+    end
+    
+end
+
+function update(self, dt)
+    self.time = self.time + dt
+    gui.set_text(gui.get_node("time"), string.format("%.2f", self.time))
 end
 
 function on_input(self, action_id, action)
@@ -12,21 +55,44 @@ function on_input(self, action_id, action)
     self.ad_type = dirtylarry:radio("ad_type_interstitial", action_id, action, "interstitial", self.ad_type)
 
     dirtylarry:button("load_ad", action_id, action, function ()
-        if self.ad_type == "banner" then
-            admobex.load_banner_ad("ca-app-pub-9240950311969112/1550071783", 320, 50)
-        else
-            --admobex.load_interstitial_ad("ca-app-pub-9240950311969112/1343628582") -- ios
-            admobex.load_interstitial_ad("ca-app-pub-9240950311969112/1145783382") -- android
-        end
+        if self.id == nil then
+	        if self.ad_type == "banner" then
+	            self.id = admob.load(admob.TYPE_BANNER, self.banner_ad_unit, { width = 320, height = 50, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback )
+	        else
+                self.id = admob.load(admob.TYPE_INTERSTITIAL, self.interstitial_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
+	        end
+	    end
     end)
 
     dirtylarry:button("show_ad", action_id, action, function ()
-        if self.ad_type == "banner" then
-            admobex.show_banner_ad()
-        else
-            admobex.show_interstitial_ad()
+        if self.id ~= nil then
+	        admob.show(self.id)
+	        self.showing = true
+	    end
+    end)
+    
+    dirtylarry:button("hide_ad", action_id, action, function ()
+        self.showing = false
+        if self.id ~= nil then
+            admob.hide(self.id)
         end
     end)
-	
+    
+        
+    dirtylarry:button("unload_ad", action_id, action, function ()
+        self.showing = false
+        if self.id ~= nil then
+            admob.unload(self.id)
+            self.id = nil
+        end
+    end)
+
+
+    dirtylarry:button("move_ad", action_id, action, function ()
+        if self.ad_type == "banner" and self.id ~= nil and self.showing then
+            admob.move_to(self.id, action.screen_x, action.screen_y)
+        end
+    end)
+
 end
 

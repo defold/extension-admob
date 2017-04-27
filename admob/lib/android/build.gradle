@@ -26,7 +26,7 @@ android {
 */
 
 apply plugin: 'java'
-apply plugin: 'eclipse'
+//apply plugin: 'eclipse'
 apply plugin: 'gradle-one-jar'
 
 version = '1.0'
@@ -51,7 +51,7 @@ buildscript {
     jcenter()
   }
   dependencies {
-    classpath 'com.android.tools.build:gradle:2.1.2'
+    classpath 'com.android.tools.build:gradle:2.2.3'
     classpath 'com.google.gms:google-services:3.0.0'
     classpath 'com.github.rholder:gradle-one-jar:1.0.4'
   }
@@ -75,8 +75,6 @@ allprojects {
 //Project dependencies
 
 dependencies {
-  compile 'com.google.firebase:firebase-core:10.2.0'
-  compile 'com.google.firebase:firebase-ads:10.2.0'
-  compile 'com.google.android.gms:play-services-base:10.2.0'
   compile 'com.android.support:appcompat-v7:25.2.0'
+  compile 'com.google.firebase:firebase-ads:10.2.0'
 }
