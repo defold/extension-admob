@@ -28,9 +28,9 @@
 #include "firebase/app.h"
 #include "firebase/future.h"
 
-
 typedef void (*PostCommandFn)(int id);
 static void QueueCommand(int id, int message, int firebase_result, const char* firebase_message, PostCommandFn fn);
+static void QueueRewardCommand(int id, int message, float reward, const char* reward_type);
 static void ClearAdRequest(firebase::admob::AdRequest& adrequest);
 
 namespace
@@ -42,6 +42,7 @@ enum AdMobAdType
     ADMOB_TYPE_BANNER,
     ADMOB_TYPE_INTERSTITIAL,
     ADMOB_TYPE_VIDEO,
+    ADMOB_TYPE_NATIVEEXPRESS,
 };
 
 enum AdMobError
@@ -88,6 +89,7 @@ enum AdMobEvent
     ADMOB_MESSAGE_FAILED_TO_LOAD,
     ADMOB_MESSAGE_SHOW,
     ADMOB_MESSAGE_HIDE,
+    ADMOB_MESSAGE_REWARD,
     ADMOB_MESSAGE_APP_LEAVE,
     ADMOB_MESSAGE_UNLOADED,
 };
@@ -116,15 +118,6 @@ public:
     int         m_Id;       // The internal ad number
 };
 
-struct MessageCommand
-{
-    PostCommandFn m_PostFn; // A function to be called after the command was processed
-    char* m_FirebaseMessage;
-    int m_Id;
-    int m_Message;
-    int m_FirebaseResult;
-};
-
 class InterstitialAdListener : public firebase::admob::InterstitialAd::Listener
 {
 public:
@@ -136,6 +129,41 @@ public:
 };
 
 
+class NativeExpressAdViewListener : public firebase::admob::NativeExpressAdView::Listener
+{
+public:
+    NativeExpressAdViewListener(AdMobState* state, int id) : m_State(state), m_Id(id) {}
+    void OnBoundingBoxChanged(firebase::admob::NativeExpressAdView* ad_view, firebase::admob::BoundingBox box) {
+        (void)ad_view;
+        (void)box;
+    }
+    void OnPresentationStateChanged(firebase::admob::NativeExpressAdView* ad_view, firebase::admob::NativeExpressAdView::PresentationState state);
+    AdMobState* m_State;
+    int         m_Id;       // The internal ad number
+};
+
+class RewardedVideoListener : public firebase::admob::rewarded_video::Listener
+{
+public:
+    RewardedVideoListener(AdMobState* state, int id) : m_State(state), m_Id(id) {}
+    void OnRewarded(firebase::admob::rewarded_video::RewardItem reward);
+    void OnPresentationStateChanged(firebase::admob::rewarded_video::PresentationState state);
+
+    AdMobState* m_State;
+    int         m_Id;       // The internal ad number
+};
+
+struct MessageCommand
+{
+    PostCommandFn m_PostFn;     // A function to be called after the command was processed
+    char* m_FirebaseMessage;    // Firebase error message or reward type
+    int m_Id;
+    int m_Message;
+    int m_FirebaseResult;
+    float m_Reward;
+};
+
+
 struct AdMobDelayedDelete
 {
     firebase::admob::BannerView*  m_BannerView;
@@ -144,7 +172,6 @@ struct AdMobDelayedDelete
 
 static void OnDestroyHideCallback(const firebase::Future<void>& future, void* user_data);
 
-
 struct AdMobAd
 {
     AdMobAdType                 m_Type;
@@ -152,16 +179,21 @@ struct AdMobAd
     LuaCallbackInfo             m_Callback;
     const char*                 m_AdUnit;
     uint8_t                     m_Initialized : 1;
+    uint8_t                     m_DelayedDelete : 1;
 
     // Set to non zero depending on ad type
-    firebase::admob::BannerView*        m_BannerView;
-    firebase::admob::InterstitialAd*    m_InterstitialAd;
+    firebase::admob::BannerView*            m_BannerView;
+    firebase::admob::InterstitialAd*        m_InterstitialAd;
+    firebase::admob::NativeExpressAdView*   m_NativeExpressAdView;
     // Listeners
-    BannerViewListener*           m_BannerViewListener;
-    InterstitialAdListener*       m_InterstitialAdListener;
+    BannerViewListener*             m_BannerViewListener;
+    InterstitialAdListener*         m_InterstitialAdListener;
+    RewardedVideoListener*          m_RewardedVideoListener;
+    NativeExpressAdViewListener*    m_NativeExpressAdViewListener;
 
     AdMobAd()
     {
+        size_t size = sizeof(*this);
         memset(this, 0, sizeof(*this));
         m_Callback.m_Callback = LUA_NOREF;
         m_Callback.m_Self = LUA_NOREF;
@@ -169,32 +201,42 @@ struct AdMobAd
 
     void Clear()
     {
-        ClearAdRequest(m_AdRequest);
-
-dmLogWarning("CLEAR: m_BannerView: %p  m_InterstitialAd: %p  m_BannerViewListener: %p  m_InterstitialAdListener: %p", m_BannerView, m_InterstitialAd, m_BannerViewListener, m_InterstitialAdListener);
-
-        if( m_BannerView != 0 )
+        if( m_DelayedDelete )
         {
-            //m_BannerView->SetListener(0);
+            if( m_BannerView && m_BannerView->DestroyLastResult().status() != firebase::kFutureStatusComplete )
+                return;
+            if( m_NativeExpressAdView && m_NativeExpressAdView->DestroyLastResult().status() != firebase::kFutureStatusComplete )
+                return;
 
-            AdMobDelayedDelete* info = new AdMobDelayedDelete;
-            info->m_BannerView          = m_BannerView;
-            info->m_BannerViewListener  = m_BannerViewListener;
-            //::firebase::Future< void > future = m_BannerView->Destroy();
-            //m_BannerView->DestroyLastResult().OnCompletion( OnDestroyedCallback, m_BannerViewListener );
-
-            // while(future.status() == firebase::kFutureStatusPending) {
-            //     dmLogWarning("ping");
-            // }
-
-dmLogWarning("CLEAR: info: %p m_BannerView: %p  m_BannerViewListener: %p ", info, m_BannerView, m_BannerViewListener);
-
-            //m_BannerView->Hide();
-            //m_BannerView->HideLastResult().OnCompletion( OnDestroyHideCallback, this );
-            //m_BannerView->HideLastResult().OnCompletion( OnDestroyHideCallback, info );
-            m_BannerView->Hide().OnCompletion( OnDestroyHideCallback, info );
-            //delete m_BannerView;
+            m_BannerView = 0;
+            m_NativeExpressAdView = 0;
+            m_DelayedDelete = 0;
         }
+        else if( m_BannerView != 0 )
+        {
+            m_BannerView->SetListener(0);
+            delete m_BannerViewListener;
+
+            //delete m_BannerView; // Their examples say: "delete ptr", but it crashes on iOS
+            //m_BannerView = 0;
+            m_BannerView->Destroy();
+
+            m_DelayedDelete = 1;
+            return;
+        }
+        else if( m_NativeExpressAdView )
+        {
+            //delete m_NativeExpressAdView; // Their examples say: "delete ptr", but it crashes on iOS
+            //m_NativeExpressAdView = 0;
+
+            m_NativeExpressAdView->SetListener(0);
+            delete m_NativeExpressAdViewListener;
+
+            m_NativeExpressAdView->Destroy();
+            m_DelayedDelete = 1;
+            return;
+        }
+
         if( m_InterstitialAd != 0 )
         {
             m_InterstitialAd->SetListener(0);
@@ -203,35 +245,67 @@ dmLogWarning("CLEAR: info: %p m_BannerView: %p  m_BannerViewListener: %p ", info
             if( m_InterstitialAdListener )
                 delete m_InterstitialAdListener;
         }
+
+        if( m_RewardedVideoListener )
+        {
+            firebase::admob::rewarded_video::SetListener(0);
+            delete m_RewardedVideoListener;
+        }
+
+
         if( m_AdUnit )
             free((void*)m_AdUnit);
         
-        memset(this, 0, sizeof(AdMobAd));
+        ClearAdRequest(m_AdRequest);
+
+        memset(this, 0, sizeof(*this));
         m_Callback.m_Callback = LUA_NOREF;
         m_Callback.m_Self = LUA_NOREF;
     }
-
+    
+    void MoveTo(AdMobPosition pos)
+    {
+        if(m_BannerView)
+            m_BannerView->MoveTo((firebase::admob::BannerView::Position)pos);
+        else if(m_NativeExpressAdView)
+            m_NativeExpressAdView->MoveTo((firebase::admob::NativeExpressAdView::Position)pos);
+    }
+    void MoveTo(int x, int y)
+    {
+        if(m_BannerView)
+            m_BannerView->MoveTo(x, y);
+        else if(m_NativeExpressAdView)
+            m_NativeExpressAdView->MoveTo(x, y);
+    }
     void Show()
     {
         if(m_BannerView)
             m_BannerView->Show();
         else if(m_InterstitialAd)
             m_InterstitialAd->Show();
+        else if(m_NativeExpressAdView)
+            m_NativeExpressAdView->Show();
     }
     void Hide()
     {
         if(m_BannerView)
             m_BannerView->Hide();
+        else if(m_NativeExpressAdView)
+            m_NativeExpressAdView->Hide();
     }
     void Pause()
     {
         if(m_BannerView)
             m_BannerView->Pause();
+        else if(m_NativeExpressAdView)
+            m_NativeExpressAdView->Pause();
     }
     void Resume()
     {
         if(m_BannerView)
             m_BannerView->Resume();
+        else if(m_NativeExpressAdView)
+            m_NativeExpressAdView->Resume();
     }
 };
 
@@ -239,44 +313,16 @@ const int ADMOB_MAX_ADS = 16;
 
 struct AdMobState
 {
-    firebase::App*  m_App;
     AdMobAd         m_Ads[ADMOB_MAX_ADS];
+    firebase::App*  m_App;
     int             m_CoveringUIAd;         // Which ad went fullscreen?
 
     dmArray<MessageCommand> m_CmdQueue;
 };
 
-static void OnDestroyHideCallback(const firebase::Future<void>& future, void* user_data)
-{
-    //::firebase::admob::BannerView* banner_view = (::firebase::admob::BannerView*)user_data;
-//dmLogWarning("OnHideDestroyedCallback: BannerView: %p", banner_view);
-
-    AdMobDelayedDelete* info = (AdMobDelayedDelete*)info;
-dmLogWarning("OnHideDestroyedCallback: info: %p  BannerView: %p  BannerViewListener: %p", info, info->m_BannerView, info->m_BannerViewListener);
-
-    delete info->m_BannerView;
-    delete info->m_BannerViewListener;
-
-    /*
-    AdMobAd* ad = (AdMobAd*)user_data;
-
-dmLogWarning("OnHideDestroyedCallback: BannerViewListener: %p", ad);
-    if( ad )
-    {
-
-dmLogWarning("OnHideDestroyedCallback: deleted %p  %p", ad->m_BannerView, ad->m_BannerViewListener);
-
-        delete ad->m_BannerView;
-        delete ad->m_BannerViewListener;
-    }*/
-}
-
-
 
 void BannerViewListener::OnPresentationStateChanged(firebase::admob::BannerView* banner_view, firebase::admob::BannerView::PresentationState state)
 {
-    dmLogWarning("    BannerViewListener :: OnPresentationStateChanged: id: %d  state: %d", m_Id, state);
-
     if( state == firebase::admob::BannerView::kPresentationStateCoveringUI ) // When clicked
     {
         if( m_State->m_CoveringUIAd == -1 ) // Because the state change gets triggered twice
@@ -297,8 +343,6 @@ void BannerViewListener::OnPresentationStateChanged(firebase::admob::BannerView*
 
 void InterstitialAdListener::OnPresentationStateChanged(firebase::admob::InterstitialAd* interstitial_ad, firebase::admob::InterstitialAd::PresentationState state)
 {
-    dmLogWarning("    InterstitialAdListener :: OnPresentationStateChanged: id: %d  state: %d", m_Id, state);
-
     // When showing ad, it also leaves the app
     if( state == firebase::admob::InterstitialAd::kPresentationStateCoveringUI )
     {
@@ -312,6 +356,50 @@ void InterstitialAdListener::OnPresentationStateChanged(firebase::admob::Interst
     else if( state == firebase::admob::InterstitialAd::kPresentationStateHidden )
     {
         QueueCommand(m_Id, ADMOB_MESSAGE_HIDE, 0, 0, 0);
+    }
+}
+
+void RewardedVideoListener::OnRewarded(firebase::admob::rewarded_video::RewardItem reward)
+{
+    QueueRewardCommand(m_Id, ADMOB_MESSAGE_REWARD, reward.amount, reward.reward_type.c_str());
+}
+
+void RewardedVideoListener::OnPresentationStateChanged(firebase::admob::rewarded_video::PresentationState state)
+{
+    // When showing ad, it also leaves the app
+    if( state == firebase::admob::rewarded_video::kPresentationStateCoveringUI ||
+        state == firebase::admob::rewarded_video::kPresentationStateVideoHasStarted )
+    {
+        QueueCommand(m_Id, ADMOB_MESSAGE_SHOW, 0, 0, 0);
+        if(m_State->m_CoveringUIAd == -1)
+        {
+            m_State->m_CoveringUIAd = m_Id;
+            QueueCommand(m_Id, ADMOB_MESSAGE_APP_LEAVE, 0, 0, 0);
+        }
+    }
+    else if( state == firebase::admob::rewarded_video::kPresentationStateHidden )
+    {
+        QueueCommand(m_Id, ADMOB_MESSAGE_HIDE, 0, 0, 0);
+    }
+}
+
+void NativeExpressAdViewListener::OnPresentationStateChanged(firebase::admob::NativeExpressAdView* ad_view, firebase::admob::NativeExpressAdView::PresentationState state)
+{
+    if( state == firebase::admob::NativeExpressAdView::kPresentationStateCoveringUI ) // When clicked
+    {
+        if( m_State->m_CoveringUIAd == -1 ) // Because the state change gets triggered twice
+        {
+            m_State->m_CoveringUIAd = m_Id;
+            QueueCommand(m_Id, ADMOB_MESSAGE_APP_LEAVE, 0, 0, 0);
+        }
+    }
+    else if( state == firebase::admob::NativeExpressAdView::kPresentationStateHidden )
+    {
+        QueueCommand(m_Id, ADMOB_MESSAGE_HIDE, 0, 0, 0);
+    }
+    else if( state == firebase::admob::NativeExpressAdView::kPresentationStateVisibleWithAd )
+    {
+        QueueCommand(m_Id, ADMOB_MESSAGE_SHOW, 0, 0, 0);
     }
 }
 
@@ -374,8 +462,6 @@ static void RegisterCallback(lua_State* L, int index, LuaCallbackInfo* cbk)
 
     dmScript::GetInstance(L);
     cbk->m_Self = dmScript::Ref(L, LUA_REGISTRYINDEX);
-
-dmLogWarning("RegisterCallback END");
 }
 
 static void UnregisterCallback(LuaCallbackInfo* cbk)
@@ -388,7 +474,7 @@ static void UnregisterCallback(LuaCallbackInfo* cbk)
     }
 }
 
-static void InvokeCallback(LuaCallbackInfo* cbk, int id, int message, int result, const char* result_message)
+static void InvokeCallback(LuaCallbackInfo* cbk, MessageCommand* cmd)
 {
     if(cbk->m_Callback == LUA_NOREF)
     {
@@ -406,9 +492,9 @@ static void InvokeCallback(LuaCallbackInfo* cbk, int id, int message, int result
 
     dmScript::SetInstance(L);
 
-    ::AdMobAd* ad = &g_AdMob->m_Ads[id];
+    ::AdMobAd* ad = &g_AdMob->m_Ads[cmd->m_Id];
 
-    lua_pushnumber(L, id);
+    lua_pushnumber(L, cmd->m_Id);
 
     lua_newtable(L);
 
@@ -418,14 +504,25 @@ static void InvokeCallback(LuaCallbackInfo* cbk, int id, int message, int result
         lua_pushstring(L, ad->m_AdUnit);
         lua_setfield(L, -2, "ad_unit");
 
-        lua_pushnumber(L, message);
+        lua_pushnumber(L, cmd->m_Message);
         lua_setfield(L, -2, "message");
 
-        lua_pushnumber(L, result);
-        lua_setfield(L, -2, "result");
+        if( cmd->m_Message != ADMOB_MESSAGE_REWARD )
+        {        
+            lua_pushnumber(L, cmd->m_FirebaseResult);
+            lua_setfield(L, -2, "result");
 
-        lua_pushstring(L, result_message ? result_message : "");
-        lua_setfield(L, -2, "result_string");
+            lua_pushstring(L, cmd->m_FirebaseMessage ? cmd->m_FirebaseMessage : "");
+            lua_setfield(L, -2, "result_string");
+        }
+        else
+        {
+            lua_pushnumber(L, cmd->m_Reward);
+            lua_setfield(L, -2, "reward");
+
+            lua_pushstring(L, cmd->m_FirebaseMessage ? cmd->m_FirebaseMessage : "");
+            lua_setfield(L, -2, "reward_type");
+        }
 
     int number_of_arguments = 3; // instance + 2
     int ret = lua_pcall(L, number_of_arguments, 0, 0);
@@ -588,6 +685,24 @@ static int FindNewSlot()
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+static void QueueRewardCommand(int id, int message, float reward, const char* reward_type)
+{
+    MessageCommand cmd;
+    cmd.m_Id = id;
+    cmd.m_Message = message;
+    cmd.m_FirebaseResult = 0;
+    cmd.m_FirebaseMessage = reward_type ? strdup(reward_type) : 0;
+    cmd.m_PostFn = 0;
+    cmd.m_Reward = reward;
+
+    // TODO: Add mutex here
+    if(g_AdMob->m_CmdQueue.Full())
+    {
+        g_AdMob->m_CmdQueue.OffsetCapacity(8);
+    }
+    g_AdMob->m_CmdQueue.Push(cmd);
+
+}
 
 static void QueueCommand(int id, int message, int firebase_result, const char* firebase_message, PostCommandFn fn)
 {
@@ -597,6 +712,7 @@ static void QueueCommand(int id, int message, int firebase_result, const char* f
     cmd.m_FirebaseResult = firebase_result;
     cmd.m_FirebaseMessage = firebase_message ? strdup(firebase_message) : 0;
     cmd.m_PostFn = fn;
+    cmd.m_Reward = 0;
 
     // TODO: Add mutex here
     if(g_AdMob->m_CmdQueue.Full())
@@ -613,10 +729,12 @@ static void FlushCommandQueue()
         MessageCommand* cmd = &g_AdMob->m_CmdQueue[i];
         ::AdMobAd& ad = g_AdMob->m_Ads[cmd->m_Id];
 
-        InvokeCallback(&ad.m_Callback, cmd->m_Id, cmd->m_Message, cmd->m_FirebaseResult, cmd->m_FirebaseMessage ? cmd->m_FirebaseMessage : "");
+        InvokeCallback(&ad.m_Callback, cmd);
 
         if( cmd->m_PostFn )
+        {
             cmd->m_PostFn(cmd->m_Id);
+        }
 
         if( cmd->m_FirebaseMessage )
             free(cmd->m_FirebaseMessage);
@@ -642,8 +760,6 @@ static void OnLoadedCallback(const firebase::Future<void>& future, void* user_da
 
     int result = future.error();
 
-dmLogWarning("OnLoadedCallback: %d id: %d  type: %d", __LINE__, id, ad->m_Type);
-
     if (result != firebase::admob::kAdMobErrorNone)
     {
         QueueCommand(id, ADMOB_MESSAGE_FAILED_TO_LOAD, future.error(), future.error_message(), CleanCommandCallback);
@@ -656,10 +772,20 @@ dmLogWarning("OnLoadedCallback: %d id: %d  type: %d", __LINE__, id, ad->m_Type);
         ad->m_BannerViewListener = new ::BannerViewListener(g_AdMob, id);
         ad->m_BannerView->SetListener(ad->m_BannerViewListener);
     }
+    else if( ad->m_Type == ADMOB_TYPE_NATIVEEXPRESS )
+    {
+        ad->m_NativeExpressAdViewListener = new ::NativeExpressAdViewListener(g_AdMob, id);
+        ad->m_NativeExpressAdView->SetListener(ad->m_NativeExpressAdViewListener);
+    }
     else if( ad->m_Type == ADMOB_TYPE_INTERSTITIAL )
     {
         ad->m_InterstitialAdListener = new ::InterstitialAdListener(g_AdMob, id);
         ad->m_InterstitialAd->SetListener(ad->m_InterstitialAdListener);
+    }
+    else if( ad->m_Type == ADMOB_TYPE_VIDEO )
+    {
+        ad->m_RewardedVideoListener = new ::RewardedVideoListener(g_AdMob, id);
+        firebase::admob::rewarded_video::SetListener(ad->m_RewardedVideoListener);
     }
 
     QueueCommand(id, ADMOB_MESSAGE_LOADED, future.error(), future.error_message(), 0);
@@ -670,21 +796,24 @@ static void OnCompletionCallback(const firebase::Future<void>& future, void* use
     ::AdMobAd* ad = (AdMobAd*)user_data;
     int id = (int)(uintptr_t)(ad - &g_AdMob->m_Ads[0]);
 
-    dmLogWarning("OnCompletionCallback: %d id: %d  type: %d", __LINE__, id, ad->m_Type);
-
-    //ad->m_Result = future.error();
     if (future.error() == firebase::admob::kAdMobErrorNone)
     {
-dmLogWarning("OnCompletionCallback: %d id: %d  ad: %p  banner: %p  interstitial: %p", __LINE__, id, ad, ad->m_BannerView, ad->m_InterstitialAd);
-
         switch(ad->m_Type)
         {
         case ADMOB_TYPE_BANNER:         ad->m_BannerView->LoadAd(ad->m_AdRequest);
                                         ad->m_BannerView->LoadAdLastResult().OnCompletion(OnLoadedCallback, ad);
                                         return;
 
+        case ADMOB_TYPE_NATIVEEXPRESS:  ad->m_NativeExpressAdView->LoadAd(ad->m_AdRequest);
+                                        ad->m_NativeExpressAdView->LoadAdLastResult().OnCompletion(OnLoadedCallback, ad);
+                                        return;
+
         case ADMOB_TYPE_INTERSTITIAL:   ad->m_InterstitialAd->LoadAd(ad->m_AdRequest);
                                         ad->m_InterstitialAd->LoadAdLastResult().OnCompletion(OnLoadedCallback, ad);
+                                        return;
+
+        case ADMOB_TYPE_VIDEO:          firebase::admob::rewarded_video::LoadAd(ad->m_AdUnit, ad->m_AdRequest);
+                                        firebase::admob::rewarded_video::LoadAdLastResult().OnCompletion(OnLoadedCallback, ad);
                                         return;
         default:
             break;
@@ -735,7 +864,10 @@ static int Load(lua_State* L)
     DM_LUA_STACK_CHECK(L, 1);
 
     int ad_type = luaL_checkint(L, 1);
-    if( !(ad_type == ADMOB_TYPE_BANNER || ad_type == ADMOB_TYPE_INTERSTITIAL) ) {
+    if( !(  ad_type == ADMOB_TYPE_BANNER ||
+            ad_type == ADMOB_TYPE_INTERSTITIAL ||
+            ad_type == ADMOB_TYPE_VIDEO ||
+            ad_type == ADMOB_TYPE_NATIVEEXPRESS ) ) {
         return luaL_error(L, "Unexpected ad type: %d", ad_type);
     }
 
@@ -749,22 +881,35 @@ static int Load(lua_State* L)
     RegisterCallback(L, 4, &ad->m_Callback);
 
     ad->m_Type = (::AdMobAdType)ad_type;
-    if( ad_type == ADMOB_TYPE_BANNER )
+    if( ad_type == ADMOB_TYPE_BANNER || ad_type == ADMOB_TYPE_NATIVEEXPRESS )
     {
         firebase::admob::AdSize ad_size;
         ad_size.ad_size_type = firebase::admob::kAdSizeStandard;
         ad_size.width = CheckTableNumber(L, 3, "width", 320);
         ad_size.height = CheckTableNumber(L, 3, "height", 100);
 
-        ad->m_BannerView = new firebase::admob::BannerView();
-        ad->m_BannerView->Initialize(GetAdParent(), ad->m_AdUnit, ad_size);
-        ad->m_BannerView->InitializeLastResult().OnCompletion(OnCompletionCallback, ad);
+        if(ad_type == ADMOB_TYPE_BANNER)
+        {
+            ad->m_BannerView = new firebase::admob::BannerView();
+            ad->m_BannerView->Initialize(GetAdParent(), ad->m_AdUnit, ad_size);
+            ad->m_BannerView->InitializeLastResult().OnCompletion(OnCompletionCallback, ad);
+        }
+        else
+        {
+            ad->m_NativeExpressAdView = new firebase::admob::NativeExpressAdView();
+            ad->m_NativeExpressAdView->Initialize(GetAdParent(), ad->m_AdUnit, ad_size);
+            ad->m_NativeExpressAdView->InitializeLastResult().OnCompletion(OnCompletionCallback, ad);
+        }
     }
     else if( ad_type == ADMOB_TYPE_INTERSTITIAL )
     {
         ad->m_InterstitialAd = new firebase::admob::InterstitialAd();
         ad->m_InterstitialAd->Initialize(GetAdParent(), ad->m_AdUnit);
         ad->m_InterstitialAd->InitializeLastResult().OnCompletion(OnCompletionCallback, ad);
+    }
+    else if( ad_type == ADMOB_TYPE_VIDEO )
+    {
+        firebase::admob::rewarded_video::InitializeLastResult().OnCompletion(OnCompletionCallback, ad);
     }
 
     lua_pushnumber(L, id);
@@ -779,7 +924,10 @@ static int Show(lua_State* L)
     if( !IsIdValid(id) )
         return luaL_error(L, "Invalid id: %d", id);
 
-    g_AdMob->m_Ads[id].Show();
+    if(g_AdMob->m_Ads[id].m_Type == ADMOB_TYPE_VIDEO)
+        firebase::admob::rewarded_video::Show(GetAdParent());
+    else
+        g_AdMob->m_Ads[id].Show();
     return 0;
 }
 
@@ -804,26 +952,32 @@ static int MoveTo(lua_State* L)
 
     ::AdMobAd* ad = &g_AdMob->m_Ads[id];
 
-    if(ad->m_Type != ADMOB_TYPE_BANNER)
-        return luaL_error(L, "move_to is only supported by banner ads (id: %d  type: %d)", id, ad->m_Type);
+    if(!( ad->m_Type == ADMOB_TYPE_BANNER || ad->m_Type == ADMOB_TYPE_NATIVEEXPRESS) )
+        return luaL_error(L, "move_to is only supported by banner ads and native express ads (id: %d  type: %d)", id, ad->m_Type);
     
     if(ad->m_Initialized == 0)
         return luaL_error(L, "move_to can only be called after initialization is done (id: %d  type: %d)", id, ad->m_Type);
 
+    assert( (int)firebase::admob::BannerView::kPositionTop == (int)firebase::admob::NativeExpressAdView::kPositionTop );
+    assert( (int)firebase::admob::BannerView::kPositionBottom == (int)firebase::admob::NativeExpressAdView::kPositionBottom );
+    assert( (int)firebase::admob::BannerView::kPositionTopLeft == (int)firebase::admob::NativeExpressAdView::kPositionTopLeft );
+    assert( (int)firebase::admob::BannerView::kPositionTopRight == (int)firebase::admob::NativeExpressAdView::kPositionTopRight );
+    assert( (int)firebase::admob::BannerView::kPositionBottomLeft == (int)firebase::admob::NativeExpressAdView::kPositionBottomLeft );
+    assert( (int)firebase::admob::BannerView::kPositionBottomRight == (int)firebase::admob::NativeExpressAdView::kPositionBottomRight );
+
     if(lua_gettop(L) == 1)
     {
         int _pos = luaL_checkint(L, 1);
-        if( _pos < firebase::admob::BannerView::kPositionTop || _pos > firebase::admob::BannerView::kPositionBottomRight )
+        if( _pos < ADMOB_POSITION_TOP || _pos > ADMOB_POSITION_BOTTOMRIGHT )
             return luaL_error(L, "Invalid position: %d", _pos);
 
-        firebase::admob::BannerView::Position pos = (firebase::admob::BannerView::Position)_pos;
-        ad->m_BannerView->MoveTo(pos);
+        ad->MoveTo( (AdMobPosition)_pos );
     }
     else
     {
         int x = luaL_checkint(L, 2);
         int y = luaL_checkint(L, 3);
-        ad->m_BannerView->MoveTo(x, y);
+        ad->MoveTo(x, y);
     }
 
     return 0;
@@ -873,6 +1027,7 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(TYPE_BANNER);
     SETCONSTANT(TYPE_INTERSTITIAL);
     SETCONSTANT(TYPE_VIDEO);
+    SETCONSTANT(TYPE_NATIVEEXPRESS);
 
     SETCONSTANT(CHILDDIRECTED_TREATMENT_STATE_NOT_TAGGED);
     SETCONSTANT(CHILDDIRECTED_TREATMENT_STATE_TAGGED);
@@ -893,6 +1048,7 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(MESSAGE_FAILED_TO_LOAD);
     SETCONSTANT(MESSAGE_SHOW);
     SETCONSTANT(MESSAGE_HIDE);
+    SETCONSTANT(MESSAGE_REWARD);
     SETCONSTANT(MESSAGE_APP_LEAVE);
     SETCONSTANT(MESSAGE_UNLOADED);
 
@@ -924,14 +1080,14 @@ static dmExtension::Result AppInitializeExtension(dmExtension::AppParams* params
     }
 
 #if defined(__ANDROID__)
-    firebase::App* app = ::firebase::App::Create(::firebase::AppOptions(), GetJNIEnv(), dmGraphics::GetNativeAndroidActivity());
+    firebase::App* app = firebase::App::Create(firebase::AppOptions(), GetJNIEnv(), dmGraphics::GetNativeAndroidActivity());
 #else
-    firebase::App* app = ::firebase::App::Create(::firebase::AppOptions());
+    firebase::App* app = firebase::App::Create(firebase::AppOptions());
 #endif
 
     if(!app)
     {
-        dmLogError("::firebase::App::Create failed");
+        dmLogError("firebase::App::Create failed");
         return dmExtension::RESULT_OK;
     }
 
@@ -942,6 +1098,8 @@ static dmExtension::Result AppInitializeExtension(dmExtension::AppParams* params
         dmLogError("Could not initialize AdMob, result: %d", res);
         return dmExtension::RESULT_OK;
     }
+
+    firebase::admob::rewarded_video::Initialize();
 
     g_AdMob = new ::AdMobState;
     g_AdMob->m_App = app;
@@ -972,8 +1130,8 @@ static dmExtension::Result AppFinalizeExtension(dmExtension::AppParams* params)
 
     if(g_AdMob->m_App)
     {
+        firebase::admob::rewarded_video::Destroy();
         firebase::admob::Terminate();
-        //firebase::admob::rewarded_video::Destroy();
         delete g_AdMob->m_App;
     }
 
@@ -990,7 +1148,18 @@ static dmExtension::Result FinalizeExtension(dmExtension::Params* params)
 static dmExtension::Result UpdateExtension(dmExtension::Params* params)
 {
     if( g_AdMob )
+    {
         FlushCommandQueue();
+
+        for(uint32_t i = 0; i < ADMOB_MAX_ADS; ++i)
+        {
+            ::AdMobAd* ad = &g_AdMob->m_Ads[i];
+            if( ad->m_DelayedDelete )
+            {
+                ad->Clear();
+            }
+        }
+    }
     return dmExtension::RESULT_OK;
 }
 
@@ -998,6 +1167,7 @@ static void OnEventExtension(dmExtension::Params* params, const dmExtension::Eve
 {
     if( !g_AdMob )
         return;
+
     if( event->m_Event == dmExtension::EVENT_ID_ACTIVATEAPP )
     {
         g_AdMob->m_CoveringUIAd = -1;
@@ -1005,12 +1175,13 @@ static void OnEventExtension(dmExtension::Params* params, const dmExtension::Eve
         {
             g_AdMob->m_Ads[i].Resume();
         }
+
+        firebase::admob::rewarded_video::Resume();
     }
     else if(event->m_Event == dmExtension::EVENT_ID_DEACTIVATEAPP)
     {
         if( g_AdMob->m_CoveringUIAd != -1 )
         {
-            //QueueCommand(g_AdMob->m_CoveringUIAd, ADMOB_MESSAGE_APP_LEAVE, 0, "");
             FlushCommandQueue();
         }
 
@@ -1018,6 +1189,8 @@ static void OnEventExtension(dmExtension::Params* params, const dmExtension::Eve
         {
             g_AdMob->m_Ads[i].Pause();
         }
+
+        firebase::admob::rewarded_video::Pause();
     }
 }
 

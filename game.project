@@ -31,9 +31,8 @@ manifest = /admob/AndroidManifest.xml
 bundle_identifier = com.defold.adtest
 
 [admob]
-_app_id = ca-app-pub-9240950311969112~9073338586
-app_id_android = ca-app-pub-3940256099942544~3347511713
 app_id_ios = ca-app-pub-3940256099942544~1458002511
+app_id_android = ca-app-pub-3940256099942544~3347511713
 
 [native_extension]
 app_manifest = game.appmanifest

@@ -1,14 +1,24 @@
 local dirtylarry = require "dirtylarry/dirtylarry"
 
-local admob_messages = { "MESSAGE_LOADED", "MESSAGE_FAILED_TO_LOAD", "MESSAGE_SHOW", "MESSAGE_HIDE", "MESSAGE_APP_LEAVE", "MESSAGE_UNLOADED" }
+local admob_messages = { "MESSAGE_LOADED", "MESSAGE_FAILED_TO_LOAD", "MESSAGE_SHOW", "MESSAGE_HIDE", "MESSAGE_REWARD", "MESSAGE_APP_LEAVE", "MESSAGE_UNLOADED" }
 
 
 local function callback(self, id, info)
-    print("CALLBACK ad id:", id)
+    print("CALLBACK ad id:", id, admob_messages[info.message+1])
     --pprint(info)
-    local status = string.format("Message: %s (%d)\nfirebase: %d '%s'", admob_messages[info.message+1], info.message, info.result, info.result_string)
-    gui.set_text(gui.get_node("status"), status)
-    print(status)
+
+    if info.message == admob.MESSAGE_FAILED_TO_LOAD then
+        self.id = nil
+        local status = string.format("%s (%d): %s (%d)7n  %s", admob_messages[info.message+1], info.message, info.result_string, info.result, info.ad_unit)
+	    self.log = status .. '\n' .. self.log
+    elseif info.message == admob.MESSAGE_REWARD then
+        local status = string.format("%s (%d)\n    Reward: %f %s", admob_messages[info.message+1], info.message, info.reward, info.reward_type)
+        self.log = status .. '\n' .. self.log
+    else
+        self.log = '' .. admob_messages[info.message+1] .. '\n' .. self.log
+    end
+    
+    gui.set_text(gui.get_node("status"), self.log)
 end
 
 function init(self)
@@ -18,13 +28,15 @@ function init(self)
     self.testdevices = {
         "199e2e182e2f89a2c22a47e03e048772",
         "ea71229c04c0e221e30a2be8a076f1aa",
-        "d6fafe1dc659201e741c1dfdf00223fc", -- DVS-1190,
-        "8497A7462C631CD09AA9DDD6C1D23B0F", -- DVS-1004,
+        "94314a156642dca3c2e9b09eafc61032", -- DVS-538
+        "d6fafe1dc659201e741c1dfdf00223fc", -- DVS-1190
+        "8497A7462C631CD09AA9DDD6C1D23B0F", -- DVS-1004
         "ED455496C7B5BC4ADF3137A45385199B", -- Nexus 6P, Android 7.0
     }
     
     self.keywords = {"development", "games", "fun"}
     
+    self.log = ''
     self.id = nil
     self.showing = false
     
@@ -39,7 +51,7 @@ function init(self)
         self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111"
         self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712"
         self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/1072772517"
-        self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917"
+        self.rewardedvideo_ad_unit = "ca-app-pub-9240950311969112/1145783382" -- "ca-app-pub-3940256099942544/5224354917"
     end
     
 end
@@ -53,13 +65,21 @@ function on_input(self, action_id, action)
 
     self.ad_type = dirtylarry:radio("ad_type_banner", action_id, action, "banner", self.ad_type)
     self.ad_type = dirtylarry:radio("ad_type_interstitial", action_id, action, "interstitial", self.ad_type)
+    self.ad_type = dirtylarry:radio("ad_type_nativeexpress", action_id, action, "nativeexpress", self.ad_type)
+    if self.rewardedvideo_ad_unit ~= nil then
+        self.ad_type = dirtylarry:radio("ad_type_video", action_id, action, "video", self.ad_type)
+    end
 
     dirtylarry:button("load_ad", action_id, action, function ()
         if self.id == nil then
 	        if self.ad_type == "banner" then
 	            self.id = admob.load(admob.TYPE_BANNER, self.banner_ad_unit, { width = 320, height = 50, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback )
-	        else
+	        elseif self.ad_type == "interstitial" then
                 self.id = admob.load(admob.TYPE_INTERSTITIAL, self.interstitial_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
+            elseif self.ad_type == "video" then
+                self.id = admob.load(admob.TYPE_VIDEO, self.rewardedvideo_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
+            elseif self.ad_type == "nativeexpress" then
+                self.id = admob.load(admob.TYPE_NATIVEEXPRESS, self.banner_ad_unit, { width = 320, height = 220, testdevices = self.testdevices, keywords = self.keywords }, callback )
 	        end
 	    end
     end)
@@ -89,7 +109,7 @@ function on_input(self, action_id, action)
 
 
     dirtylarry:button("move_ad", action_id, action, function ()
-        if self.ad_type == "banner" and self.id ~= nil and self.showing then
+        if (self.ad_type == "banner" or self.ad_type == "nativeexpress") and self.id ~= nil and self.showing then
             admob.move_to(self.id, action.screen_x, action.screen_y)
         end
     end)
