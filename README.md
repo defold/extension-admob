@@ -2,21 +2,21 @@
 
 This is a native extension for the [www.defold.com](Defold) engine.
 
-It allows you to add ads to your game on both iOS and Android
+It allows you to add ads to your game on both iOS and Android.
+It currently features Banners, Interstitial, Native Express and Rewarded Video ads.
 
-
-# This is an example
+# DISCLAIMER: This is an example
 
 Although we want to make this example usable for the users, we cannot guarantee that
 we have the time to polish this example or even add bugfixes.
 
 You should see this example as just that, an example.
 
-# Notes
+# More
 
-* Currently, the deletion of banners and native express ads is fairly unusable on iOS
-	- They crash when unloaded
+You can read more details in the extension [README](./admob/README.md)
 
+# Example app
 
-# Setup
-
+<img src="https://github.com/defold/extension-admob/blob/master/main/images/android-interstitial.png" width="250" />
+<img src="https://github.com/defold/extension-admob/blob/master/main/images/android-banner.png" width="250" />

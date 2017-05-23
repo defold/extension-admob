@@ -567,8 +567,6 @@ static void OnCompletionCallback(const firebase::Future<void>& future, void* use
 {
     ::AdMobAd* ad = (AdMobAd*)user_data;
 
-    printf("MAWE: ad type: %d  unit: %s\n", ad->m_Type, ad->m_AdUnit);
-
     if (future.error() != firebase::admob::kAdMobErrorNone)
     {
         QueueCommand(ad->m_Type, AdMobExtension::ADMOB_MESSAGE_FAILED_TO_LOAD, future.error(), future.error_message(), DeleteCommandCallback);

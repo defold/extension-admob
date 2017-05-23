@@ -66,14 +66,16 @@ function init(self)
     self.keywords = {"development", "games", "fun"}
     
     if sys.get_sys_info().system_name == 'iPhone OS' then
+        -- https://developers.google.com/admob/ios/test-ads
         self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716"
         self.interstitial_ad_unit = "ca-app-pub-3940256099942544/4411468910"
-        self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/2562852117"
+        self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/4270592515"
         self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/1712485313"
     else
+        -- From https://developers.google.com/admob/android/test-ads
         self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111"
         self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712"
-        self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/1072772517"
+        self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/2793859312"
         self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917"
     end
     
@@ -92,6 +94,13 @@ function init(self)
     -- helper utils
     self.log = ''
     self.time = 0.0
+    
+    -- Print the LUA API
+    print("AdMob LUA API:")
+    for key,value in pairs(admob) do
+	    print("admob." .. key);
+	end
+    print("")
 end
 
 function update(self, dt)
