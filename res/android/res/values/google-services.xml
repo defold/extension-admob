@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-  <string name="firebase_database_url" translatable="false">https://adtestandroid-f81f7.firebaseio.com</string>
-  <string name="gcm_defaultSenderId" translatable="false">994795905568</string>
-  <string name="google_api_key" translatable="false">AIzaSyDFVGx8Mmp5qcP8g3XKQPg0J-FSViJKYew</string>
-  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyDFVGx8Mmp5qcP8g3XKQPg0J-FSViJKYew</string>
-  <string name="google_app_id" translatable="false">1:994795905568:android:538a35156490bac8</string>
-</resources>
