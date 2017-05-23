@@ -16,7 +16,7 @@ You should see this example as just that, an example.
 
 ## How do I use this extension?
 
-Add the package link (https://github.com/defold/extension-admob/archive/master.zip) to the project setting project.dependencies, and you should be good to go.
+Add the package link (https://github.com/defold/extension-admob/archive/v1.0.zip or the version you want) to the project setting project.dependencies, and you should be good to go.
 
 See the [manual](http://www.defold.com/manuals/libraries/) for further info.
 
