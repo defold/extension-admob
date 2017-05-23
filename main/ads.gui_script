@@ -1,30 +1,59 @@
 local dirtylarry = require "dirtylarry/dirtylarry"
 
+local admob_types = { "BANNER", "INTERSTITIAL", "REWARDED VIDEO", "NATIVE EXPRESS" }
 local admob_messages = { "MESSAGE_LOADED", "MESSAGE_FAILED_TO_LOAD", "MESSAGE_SHOW", "MESSAGE_HIDE", "MESSAGE_REWARD", "MESSAGE_APP_LEAVE", "MESSAGE_UNLOADED" }
 
 
-local function callback(self, id, info)
-    print("CALLBACK ad id:", id, admob_messages[info.message+1])
-    --pprint(info)
+local function update_buttons(self)
+    local banner_type = self.ad_type == admob.TYPE_BANNER or self.ad_type == admob.TYPE_NATIVEEXPRESS
+    local loaded = self.states[self.ad_type] ~= admob.MESSAGE_UNLOADED
+    
+    gui.set_enabled(gui.get_node("load_ad/larrybutton"), not loaded or self.states[self.ad_type] == admob.MESSAGE_UNLOADED) 
+    if banner_type then
+        gui.set_enabled(gui.get_node("hide_ad/larrybutton"), loaded)
+        gui.set_enabled(gui.get_node("move_ad/larrybutton"), loaded)
+    else
+        gui.set_enabled(gui.get_node("hide_ad/larrybutton"), false)
+        gui.set_enabled(gui.get_node("move_ad/larrybutton"), false)
+    end
+    
+    if self.ad_type == admob.TYPE_INTERSTITIAL or self.ad_type == admob.TYPE_REWARDEDVIDEO then
+        -- the interstitial/rewarded video can only be shown once
+        gui.set_enabled(gui.get_node("show_ad/larrybutton"), self.states[self.ad_type] == admob.MESSAGE_LOADED)
+    else
+        gui.set_enabled(gui.get_node("show_ad/larrybutton"), loaded)
+    end
+    gui.set_enabled(gui.get_node("unload_ad/larrybutton"), loaded)
+end
 
+
+local function callback(self, info)
+    print("CALLBACK ad", admob_types[info.type+1], admob_messages[info.message+1])
+
+    if info.message == admob.MESSAGE_LOADED or info.message == admob.MESSAGE_UNLOADED or info.message == admob.MESSAGE_HIDE or info.message == admob.MESSAGE_SHOW then
+        self.states[info.type] = info.message
+        update_buttons(self)
+    end
+        
     if info.message == admob.MESSAGE_FAILED_TO_LOAD then
-        self.id = nil
-        local status = string.format("%s (%d): %s (%d)7n  %s", admob_messages[info.message+1], info.message, info.result_string, info.result, info.ad_unit)
+        self.states[info.type] = admob.MESSAGE_UNLOADED
+        local status = string.format("%s %s (%d): %s (%d)\n  %s", admob_types[info.type+1], admob_messages[info.message+1], info.message, info.result_string, info.result, info.ad_unit)
 	    self.log = status .. '\n' .. self.log
     elseif info.message == admob.MESSAGE_REWARD then
-        local status = string.format("%s (%d)\n    Reward: %f %s", admob_messages[info.message+1], info.message, info.reward, info.reward_type)
+        local status = string.format("%s %s (%d)\n    Reward: %f %s", admob_types[info.type+1], admob_messages[info.message+1], info.message, info.reward, info.reward_type)
         self.log = status .. '\n' .. self.log
     else
-        self.log = '' .. admob_messages[info.message+1] .. '\n' .. self.log
+        self.log = '' .. admob_types[info.type+1] .. " " .. admob_messages[info.message+1] .. '\n' .. self.log
     end
     
     gui.set_text(gui.get_node("status"), self.log)
 end
 
+
 function init(self)
     msg.post(".", "acquire_input_focus")
-    self.ad_type = "banner"
     
+    -- the test devices that we can run on (see your debug log for these)
     self.testdevices = {
         "199e2e182e2f89a2c22a47e03e048772",
         "ea71229c04c0e221e30a2be8a076f1aa",
@@ -36,12 +65,6 @@ function init(self)
     
     self.keywords = {"development", "games", "fun"}
     
-    self.log = ''
-    self.id = nil
-    self.showing = false
-    
-    self.time = 0.0
-    
     if sys.get_sys_info().system_name == 'iPhone OS' then
         self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716"
         self.interstitial_ad_unit = "ca-app-pub-3940256099942544/4411468910"
@@ -51,9 +74,24 @@ function init(self)
         self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111"
         self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712"
         self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/1072772517"
-        self.rewardedvideo_ad_unit = "ca-app-pub-9240950311969112/1145783382" -- "ca-app-pub-3940256099942544/5224354917"
+        self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917"
     end
     
+    
+    -- some state handling for our radio buttons/ads
+    self.ad_type = admob.TYPE_INTERSTITIAL
+    
+    self.states = {}
+    self.states[admob.TYPE_BANNER]          = admob.MESSAGE_UNLOADED
+    self.states[admob.TYPE_NATIVEEXPRESS]   = admob.MESSAGE_UNLOADED
+    self.states[admob.TYPE_INTERSTITIAL]    = admob.MESSAGE_UNLOADED
+    self.states[admob.TYPE_REWARDEDVIDEO]   = admob.MESSAGE_UNLOADED
+    
+    update_buttons(self)
+    
+    -- helper utils
+    self.log = ''
+    self.time = 0.0
 end
 
 function update(self, dt)
@@ -63,54 +101,74 @@ end
 
 function on_input(self, action_id, action)
 
-    self.ad_type = dirtylarry:radio("ad_type_banner", action_id, action, "banner", self.ad_type)
-    self.ad_type = dirtylarry:radio("ad_type_interstitial", action_id, action, "interstitial", self.ad_type)
-    self.ad_type = dirtylarry:radio("ad_type_nativeexpress", action_id, action, "nativeexpress", self.ad_type)
+    local prev_type = self.ad_type
+    
+    self.ad_type = dirtylarry:radio("ad_type_banner", action_id, action, admob.TYPE_BANNER, self.ad_type)
+    self.ad_type = dirtylarry:radio("ad_type_interstitial", action_id, action, admob.TYPE_INTERSTITIAL, self.ad_type)
+    self.ad_type = dirtylarry:radio("ad_type_nativeexpress", action_id, action, admob.TYPE_NATIVEEXPRESS, self.ad_type)
     if self.rewardedvideo_ad_unit ~= nil then
-        self.ad_type = dirtylarry:radio("ad_type_video", action_id, action, "video", self.ad_type)
+        self.ad_type = dirtylarry:radio("ad_type_video", action_id, action, admob.TYPE_REWARDEDVIDEO, self.ad_type)
     end
-
+    
+    if prev_type ~= self.ad_type then
+        update_buttons(self)
+    end
+    
     dirtylarry:button("load_ad", action_id, action, function ()
-        if self.id == nil then
-	        if self.ad_type == "banner" then
-	            self.id = admob.load(admob.TYPE_BANNER, self.banner_ad_unit, { width = 320, height = 50, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback )
-	        elseif self.ad_type == "interstitial" then
-                self.id = admob.load(admob.TYPE_INTERSTITIAL, self.interstitial_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
-            elseif self.ad_type == "video" then
-                self.id = admob.load(admob.TYPE_VIDEO, self.rewardedvideo_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
-            elseif self.ad_type == "nativeexpress" then
-                self.id = admob.load(admob.TYPE_NATIVEEXPRESS, self.banner_ad_unit, { width = 320, height = 220, testdevices = self.testdevices, keywords = self.keywords }, callback )
-	        end
-	    end
+        if self.ad_type == admob.TYPE_BANNER then
+            admob.load_banner(self.banner_ad_unit, { width = 320, height = 50, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback )
+        elseif self.ad_type == admob.TYPE_INTERSTITIAL then
+            admob.load_interstitial(self.interstitial_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
+        elseif self.ad_type == admob.TYPE_REWARDEDVIDEO then
+            admob.load_rewardedvideo(self.rewardedvideo_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
+        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
+            admob.load_nativeexpress(self.banner_ad_unit, { width = 320, height = 220, testdevices = self.testdevices, keywords = self.keywords }, callback )
+        end
     end)
 
     dirtylarry:button("show_ad", action_id, action, function ()
-        if self.id ~= nil then
-	        admob.show(self.id)
-	        self.showing = true
-	    end
+        if self.ad_type == admob.TYPE_BANNER then
+            admob.show_banner()
+        elseif self.ad_type == admob.TYPE_INTERSTITIAL then
+            admob.show_interstitial()
+        elseif self.ad_type == admob.TYPE_REWARDEDVIDEO then
+            admob.show_rewardedvideo()
+        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
+            admob.show_nativeexpress()
+        end
     end)
     
     dirtylarry:button("hide_ad", action_id, action, function ()
-        self.showing = false
-        if self.id ~= nil then
-            admob.hide(self.id)
+        if self.ad_type == admob.TYPE_BANNER then
+            admob.hide_banner()
+        elseif self.ad_type == admob.TYPE_INTERSTITIAL then
+            admob.hide_interstitial()
+        elseif self.ad_type == admob.TYPE_REWARDEDVIDEO then
+            admob.hide_rewardedvideo()
+        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
+            admob.hide_nativeexpress()
         end
     end)
     
         
     dirtylarry:button("unload_ad", action_id, action, function ()
-        self.showing = false
-        if self.id ~= nil then
-            admob.unload(self.id)
-            self.id = nil
+        if self.ad_type == admob.TYPE_BANNER then
+            admob.unload_banner()
+        elseif self.ad_type == admob.TYPE_INTERSTITIAL then
+            admob.unload_interstitial()
+        elseif self.ad_type == admob.TYPE_REWARDEDVIDEO then
+            admob.unload_rewardedvideo()
+        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
+            admob.unload_nativeexpress()
         end
     end)
 
 
     dirtylarry:button("move_ad", action_id, action, function ()
-        if (self.ad_type == "banner" or self.ad_type == "nativeexpress") and self.id ~= nil and self.showing then
-            admob.move_to(self.id, action.screen_x, action.screen_y)
+        if self.ad_type == admob.TYPE_BANNER then
+            admob.move_banner(action.screen_x - 50, action.screen_y)
+        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
+            admob.move_nativeexpress(action.screen_x - 50, action.screen_y)
         end
     end)
 

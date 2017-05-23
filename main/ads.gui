@@ -1555,7 +1555,7 @@ nodes {
   }
   type: TYPE_TEXT
   blend_mode: BLEND_MODE_ALPHA
-  text: "Video"
+  text: "Rewarded Video"
   font: "larryfont"
   id: "ad_type_video/larrylabel"
   xanchor: XANCHOR_NONE
