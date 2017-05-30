@@ -39,9 +39,20 @@ Download your GoogleService-Info.plist and google-services.json and put them in 
 
 Change your manifest file accordingly. See the example file ```admob/AndroidManifest.xml```, and look for "Firebase"
 
+
+
 ## game.project API
 
 First, you need to set these options in your game.project
+
+### The AdMob app id's
+
+You add your app id's for each platform like so:
+
+	[admob]
+	app_id_ios = ca-app-pub-1231231231231231~1111111111
+	app_id_android = ca-app-pub-1231231231231231~2222222222
+
 
 ### Android manifest
 
