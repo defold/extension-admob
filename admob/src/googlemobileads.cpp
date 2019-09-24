@@ -497,9 +497,8 @@ static void FlushCommandQueue()
         if( cmd->m_FirebaseMessage )
             free(cmd->m_FirebaseMessage);
         cmd->m_FirebaseMessage = 0;
-
-        g_AdMob->m_CmdQueue.EraseSwap(i--);
     }
+    g_AdMob->m_CmdQueue.SetSize(0);
 }
 
 } // AdMobExtension
