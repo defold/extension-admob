@@ -5,36 +5,33 @@
 #define DLIB_LOG_DOMAIN LIB_NAME
 #include <dmsdk/sdk.h>
 
-#include "admob_jni.h"
-
 #if defined(DM_PLATFORM_IOS) || defined(DM_PLATFORM_ANDROID)
+
+#if defined(DM_PLATFORM_ANDROID)
+#include "admob_android.h"
+#endif //Android
 
 namespace dmAdmob {
 
-struct Admob
-{
-    jobject        m_AdmobJNI;
-};
+static int Lua_Initialize(lua_State* L) {
 
-static Admob       g_admob;
-
-static void InitJNIMethods(JNIEnv* env, jclass cls)
-{
-
+    DM_LUA_STACK_CHECK(L, 0);
+    Initialize();
+    return 0;
 }
 
-static void InitializeJNI()
+static const luaL_reg Module_methods[] =
 {
-    ThreadAttacher attacher;
-    JNIEnv *env = attacher.env;
-    ClassLoader class_loader = ClassLoader(env);
-    jclass cls = class_loader.load("com.defold.admob.AdmobJNI");
+    {"initialize", Lua_Initialize},
+    {0, 0}
+};
 
-    InitJNIMethods(env, cls);
+static void LuaInit(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    luaL_register(L, MODULE_NAME, Module_methods);
 
-    jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;)V");
-
-    g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, dmGraphics::GetNativeAndroidActivity()));
+    lua_pop(L, 1);
 }
 
 static dmExtension::Result AppInitializeAdmob(dmExtension::AppParams* params)
@@ -44,7 +41,10 @@ static dmExtension::Result AppInitializeAdmob(dmExtension::AppParams* params)
 
 static dmExtension::Result InitializeAdmob(dmExtension::Params* params)
 {
+    LuaInit(params->m_L);
+#if defined(DM_PLATFORM_ANDROID)
     InitializeJNI();
+#endif //Android
     return dmExtension::RESULT_OK;
 }
 
@@ -82,4 +82,4 @@ static dmExtension::Result FinalizeAdmob(dmExtension::Params* params)
 
 DM_DECLARE_EXTENSION(EXTENSION_NAME, LIB_NAME, 0, 0, InitializeAdmob, 0, 0, FinalizeAdmob)
 
-#endif
+#endif // IOS/Android

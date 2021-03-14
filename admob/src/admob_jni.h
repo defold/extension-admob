@@ -1,11 +1,7 @@
-#pragma once
-
 #if defined(DM_PLATFORM_ANDROID)
+#include <dmsdk/sdk.h>
 
 namespace dmAdmob {
-
-#include <dmsdk/sdk.h>
-#include <jni.h>
 
 struct ThreadAttacher {
 	JNIEnv *env;
@@ -53,6 +49,6 @@ struct ClassLoader {
 	}
 };
 
-} //namespace dmAdmob
+}//namespace dmAdmob
 
 #endif
