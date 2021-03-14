@@ -5,7 +5,7 @@
 #define DLIB_LOG_DOMAIN LIB_NAME
 #include <dmsdk/sdk.h>
 
-#if defined(DM_PLATFORM_IOS) || defined(DM_PLATFORM_ANDROID)
+#if defined(DM_PLATFORM_ANDROID)//|| defined(DM_PLATFORM_IOS)
 
 #if defined(DM_PLATFORM_ANDROID)
 #include "admob_android.h"
