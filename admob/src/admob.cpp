@@ -5,33 +5,62 @@
 #define DLIB_LOG_DOMAIN LIB_NAME
 #include <dmsdk/sdk.h>
 
+#include "admob_jni.h"
+
 #if defined(DM_PLATFORM_IOS) || defined(DM_PLATFORM_ANDROID)
 
 namespace dmAdmob {
 
+struct Admob
+{
+    jobject        m_AdmobJNI;
+};
+
+static Admob       g_admob;
+
+static void InitJNIMethods(JNIEnv* env, jclass cls)
+{
+
+}
+
+static void InitializeJNI()
+{
+    ThreadAttacher attacher;
+    JNIEnv *env = attacher.env;
+    ClassLoader class_loader = ClassLoader(env);
+    jclass cls = class_loader.load("com.defold.admob.AdmobJNI");
+
+    InitJNIMethods(env, cls);
+
+    jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;)V");
+
+    g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, dmGraphics::GetNativeAndroidActivity()));
+}
+
 static dmExtension::Result AppInitializeAdmob(dmExtension::AppParams* params)
 {
-  return dmExtension::RESULT_OK;
+    return dmExtension::RESULT_OK;
 }
 
 static dmExtension::Result InitializeAdmob(dmExtension::Params* params)
 {
-  return dmExtension::RESULT_OK;
+    InitializeJNI();
+    return dmExtension::RESULT_OK;
 }
 
 static dmExtension::Result AppFinalizeAdmob(dmExtension::AppParams* params)
 {
-  return dmExtension::RESULT_OK;
+    return dmExtension::RESULT_OK;
 }
 
 static dmExtension::Result FinalizeAdmob(dmExtension::Params* params)
 {
-  return dmExtension::RESULT_OK;
+    return dmExtension::RESULT_OK;
 }
 
 static dmExtension::Result UpdateAdmob(dmExtension::Params* params)
 {
-  return dmExtension::RESULT_OK;
+    return dmExtension::RESULT_OK;
 }
 
 } //namespace dmAdmob
