@@ -1,4 +1,0 @@
-platforms:
-    armv7-android:
-        context:
-            excludeJars: ["(.*)/google-play-services.jar", "(.*)/android-support-v4.jar"]

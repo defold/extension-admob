@@ -1,18 +1,1 @@
-name: "AdMob"
-
-platforms:
-    arm64-ios:
-        context:
-            frameworks: ["CoreGraphics", "CFNetwork", "GLKit", "CoreMotion", "MessageUI", "MediaPlayer", "StoreKit", "MobileCoreServices", "AdSupport", "AudioToolbox", "AVFoundation", "CoreGraphics", "CoreMedia", "CoreMotion", "CoreTelephony", "CoreVideo", "Foundation", "GLKit", "MediaPlayer", "MessageUI", "MobileCoreServices", "OpenGLES", "StoreKit", "SystemConfiguration", "UIKit"]
-            weakFrameworks: ["JavaScriptCore", "WebKit", "SafariServices"]
-            flags:      ["-stdlib=libc++"]
-            linkFlags:  ["-ObjC"]
-            libs:       ["z", "c++", "sqlite3"]
-
-    armv7-ios:
-        context:
-            frameworks: ["CoreGraphics", "CFNetwork", "GLKit", "CoreMotion", "MessageUI", "MediaPlayer", "StoreKit", "MobileCoreServices", "AdSupport", "AudioToolbox", "AVFoundation", "CoreGraphics", "CoreMedia", "CoreMotion", "CoreTelephony", "CoreVideo", "Foundation", "GLKit", "MediaPlayer", "MessageUI", "MobileCoreServices", "OpenGLES", "StoreKit", "SystemConfiguration", "UIKit"]
-            weakFrameworks: ["JavaScriptCore", "WebKit", "SafariServices"]
-            flags:      ["-stdlib=libc++"]
-            linkFlags:  ["-ObjC"]
-            libs:       ["z", "c++", "sqlite3"]
+name: "AdMobExt"

@@ -1,6 +1,6 @@
 [project]
 title = AdMob
-version = 0.1
+version = 1.0
 dependencies = https://github.com/andsve/dirtylarry/archive/master.zip
 bundle_resources = /res
 
@@ -25,7 +25,7 @@ bundle_identifier = com.defold.adtest
 
 [android]
 package = com.defold.adtest
-manifest = /admob/AndroidManifest.xml
+manifest = /builtins/manifests/android/AndroidManifest.xml
 
 [osx]
 bundle_identifier = com.defold.adtest
@@ -38,6 +38,5 @@ app_id_ios = ca-app-pub-3940256099942544~1458002511
 app_id_android = ca-app-pub-3940256099942544~3347511713
 
 [native_extension]
-app_manifest = game.appmanifest
-
+app_manifest = /generated.appmanifest
 
