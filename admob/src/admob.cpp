@@ -7,9 +7,7 @@
 
 #if defined(DM_PLATFORM_ANDROID)//|| defined(DM_PLATFORM_IOS)
 
-#if defined(DM_PLATFORM_ANDROID)
-#include "admob_android.h"
-#endif //Android
+#include "private_admob.h"
 
 namespace dmAdmob {
 
@@ -42,9 +40,7 @@ static dmExtension::Result AppInitializeAdmob(dmExtension::AppParams* params)
 static dmExtension::Result InitializeAdmob(dmExtension::Params* params)
 {
     LuaInit(params->m_L);
-#if defined(DM_PLATFORM_ANDROID)
-    InitializeJNI();
-#endif //Android
+    Initialize_Ext();
     return dmExtension::RESULT_OK;
 }
 

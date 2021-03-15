@@ -3,7 +3,7 @@
 #include <jni.h>
 
 #include "admob_jni.h"
-#include "admob_android.h"
+#include "private_admob.h"
 
 namespace dmAdmob {
 
@@ -30,7 +30,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     
 }
 
-void InitializeJNI()
+void Initialize_Ext()
 {
     ThreadAttacher attacher;
     JNIEnv *env = attacher.env;
