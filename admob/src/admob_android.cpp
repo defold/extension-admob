@@ -4,6 +4,15 @@
 
 #include "admob_jni.h"
 #include "private_admob.h"
+#include "com_defold_admob_AdmobJNI.h"
+#include "private_admob_callback.h"
+
+JNIEXPORT void JNICALL Java_com_defold_admob_AdmobJNI_admobAddToQueue(JNIEnv * env, jclass cls, jint jmsg, jstring jjson)
+{
+    const char* json = env->GetStringUTFChars(jjson, 0);
+    dmAdmob::AddToQueueCallback((dmAdmob::MESSAGE_ID)jmsg, json);
+    env->ReleaseStringUTFChars(jjson, json);
+}
 
 namespace dmAdmob {
 

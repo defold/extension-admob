@@ -38,7 +38,7 @@ local function callback(self, info)
     if info.message == admob.MESSAGE_FAILED_TO_LOAD then
         self.states[info.type] = admob.MESSAGE_UNLOADED
         local status = string.format("%s %s (%d): %s (%d)\n  %s", admob_types[info.type+1], admob_messages[info.message+1], info.message, info.result_string, info.result, info.ad_unit)
-	    self.log = status .. '\n' .. self.log
+        self.log = status .. '\n' .. self.log
     elseif info.message == admob.MESSAGE_REWARD then
         local status = string.format("%s %s (%d)\n    Reward: %f %s", admob_types[info.type+1], admob_messages[info.message+1], info.message, info.reward, info.reward_type)
         self.log = status .. '\n' .. self.log
@@ -49,6 +49,9 @@ local function callback(self, info)
     gui.set_text(gui.get_node("status"), self.log)
 end
 
+local function admob_callback(self, message_id, message)
+    pprint(message_id, message)
+end
 
 function init(self)
     msg.post(".", "acquire_input_focus")
@@ -101,6 +104,10 @@ function init(self)
     --     print("admob." .. key);
     -- end
     -- print("")
+
+    if admob then
+        admob.set_callback(admob_callback)
+    end
 end
 
 function update(self, dt)

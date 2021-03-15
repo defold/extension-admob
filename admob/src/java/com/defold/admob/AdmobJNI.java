@@ -8,6 +8,8 @@ import com.google.android.gms.ads.initialization.OnInitializationCompleteListene
 
 public class AdmobJNI {
 
+    public static native void admobAddToQueue(int msg, String json);
+
     private Activity activity;
 
     public AdmobJNI(Activity activity) {
@@ -18,6 +20,7 @@ public class AdmobJNI {
         MobileAds.initialize(activity, new OnInitializationCompleteListener() {
             @Override
             public void onInitializationComplete(InitializationStatus initializationStatus) {
+                admobAddToQueue(1, "{\"error\":\"Error while converting simple message to JSON\"}");
             }
         });
     }
