@@ -161,7 +161,7 @@ public class AdmobJNI {
       activity.runOnUiThread(new Runnable() {
           @Override
           public void run() {
-              if (mInterstitialAd != null) {
+              if (isInterstitialLoaded()) {
                 mInterstitialAd.show(activity);
               } else {
                 // Log.d(TAG, "The interstitial ad wasn't ready yet.");
@@ -169,6 +169,10 @@ public class AdmobJNI {
               }
           }
       });
+  }
+
+  public boolean isInterstitialLoaded() {
+    return mInterstitialAd != null;
   }
 
 //--------------------------------------------------
@@ -235,7 +239,7 @@ public class AdmobJNI {
       activity.runOnUiThread(new Runnable() {
           @Override
           public void run() {
-            if (mRewardedAd != null) {
+            if (isRewardedLoaded()) {
               mRewardedAd.show(activity, new OnUserEarnedRewardListener() {
                 @Override
                 public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
@@ -252,6 +256,10 @@ public class AdmobJNI {
             }
           }
       });
+  }
+
+  public boolean isRewardedLoaded() {
+    return mRewardedAd != null;
   }
 
 }

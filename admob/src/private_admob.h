@@ -10,4 +10,7 @@ void ShowInterstitial();
 void LoadRewarded(const char* placementId);
 void ShowRewarded();
 
+bool IsInterstitialLoaded();
+bool IsRewardedLoaded();
+
 } //namespace dmAdmob

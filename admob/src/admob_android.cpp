@@ -25,6 +25,8 @@ struct Admob
     jmethodID      m_ShowInterstitial;
     jmethodID      m_LoadRewarded;
     jmethodID      m_ShowRewarded;
+    jmethodID      m_IsRewardedLoaded;
+    jmethodID      m_IsInterstitialLoaded;
 };
 
 static Admob       g_admob;
@@ -35,6 +37,15 @@ static void CallVoidMethod(jobject instance, jmethodID method)
     JNIEnv *env = attacher.env;
 
     env->CallVoidMethod(instance, method);
+}
+
+static bool CallBoolMethod(jobject instance, jmethodID method)
+{
+    ThreadAttacher attacher;
+    JNIEnv *env = attacher.env;
+
+    jboolean return_value = (jboolean)env->CallBooleanMethod(instance, method);
+    return JNI_TRUE == return_value;
 }
 
 static void CallVoidMethodChar(jobject instance, jmethodID method, const char* cstr)
@@ -54,7 +65,9 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_ShowInterstitial = env->GetMethodID(cls, "showInterstitial", "()V");
     g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;)V");
     g_admob.m_ShowRewarded = env->GetMethodID(cls, "showRewarded", "()V");
-    
+
+    g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
+    g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
 }
 
 void Initialize_Ext()
@@ -86,6 +99,11 @@ void ShowInterstitial()
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowInterstitial);
 }
 
+bool IsInterstitialLoaded()
+{
+    return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsInterstitialLoaded);
+}
+
 void LoadRewarded(const char* placementId)
 {
     CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadRewarded, placementId);
@@ -94,6 +112,11 @@ void LoadRewarded(const char* placementId)
 void ShowRewarded()
 {
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowRewarded);
+}
+
+bool IsRewardedLoaded()
+{
+    return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsRewardedLoaded);
 }
 
 }//namespace dmAdmob

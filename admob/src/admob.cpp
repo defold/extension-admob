@@ -68,6 +68,22 @@ static int Lua_ShowRewarded(lua_State* L)
     return 0;
 }
 
+static int Lua_IsRewardedLoaded(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool is_loaded = IsRewardedLoaded();
+    lua_pushboolean(L, is_loaded);
+    return 1;
+}
+
+static int Lua_IsInterstitialLoaded(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool is_loaded = IsInterstitialLoaded();
+    lua_pushboolean(L, is_loaded);
+    return 1;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"initialize", Lua_Initialize},
@@ -76,6 +92,8 @@ static const luaL_reg Module_methods[] =
     {"show_interstitial", Lua_ShowInterstitial},
     {"load_rewarded", Lua_LoadRewarded},
     {"show_rewarded", Lua_ShowRewarded},
+    {"is_rewarded_loaded", Lua_IsRewardedLoaded},
+    {"is_interstitial_loaded", Lua_IsInterstitialLoaded},
     {0, 0}
 };
 
