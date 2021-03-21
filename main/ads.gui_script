@@ -26,29 +26,6 @@ local function update_buttons(self)
     -- gui.set_enabled(gui.get_node("unload_ad/larrybutton"), loaded)
 end
 
-
-local function callback(self, info)
-    print("CALLBACK ad", admob_types[info.type+1], admob_messages[info.message+1])
-
-    if info.message == admob.MESSAGE_LOADED or info.message == admob.MESSAGE_UNLOADED or info.message == admob.MESSAGE_HIDE or info.message == admob.MESSAGE_SHOW then
-        self.states[info.type] = info.message
-        update_buttons(self)
-    end
-        
-    if info.message == admob.MESSAGE_FAILED_TO_LOAD then
-        self.states[info.type] = admob.MESSAGE_UNLOADED
-        local status = string.format("%s %s (%d): %s (%d)\n  %s", admob_types[info.type+1], admob_messages[info.message+1], info.message, info.result_string, info.result, info.ad_unit)
-        self.log = status .. '\n' .. self.log
-    elseif info.message == admob.MESSAGE_REWARD then
-        local status = string.format("%s %s (%d)\n    Reward: %f %s", admob_types[info.type+1], admob_messages[info.message+1], info.message, info.reward, info.reward_type)
-        self.log = status .. '\n' .. self.log
-    else
-        self.log = '' .. admob_types[info.type+1] .. " " .. admob_messages[info.message+1] .. '\n' .. self.log
-    end
-    
-    gui.set_text(gui.get_node("status"), self.log)
-end
-
 local function admob_callback(self, message_id, message)
     pprint(message_id, message)
     if message_id == admob.MSG_INTERSTITIAL then
@@ -90,16 +67,14 @@ function init(self)
     msg.post(".", "acquire_input_focus")
     
     -- the test devices that we can run on (see your debug log for these)
-    self.testdevices = {
-        "199e2e182e2f89a2c22a47e03e048772",
-        "ea71229c04c0e221e30a2be8a076f1aa",
-        "94314a156642dca3c2e9b09eafc61032", -- DVS-538
-        "d6fafe1dc659201e741c1dfdf00223fc", -- DVS-1190
-        "8497A7462C631CD09AA9DDD6C1D23B0F", -- DVS-1004
-        "ED455496C7B5BC4ADF3137A45385199B", -- Nexus 6P, Android 7.0
-    }
-    
-    self.keywords = {"development", "games", "fun"}
+    -- self.testdevices = {
+    --     "199e2e182e2f89a2c22a47e03e048772",
+    --     "ea71229c04c0e221e30a2be8a076f1aa",
+    --     "94314a156642dca3c2e9b09eafc61032", -- DVS-538
+    --     "d6fafe1dc659201e741c1dfdf00223fc", -- DVS-1190
+    --     "8497A7462C631CD09AA9DDD6C1D23B0F", -- DVS-1004
+    --     "ED455496C7B5BC4ADF3137A45385199B", -- Nexus 6P, Android 7.0
+    -- }
     
     if sys.get_sys_info().system_name == 'iPhone OS' then
         -- https://developers.google.com/admob/ios/test-ads
@@ -143,11 +118,6 @@ function init(self)
     end
 end
 
-function update(self, dt)
---     self.time = self.time + dt
---     gui.set_text(gui.get_node("time"), string.format("%.2f", self.time))
-end
-
 local ADS_INTERSTITIAL = 1
 local ADS_REWARDED = 2
 
@@ -159,9 +129,9 @@ function on_input(self, action_id, action)
         admob.initialize()
     end)
     
-    self.ad_type = dirtylarry:radio("ad_type_banner", action_id, action, 0, self.ad_type)
+    -- self.ad_type = dirtylarry:radio("ad_type_banner", action_id, action, 0, self.ad_type)
     self.ad_type = dirtylarry:radio("ad_type_interstitial", action_id, action, ADS_INTERSTITIAL, self.ad_type)
-    self.ad_type = dirtylarry:radio("ad_type_nativeexpress", action_id, action, 0, self.ad_type)
+    -- self.ad_type = dirtylarry:radio("ad_type_nativeexpress", action_id, action, 0, self.ad_type)
     self.ad_type = dirtylarry:radio("ad_type_rewarded", action_id, action, ADS_REWARDED, self.ad_type)
     
     if prev_type ~= self.ad_type then
@@ -188,28 +158,28 @@ function on_input(self, action_id, action)
         end
     end)
     
-    dirtylarry:button("hide_ad", action_id, action, function ()
-        if self.ad_type == 0 then
-        elseif self.ad_type == ADS_INTERSTITIAL then
-
-        end
-    end)
-    
-        
-    dirtylarry:button("unload_ad", action_id, action, function ()
-        if self.ad_type == 0 then
-        elseif self.ad_type == ADS_INTERSTITIAL then
-
-        end
-    end)
-
-
-    dirtylarry:button("move_ad", action_id, action, function ()
-        if self.ad_type == 0 then
-        elseif self.ad_type == ADS_INTERSTITIAL then
-
-        end
-    end)
+--     dirtylarry:button("hide_ad", action_id, action, function ()
+--         if self.ad_type == 0 then
+--         elseif self.ad_type == ADS_INTERSTITIAL then
+-- 
+--         end
+--     end)
+--     
+--         
+--     dirtylarry:button("unload_ad", action_id, action, function ()
+--         if self.ad_type == 0 then
+--         elseif self.ad_type == ADS_INTERSTITIAL then
+-- 
+--         end
+--     end)
+-- 
+-- 
+--     dirtylarry:button("move_ad", action_id, action, function ()
+--         if self.ad_type == 0 then
+--         elseif self.ad_type == ADS_INTERSTITIAL then
+-- 
+--         end
+--     end)
 
 end
 
