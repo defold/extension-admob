@@ -11,7 +11,9 @@ namespace dmAdmob {
 enum MESSAGE_ID
 {
     MSG_INTERSTITIAL =              1,
-    MSG_REWARDED =                  2
+    MSG_REWARDED =                  2,
+    MSG_BANNER =                    3,
+    MSG_INITIALIZATION =            4,
 };
 
 enum MESSAGE_EVENT
@@ -22,7 +24,8 @@ enum MESSAGE_EVENT
     EVENT_FAILED_TO_LOAD =          4,
     EVENT_LOADED =                  5,
     EVENT_NOT_LOADED =              6,
-    EVENT_EARNED_REWARD =           7
+    EVENT_EARNED_REWARD =           7,
+    EVENT_COMPLETE =                8
 };
 
 struct CallbackData

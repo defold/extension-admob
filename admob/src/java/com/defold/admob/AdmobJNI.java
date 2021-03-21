@@ -33,6 +33,8 @@ public class AdmobJNI {
   // duplicate of enums from private_admob_callback.h:
   private static final int MSG_INTERSTITIAL =       1;
   private static final int MSG_REWARDED =           2;
+  private static final int MSG_BANNER =             3;
+  private static final int MSG_INITIALIZATION =     4;
 
   private static final int EVENT_CLOSED =             1;
   private static final int EVENT_FAILED_TO_SHOW =     2;
@@ -41,6 +43,8 @@ public class AdmobJNI {
   private static final int EVENT_LOADED =             5;
   private static final int EVENT_NOT_LOADED =         6;
   private static final int EVENT_EARNED_REWARD =      7;
+  private static final int EVENT_COMPLETE =           8;
+
 
   private Activity activity;
 
@@ -52,7 +56,7 @@ public class AdmobJNI {
       MobileAds.initialize(activity, new OnInitializationCompleteListener() {
           @Override
           public void onInitializationComplete(InitializationStatus initializationStatus) {
-            // EVENT_COMPLATE , MSG_INITIALIZE
+            sendSimpleMessage(MSG_INITIALIZATION, EVENT_COMPLETE);
           }
       });
   }
