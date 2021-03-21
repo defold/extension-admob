@@ -1347,7 +1347,7 @@ nodes {
     w: 1.0
   }
   type: TYPE_TEMPLATE
-  id: "ad_type_video"
+  id: "ad_type_rewarded"
   layer: ""
   inherit_alpha: true
   alpha: 1.0
@@ -1388,12 +1388,12 @@ nodes {
   type: TYPE_BOX
   blend_mode: BLEND_MODE_ALPHA
   texture: "radio/radio_normal"
-  id: "ad_type_video/larryradio"
+  id: "ad_type_rewarded/larryradio"
   xanchor: XANCHOR_NONE
   yanchor: YANCHOR_NONE
   pivot: PIVOT_CENTER
   adjust_mode: ADJUST_MODE_FIT
-  parent: "ad_type_video"
+  parent: "ad_type_rewarded"
   layer: ""
   inherit_alpha: true
   slice9 {
@@ -1445,7 +1445,7 @@ nodes {
   blend_mode: BLEND_MODE_ALPHA
   text: "Rewarded Video"
   font: "larryfont"
-  id: "ad_type_video/larrylabel"
+  id: "ad_type_rewarded/larrylabel"
   xanchor: XANCHOR_NONE
   yanchor: YANCHOR_NONE
   pivot: PIVOT_W
@@ -1463,7 +1463,7 @@ nodes {
   }
   adjust_mode: ADJUST_MODE_FIT
   line_break: false
-  parent: "ad_type_video"
+  parent: "ad_type_rewarded"
   layer: ""
   inherit_alpha: true
   alpha: 1.0
