@@ -10,5 +10,9 @@ enum MESSAGE_ID
 void Initialize_Ext();
 
 void Initialize();
+void LoadInterstitial(const char* placementId);
+void ShowInterstitial();
+void LoadRewarded(const char* placementId);
+void ShowRewarded();
 
 } //namespace dmAdmob

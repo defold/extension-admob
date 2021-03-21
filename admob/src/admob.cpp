@@ -14,7 +14,6 @@ namespace dmAdmob {
 
 static int Lua_Initialize(lua_State* L)
 {
-
     DM_LUA_STACK_CHECK(L, 0);
     Initialize();
     return 0;
@@ -22,9 +21,50 @@ static int Lua_Initialize(lua_State* L)
 
 static int Lua_SetCallback(lua_State* L)
 {
-
     DM_LUA_STACK_CHECK(L, 0);
     SetLuaCallback(L, 1);
+    return 0;
+}
+
+static int Lua_LoadInterstitial(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (lua_type(L, 1) != LUA_TSTRING) {
+        char msg[256];
+        snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial PlacementId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
+        luaL_error(L, msg);
+        return 0;
+    }
+    const char* placementId_lua = luaL_checkstring(L, 1);
+    LoadInterstitial(placementId_lua);
+    return 0;
+}
+
+static int Lua_ShowInterstitial(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    ShowInterstitial();
+    return 0;
+}
+
+static int Lua_LoadRewarded(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (lua_type(L, 1) != LUA_TSTRING) {
+        char msg[256];
+        snprintf(msg, sizeof(msg), "Wrong type for Rewarded PlacementId variable '%s'. Expected string, got %s", lua_tostring(L, 1), luaL_typename(L, 1) );
+        luaL_error(L, msg);
+        return 0;
+    }
+    const char* placementId_lua = luaL_checkstring(L, 1);
+    LoadRewarded(placementId_lua);
+    return 0;
+}
+
+static int Lua_ShowRewarded(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    ShowRewarded();
     return 0;
 }
 
@@ -32,6 +72,10 @@ static const luaL_reg Module_methods[] =
 {
     {"initialize", Lua_Initialize},
     {"set_callback", Lua_SetCallback},
+    {"load_interstitial", Lua_LoadInterstitial},
+    {"show_interstitial", Lua_ShowInterstitial},
+    {"load_rewarded", Lua_LoadRewarded},
+    {"show_rewarded", Lua_ShowRewarded},
     {0, 0}
 };
 

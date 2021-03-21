@@ -21,11 +21,15 @@ struct Admob
     jobject        m_AdmobJNI;
 
     jmethodID      m_Initialize;
+    jmethodID      m_LoadInterstitial;
+    jmethodID      m_ShowInterstitial;
+    jmethodID      m_LoadRewarded;
+    jmethodID      m_ShowRewarded;
 };
 
 static Admob       g_admob;
 
-static void GenericJNIVoidCall(jobject instance, jmethodID method)
+static void CallVoidMethod(jobject instance, jmethodID method)
 {
     ThreadAttacher attacher;
     JNIEnv *env = attacher.env;
@@ -33,9 +37,23 @@ static void GenericJNIVoidCall(jobject instance, jmethodID method)
     env->CallVoidMethod(instance, method);
 }
 
+static void CallVoidMethodChar(jobject instance, jmethodID method, const char* cstr)
+{
+    ThreadAttacher attacher;
+    JNIEnv *env = attacher.env;
+
+    jstring jstr = env->NewStringUTF(cstr);
+    env->CallVoidMethod(instance, method, jstr);
+    env->DeleteLocalRef(jstr);
+}
+
 static void InitJNIMethods(JNIEnv* env, jclass cls)
 {
     g_admob.m_Initialize = env->GetMethodID(cls, "initialize", "()V");
+    g_admob.m_LoadInterstitial = env->GetMethodID(cls, "loadInterstitial", "(Ljava/lang/String;)V");
+    g_admob.m_ShowInterstitial = env->GetMethodID(cls, "showInterstitial", "()V");
+    g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;)V");
+    g_admob.m_ShowRewarded = env->GetMethodID(cls, "showRewarded", "()V");
     
 }
 
@@ -55,7 +73,27 @@ void Initialize_Ext()
 
 void Initialize()
 {
-    GenericJNIVoidCall(g_admob.m_AdmobJNI, g_admob.m_Initialize);
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_Initialize);
+}
+
+void LoadInterstitial(const char* placementId)
+{
+    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadInterstitial, placementId);
+}
+
+void ShowInterstitial()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowInterstitial);
+}
+
+void LoadRewarded(const char* placementId)
+{
+    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadRewarded, placementId);
+}
+
+void ShowRewarded()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowRewarded);
 }
 
 }//namespace dmAdmob
