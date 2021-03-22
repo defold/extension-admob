@@ -25,7 +25,8 @@ enum MESSAGE_EVENT
     EVENT_LOADED =                  5,
     EVENT_NOT_LOADED =              6,
     EVENT_EARNED_REWARD =           7,
-    EVENT_COMPLETE =                8
+    EVENT_COMPLETE =                8,
+    EVENT_CLICKED =                 9
 };
 
 struct CallbackData

@@ -25,8 +25,12 @@ struct Admob
     jmethodID      m_ShowInterstitial;
     jmethodID      m_LoadRewarded;
     jmethodID      m_ShowRewarded;
+    jmethodID      m_LoadBanner;
+    jmethodID      m_ShowBanner;
+    jmethodID      m_HideBanner;
     jmethodID      m_IsRewardedLoaded;
     jmethodID      m_IsInterstitialLoaded;
+
 };
 
 static Admob       g_admob;
@@ -65,6 +69,9 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_ShowInterstitial = env->GetMethodID(cls, "showInterstitial", "()V");
     g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;)V");
     g_admob.m_ShowRewarded = env->GetMethodID(cls, "showRewarded", "()V");
+    g_admob.m_LoadBanner = env->GetMethodID(cls, "loadBanner", "(Ljava/lang/String;)V");
+    g_admob.m_ShowBanner = env->GetMethodID(cls, "showBanner", "()V");
+    g_admob.m_HideBanner = env->GetMethodID(cls, "hideBanner", "()V");
 
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
     g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
@@ -89,9 +96,9 @@ void Initialize()
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_Initialize);
 }
 
-void LoadInterstitial(const char* placementId)
+void LoadInterstitial(const char* unitId)
 {
-    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadInterstitial, placementId);
+    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadInterstitial, unitId);
 }
 
 void ShowInterstitial()
@@ -104,9 +111,9 @@ bool IsInterstitialLoaded()
     return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsInterstitialLoaded);
 }
 
-void LoadRewarded(const char* placementId)
+void LoadRewarded(const char* unitId)
 {
-    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadRewarded, placementId);
+    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadRewarded, unitId);
 }
 
 void ShowRewarded()
@@ -117,6 +124,21 @@ void ShowRewarded()
 bool IsRewardedLoaded()
 {
     return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsRewardedLoaded);
+}
+
+void LoadBanner(const char* unitId)
+{
+    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadBanner, unitId);
+}
+
+void ShowBanner()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowBanner);
+}
+
+void HideBanner()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_HideBanner);
 }
 
 }//namespace dmAdmob

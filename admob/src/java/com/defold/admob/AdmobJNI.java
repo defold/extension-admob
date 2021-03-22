@@ -2,15 +2,24 @@ package com.defold.admob;
 
 import androidx.annotation.NonNull;
 import android.util.Log;
+import android.util.DisplayMetrics;
 import android.app.Activity;
+import android.view.Display;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.view.ViewGroup.LayoutParams;
+import android.view.ViewGroup.MarginLayoutParams;
 
-import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.AdSize;
+import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdError;
+import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
+import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
-import com.google.android.gms.ads.FullScreenContentCallback;
 
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
@@ -44,6 +53,7 @@ public class AdmobJNI {
   private static final int EVENT_NOT_LOADED =         6;
   private static final int EVENT_EARNED_REWARD =      7;
   private static final int EVENT_COMPLETE =           8;
+  private static final int EVENT_CLICKED =            9;
 
 
   private Activity activity;
@@ -61,6 +71,18 @@ public class AdmobJNI {
       });
   }
 
+  private String getJsonConversionErrorMessage(String messageText) {
+    String message = null;
+      try {
+          JSONObject obj = new JSONObject();
+          obj.put("error", messageText);
+          message = obj.toString();
+      } catch (JSONException e) {
+          message = "{ \"error\": \"Error while converting simple message to JSON.\" }";
+      }
+    return message;
+  }
+
   private void sendSimpleMessage(int msg, int eventId) {
       String message = null;
       try {
@@ -68,7 +90,7 @@ public class AdmobJNI {
           obj.put("event", eventId);
           message = obj.toString();
       } catch (JSONException e) {
-          message = "{ \"error\": \"Error while converting simple message to JSON: " + e.getMessage() + "\" }";
+          message = getJsonConversionErrorMessage(e.getMessage());
       }
       admobAddToQueue(msg, message);
   }
@@ -81,7 +103,7 @@ public class AdmobJNI {
           obj.put(key_2, value_2);
           message = obj.toString();
       } catch (JSONException e) {
-          message = "{ \"error\": \"Error while converting simple message to JSON: " + e.getMessage() + "\" }";
+          message = getJsonConversionErrorMessage(e.getMessage());
       }
       admobAddToQueue(msg, message);
     }
@@ -95,7 +117,7 @@ public class AdmobJNI {
           obj.put(key_3, value_3);
           message = obj.toString();
       } catch (JSONException e) {
-          message = "{ \"error\": \"Error while converting simple message to JSON: " + e.getMessage() + "\" }";
+          message = getJsonConversionErrorMessage(e.getMessage());
       }
       admobAddToQueue(msg, message);
     }
@@ -105,13 +127,13 @@ public class AdmobJNI {
 
   private InterstitialAd mInterstitialAd;
 
-  public void loadInterstitial(final String placementId) {
+  public void loadInterstitial(final String unitId) {
       activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
           AdRequest adRequest = new AdRequest.Builder().build();
 
-          InterstitialAd.load(activity, placementId, adRequest, new InterstitialAdLoadCallback() {
+          InterstitialAd.load(activity, unitId, adRequest, new InterstitialAdLoadCallback() {
                   @Override
                   public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
                     // The mInterstitialAd reference will be null until
@@ -182,88 +204,193 @@ public class AdmobJNI {
 //--------------------------------------------------
 // Rewarded ADS
 
-    private RewardedAd mRewardedAd;
+  private RewardedAd mRewardedAd;
 
-    public void loadRewarded(final String placementId) {
-      activity.runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          AdRequest adRequest = new AdRequest.Builder().build();
+  public void loadRewarded(final String unitId) {
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AdRequest adRequest = new AdRequest.Builder().build();
 
-          RewardedAd.load(activity, placementId,
-            adRequest, new RewardedAdLoadCallback(){
-              @Override
-              public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
-                // Log.d(TAG, "onAdLoaded");
-                mRewardedAd = rewardedAd;
-                sendSimpleMessage(MSG_REWARDED, EVENT_LOADED);
-                mRewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
-                  @Override
-                  public void onAdDismissedFullScreenContent() {
-                    // Called when ad is dismissed.
-                    // Don't forget to set the ad reference to null so you
-                    // don't show the ad a second time.
-                    // Log.d(TAG, "Ad was dismissed.");
-                    mRewardedAd = null;
-                    sendSimpleMessage(MSG_REWARDED, EVENT_CLOSED);
-                  }
-
-                  @Override
-                  public void onAdFailedToShowFullScreenContent(AdError adError) {
-                    // Called when ad fails to show.
-                    // Log.d(TAG, "Ad failed to show.");
-                    mRewardedAd = null;
-                    sendSimpleMessage(MSG_REWARDED, EVENT_FAILED_TO_SHOW, "code", adError.getCode(),
-                            "error", String.format("Error domain: \"%s\". %s", adError.getDomain(), adError.getMessage()));
-                  }
-
-                  @Override
-                  public void onAdShowedFullScreenContent() {
-                    // Called when ad is shown.
-                    // Log.d(TAG, "Ad was shown.");
-                    mRewardedAd = null;
-                    sendSimpleMessage(MSG_REWARDED, EVENT_OPENING);
-                  }
-                });
-              }
-              @Override
-              public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                // Handle the error.
-                // Log.d(TAG, "onAdFailedToLoad");
-                mRewardedAd = null;
-                sendSimpleMessage(MSG_REWARDED, EVENT_FAILED_TO_LOAD, "code", loadAdError.getCode(),
-                            "error", String.format("Error domain: \"%s\". %s", loadAdError.getDomain(), loadAdError.getMessage()));
-              }
-          });
-        }
-      });
-    }
-
-      public void showRewarded() {
-      activity.runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-            if (isRewardedLoaded()) {
-              mRewardedAd.show(activity, new OnUserEarnedRewardListener() {
+        RewardedAd.load(activity, unitId,
+          adRequest, new RewardedAdLoadCallback(){
+            @Override
+            public void onAdLoaded(@NonNull RewardedAd rewardedAd) {
+              // Log.d(TAG, "onAdLoaded");
+              mRewardedAd = rewardedAd;
+              sendSimpleMessage(MSG_REWARDED, EVENT_LOADED);
+              mRewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                 @Override
-                public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
-                  // Handle the reward.
-                  // Log.d(TAG, "The user earned the reward.");
-                   int rewardAmount = rewardItem.getAmount();
-                   String rewardType = rewardItem.getType();
-                   sendSimpleMessage(MSG_REWARDED, EVENT_EARNED_REWARD, "amount", rewardAmount, "type", rewardType);
+                public void onAdDismissedFullScreenContent() {
+                  // Called when ad is dismissed.
+                  // Don't forget to set the ad reference to null so you
+                  // don't show the ad a second time.
+                  // Log.d(TAG, "Ad was dismissed.");
+                  mRewardedAd = null;
+                  sendSimpleMessage(MSG_REWARDED, EVENT_CLOSED);
+                }
+
+                @Override
+                public void onAdFailedToShowFullScreenContent(AdError adError) {
+                  // Called when ad fails to show.
+                  // Log.d(TAG, "Ad failed to show.");
+                  mRewardedAd = null;
+                  sendSimpleMessage(MSG_REWARDED, EVENT_FAILED_TO_SHOW, "code", adError.getCode(),
+                          "error", String.format("Error domain: \"%s\". %s", adError.getDomain(), adError.getMessage()));
+                }
+
+                @Override
+                public void onAdShowedFullScreenContent() {
+                  // Called when ad is shown.
+                  // Log.d(TAG, "Ad was shown.");
+                  mRewardedAd = null;
+                  sendSimpleMessage(MSG_REWARDED, EVENT_OPENING);
                 }
               });
-            } else {
-              // Log.d(TAG, "The rewarded ad wasn't ready yet.");
-              sendSimpleMessage(MSG_REWARDED, EVENT_NOT_LOADED, "error", "Can't show Rewarded AD that wasn't loaded.");
             }
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+              // Handle the error.
+              // Log.d(TAG, "onAdFailedToLoad");
+              mRewardedAd = null;
+              sendSimpleMessage(MSG_REWARDED, EVENT_FAILED_TO_LOAD, "code", loadAdError.getCode(),
+                          "error", String.format("Error domain: \"%s\". %s", loadAdError.getDomain(), loadAdError.getMessage()));
+            }
+        });
+      }
+    });
+  }
+
+  public void showRewarded() {
+    activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          if (isRewardedLoaded()) {
+            mRewardedAd.show(activity, new OnUserEarnedRewardListener() {
+              @Override
+              public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                // Handle the reward.
+                // Log.d(TAG, "The user earned the reward.");
+                int rewardAmount = rewardItem.getAmount();
+                String rewardType = rewardItem.getType();
+                sendSimpleMessage(MSG_REWARDED, EVENT_EARNED_REWARD, "amount", rewardAmount, "type", rewardType);
+              }
+            });
+          } else {
+            // Log.d(TAG, "The rewarded ad wasn't ready yet.");
+            sendSimpleMessage(MSG_REWARDED, EVENT_NOT_LOADED, "error", "Can't show Rewarded AD that wasn't loaded.");
           }
-      });
+        }
+    });
   }
 
   public boolean isRewardedLoaded() {
     return mRewardedAd != null;
+  }
+
+//--------------------------------------------------
+// Banner ADS
+
+  private LinearLayout layout;
+  private WindowManager.LayoutParams windowParams;
+  private AdView mBannerAdView;
+  private boolean isShown = false;
+
+  public void loadBanner(final String unitId) {
+    mBannerAdView = new AdView(activity);
+    mBannerAdView.setAdUnitId(unitId);
+    AdSize adSize = getAdaptiveSize();
+    mBannerAdView.setAdSize(adSize); //TODO: Use different sizes
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+          AdRequest adRequest = new AdRequest.Builder().build();
+          mBannerAdView.setAdListener(new AdListener() {
+            @Override
+            public void onAdLoaded() {
+              // Code to be executed when an ad finishes loading.
+              createLayout();
+              sendSimpleMessage(MSG_BANNER, EVENT_LOADED);
+            }
+
+            @Override
+            public void onAdFailedToLoad(LoadAdError loadAdError) {
+              // Code to be executed when an ad request fails.
+              sendSimpleMessage(MSG_BANNER, EVENT_FAILED_TO_LOAD, "code", loadAdError.getCode(),
+                          "error", String.format("Error domain: \"%s\". %s", loadAdError.getDomain(), loadAdError.getMessage()));
+            }
+
+            @Override
+            public void onAdOpened() {
+              // Code to be executed when an ad opens an overlay that
+              // covers the screen.
+              sendSimpleMessage(MSG_BANNER, EVENT_OPENING);
+            }
+
+            @Override
+            public void onAdClicked() {
+              // Code to be executed when the user clicks on an ad.
+              sendSimpleMessage(MSG_BANNER, EVENT_CLICKED);
+            }
+
+            @Override
+            public void onAdClosed() {
+              // Code to be executed when the user is about to return
+              // to the app after tapping on an ad.
+              sendSimpleMessage(MSG_BANNER, EVENT_CLOSED);
+            }
+          });
+          mBannerAdView.loadAd(adRequest);
+        }
+    });
+  }
+
+  public void showBanner() {
+    if (isShown || mBannerAdView == null) {
+        return;
+    }
+    isShown = true;
+    activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+            WindowManager wm = activity.getWindowManager();
+            // windowParams.gravity = m_bannerPosition.getGravity();
+            wm.addView(layout, windowParams);
+        }
+    });
+  }
+
+  public void hideBanner() {
+  }
+
+  private AdSize getAdaptiveSize() {
+    Display display = activity.getWindowManager().getDefaultDisplay();
+    DisplayMetrics outMetrics = new DisplayMetrics();
+    display.getMetrics(outMetrics);
+
+    float widthPixels = outMetrics.widthPixels;
+    float density = outMetrics.density;
+
+    int adWidth = (int) (widthPixels / density);
+    
+    return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity, adWidth);
+  }
+
+  private void createLayout() {
+    layout = new LinearLayout(activity);
+    layout.setOrientation(LinearLayout.VERTICAL);
+
+    MarginLayoutParams params = new MarginLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+    params.setMargins(0, 0, 0, 0);
+
+    layout.addView(mBannerAdView, params);
+
+    windowParams = new WindowManager.LayoutParams();
+    windowParams.x = WindowManager.LayoutParams.WRAP_CONTENT;
+    windowParams.y = WindowManager.LayoutParams.WRAP_CONTENT;
+    windowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+    windowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+    windowParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
   }
 
 }

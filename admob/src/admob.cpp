@@ -31,12 +31,12 @@ static int Lua_LoadInterstitial(lua_State* L)
     DM_LUA_STACK_CHECK(L, 0);
     if (lua_type(L, 1) != LUA_TSTRING) {
         char msg[256];
-        snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial PlacementId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
+        snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
         luaL_error(L, msg);
         return 0;
     }
-    const char* placementId_lua = luaL_checkstring(L, 1);
-    LoadInterstitial(placementId_lua);
+    const char* unitId_lua = luaL_checkstring(L, 1);
+    LoadInterstitial(unitId_lua);
     return 0;
 }
 
@@ -52,12 +52,12 @@ static int Lua_LoadRewarded(lua_State* L)
     DM_LUA_STACK_CHECK(L, 0);
     if (lua_type(L, 1) != LUA_TSTRING) {
         char msg[256];
-        snprintf(msg, sizeof(msg), "Wrong type for Rewarded PlacementId variable '%s'. Expected string, got %s", lua_tostring(L, 1), luaL_typename(L, 1) );
+        snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
         luaL_error(L, msg);
         return 0;
     }
-    const char* placementId_lua = luaL_checkstring(L, 1);
-    LoadRewarded(placementId_lua);
+    const char* unitId_lua = luaL_checkstring(L, 1);
+    LoadRewarded(unitId_lua);
     return 0;
 }
 
@@ -65,6 +65,34 @@ static int Lua_ShowRewarded(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
     ShowRewarded();
+    return 0;
+}
+
+static int Lua_LoadBanner(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+        if (lua_type(L, 1) != LUA_TSTRING) {
+        char msg[256];
+        snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
+        luaL_error(L, msg);
+        return 0;
+    }
+    const char* unitId_lua = luaL_checkstring(L, 1);
+    LoadBanner(unitId_lua);
+    return 0;
+}
+
+static int Lua_ShowBanner(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    ShowBanner();
+    return 0;
+}
+
+static int Lua_HideBanner(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    HideBanner();
     return 0;
 }
 
@@ -92,6 +120,9 @@ static const luaL_reg Module_methods[] =
     {"show_interstitial", Lua_ShowInterstitial},
     {"load_rewarded", Lua_LoadRewarded},
     {"show_rewarded", Lua_ShowRewarded},
+    {"load_banner", Lua_LoadBanner},
+    {"show_banner", Lua_ShowBanner},
+    {"hide_banner", Lua_HideBanner},
     {"is_rewarded_loaded", Lua_IsRewardedLoaded},
     {"is_interstitial_loaded", Lua_IsInterstitialLoaded},
     {0, 0}
