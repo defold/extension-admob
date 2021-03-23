@@ -1,6 +1,6 @@
 #pragma once
 
-#include "private_admob.h"
+#include "admob_private.h"
 #include <dmsdk/sdk.h>
 
 namespace dmAdmob {
@@ -8,7 +8,7 @@ namespace dmAdmob {
 // The same events and messages are in AdmobJNI.java
 // If you change enums here, pls nake sure you update them here as well
 
-enum MESSAGE_ID
+enum MessageId
 {
     MSG_INTERSTITIAL =              1,
     MSG_REWARDED =                  2,
@@ -16,7 +16,7 @@ enum MESSAGE_ID
     MSG_INITIALIZATION =            4,
 };
 
-enum MESSAGE_EVENT
+enum MessageEvent
 {
     EVENT_CLOSED =                  1,
     EVENT_FAILED_TO_SHOW =          2,
@@ -26,12 +26,13 @@ enum MESSAGE_EVENT
     EVENT_NOT_LOADED =              6,
     EVENT_EARNED_REWARD =           7,
     EVENT_COMPLETE =                8,
-    EVENT_CLICKED =                 9
+    EVENT_CLICKED =                 9,
+    EVENT_UNLOADED =                10
 };
 
 struct CallbackData
 {
-    MESSAGE_ID msg;
+    MessageId msg;
     char* json;
 };
 
@@ -40,6 +41,6 @@ void UpdateCallback();
 void InitializeCallback();
 void FinalizeCallback();
 
-void AddToQueueCallback(MESSAGE_ID type, const char*json);
+void AddToQueueCallback(MessageId type, const char*json);
 
 } //namespace

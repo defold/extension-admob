@@ -3,14 +3,14 @@
 #include <jni.h>
 
 #include "admob_jni.h"
-#include "private_admob.h"
+#include "admob_private.h"
 #include "com_defold_admob_AdmobJNI.h"
-#include "private_admob_callback.h"
+#include "admob_callback_private.h"
 
 JNIEXPORT void JNICALL Java_com_defold_admob_AdmobJNI_admobAddToQueue(JNIEnv * env, jclass cls, jint jmsg, jstring jjson)
 {
     const char* json = env->GetStringUTFChars(jjson, 0);
-    dmAdmob::AddToQueueCallback((dmAdmob::MESSAGE_ID)jmsg, json);
+    dmAdmob::AddToQueueCallback((dmAdmob::MessageId)jmsg, json);
     env->ReleaseStringUTFChars(jjson, json);
 }
 
@@ -26,10 +26,12 @@ struct Admob
     jmethodID      m_LoadRewarded;
     jmethodID      m_ShowRewarded;
     jmethodID      m_LoadBanner;
+    jmethodID      m_UnloadBanner;
     jmethodID      m_ShowBanner;
     jmethodID      m_HideBanner;
     jmethodID      m_IsRewardedLoaded;
     jmethodID      m_IsInterstitialLoaded;
+    jmethodID      m_IsBannerLoaded;
 
 };
 
@@ -62,6 +64,16 @@ static void CallVoidMethodChar(jobject instance, jmethodID method, const char* c
     env->DeleteLocalRef(jstr);
 }
 
+static void CallVoidMethodCharInt(jobject instance, jmethodID method, const char* cstr, BannerSize bannerSize)
+{
+    ThreadAttacher attacher;
+    JNIEnv *env = attacher.env;
+
+    jstring jstr = env->NewStringUTF(cstr);
+    env->CallVoidMethod(instance, method, jstr, (int)bannerSize);
+    env->DeleteLocalRef(jstr);
+}
+
 static void InitJNIMethods(JNIEnv* env, jclass cls)
 {
     g_admob.m_Initialize = env->GetMethodID(cls, "initialize", "()V");
@@ -69,12 +81,14 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_ShowInterstitial = env->GetMethodID(cls, "showInterstitial", "()V");
     g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;)V");
     g_admob.m_ShowRewarded = env->GetMethodID(cls, "showRewarded", "()V");
-    g_admob.m_LoadBanner = env->GetMethodID(cls, "loadBanner", "(Ljava/lang/String;)V");
+    g_admob.m_LoadBanner = env->GetMethodID(cls, "loadBanner", "(Ljava/lang/String;I)V");
+    g_admob.m_UnloadBanner = env->GetMethodID(cls, "unloadBanner", "()V");
     g_admob.m_ShowBanner = env->GetMethodID(cls, "showBanner", "()V");
     g_admob.m_HideBanner = env->GetMethodID(cls, "hideBanner", "()V");
 
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
     g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
+    g_admob.m_IsBannerLoaded = env->GetMethodID(cls, "isBannerLoaded", "()Z");
 }
 
 void Initialize_Ext()
@@ -126,9 +140,14 @@ bool IsRewardedLoaded()
     return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsRewardedLoaded);
 }
 
-void LoadBanner(const char* unitId)
+void LoadBanner(const char* unitId, BannerSize bannerSize)
 {
-    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadBanner, unitId);
+    CallVoidMethodCharInt(g_admob.m_AdmobJNI, g_admob.m_LoadBanner, unitId, bannerSize);
+}
+
+void UnloadBanner()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_UnloadBanner);
 }
 
 void ShowBanner()
@@ -139,6 +158,11 @@ void ShowBanner()
 void HideBanner()
 {
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_HideBanner);
+}
+
+bool IsBannerLoaded()
+{
+    return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsBannerLoaded);
 }
 
 }//namespace dmAdmob

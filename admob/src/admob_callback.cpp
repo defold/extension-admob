@@ -1,6 +1,6 @@
 #if defined(DM_PLATFORM_ANDROID)// || defined(DM_PLATFORM_IOS)
 
-#include "private_admob_callback.h"
+#include "admob_callback_private.h"
 #include "utils/LuaUtils.h"
 #include <stdlib.h>
 
@@ -19,7 +19,7 @@ static void DestroyCallback()
     }
 }
 
-static void InvokeCallback(MESSAGE_ID type, char*json)
+static void InvokeCallback(MessageId type, char*json)
 {
     if (!dmScript::IsCallbackValid(m_luaCallback))
     {
@@ -94,7 +94,7 @@ void SetLuaCallback(lua_State* L, int pos)
     }
 }
 
-void AddToQueueCallback(MESSAGE_ID type, const char*json)
+void AddToQueueCallback(MessageId type, const char*json)
 {
     DM_MUTEX_SCOPED_LOCK(m_mutex);
 

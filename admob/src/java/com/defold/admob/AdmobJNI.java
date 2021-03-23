@@ -39,7 +39,8 @@ public class AdmobJNI {
 
   public static native void admobAddToQueue(int msg, String json);
 
-  // duplicate of enums from private_admob_callback.h:
+  // duplicate of enums from admob_callback_private.h:
+  // CONSTANTS:
   private static final int MSG_INTERSTITIAL =       1;
   private static final int MSG_REWARDED =           2;
   private static final int MSG_BANNER =             3;
@@ -54,6 +55,20 @@ public class AdmobJNI {
   private static final int EVENT_EARNED_REWARD =      7;
   private static final int EVENT_COMPLETE =           8;
   private static final int EVENT_CLICKED =            9;
+  private static final int EVENT_UNLOADED =           10;
+
+  private static final int SIZE_ADAPTIVE_BANNER =     0;
+  private static final int SIZE_BANNER =              1;
+  private static final int SIZE_FLUID =               2;
+  private static final int SIZE_FULL_BANNER =         3;
+  private static final int SIZE_LARGE_BANNER =        4;
+  private static final int SIZE_LEADEARBOARD =        5;
+  private static final int SIZE_MEDIUM_RECTANGLE =    6;
+  private static final int SIZE_SEARH =               7;
+  private static final int SIZE_SKYSCRAPER =          8;
+  private static final int SIZE_SMART_BANNER =        9;
+
+  // END CONSTANTS
 
 
   private Activity activity;
@@ -71,6 +86,7 @@ public class AdmobJNI {
       });
   }
 
+  // https://www.baeldung.com/java-json-escaping
   private String getJsonConversionErrorMessage(String messageText) {
     String message = null;
       try {
@@ -131,70 +147,70 @@ public class AdmobJNI {
       activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-          AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = new AdRequest.Builder().build();
 
-          InterstitialAd.load(activity, unitId, adRequest, new InterstitialAdLoadCallback() {
-                  @Override
-                  public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
-                    // The mInterstitialAd reference will be null until
-                    // an ad is loaded.
-                    // Log.d(TAG, "onAdLoaded");
-                     mInterstitialAd = interstitialAd;
-                     sendSimpleMessage(MSG_INTERSTITIAL, EVENT_LOADED);
-                     mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
-                        @Override
-                        public void onAdDismissedFullScreenContent() {
-                          // Called when fullscreen content is dismissed.
-                          // Log.d(TAG, "The ad was closed.");
-                          mInterstitialAd = null;
-                          sendSimpleMessage(MSG_INTERSTITIAL, EVENT_CLOSED);
-                        }
+        InterstitialAd.load(activity, unitId, adRequest, new InterstitialAdLoadCallback() {
+                @Override
+                public void onAdLoaded(@NonNull InterstitialAd interstitialAd) {
+                  // The mInterstitialAd reference will be null until
+                  // an ad is loaded.
+                  // Log.d(TAG, "onAdLoaded");
+                   mInterstitialAd = interstitialAd;
+                   sendSimpleMessage(MSG_INTERSTITIAL, EVENT_LOADED);
+                   mInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback(){
+                      @Override
+                      public void onAdDismissedFullScreenContent() {
+                        // Called when fullscreen content is dismissed.
+                        // Log.d(TAG, "The ad was closed.");
+                        mInterstitialAd = null;
+                        sendSimpleMessage(MSG_INTERSTITIAL, EVENT_CLOSED);
+                      }
 
-                        @Override
-                        public void onAdFailedToShowFullScreenContent(AdError adError) {
-                          // Called when fullscreen content failed to show.
-                          mInterstitialAd = null;
-                          sendSimpleMessage(MSG_INTERSTITIAL, EVENT_FAILED_TO_SHOW, "code", adError.getCode(),
-                            "error", String.format("Error domain: \"%s\". %s", adError.getDomain(), adError.getMessage()));
-                        }
+                      @Override
+                      public void onAdFailedToShowFullScreenContent(AdError adError) {
+                        // Called when fullscreen content failed to show.
+                        mInterstitialAd = null;
+                        sendSimpleMessage(MSG_INTERSTITIAL, EVENT_FAILED_TO_SHOW, "code", adError.getCode(),
+                          "error", String.format("Error domain: \"%s\". %s", adError.getDomain(), adError.getMessage()));
+                      }
 
-                        @Override
-                        public void onAdShowedFullScreenContent() {
-                          // Called when fullscreen content is shown.
-                          // Make sure to set your reference to null so you don't
-                          // show it a second time.
-                          // Log.d(TAG, "The ad was shown.");
-                          mInterstitialAd = null;
-                          sendSimpleMessage(MSG_INTERSTITIAL, EVENT_OPENING);
-                        }
-                      });
-                  }
+                      @Override
+                      public void onAdShowedFullScreenContent() {
+                        // Called when fullscreen content is shown.
+                        // Make sure to set your reference to null so you don't
+                        // show it a second time.
+                        // Log.d(TAG, "The ad was shown.");
+                        mInterstitialAd = null;
+                        sendSimpleMessage(MSG_INTERSTITIAL, EVENT_OPENING);
+                      }
+                    });
+                }
 
-                  @Override
-                  public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
-                    // Handle the error
-                    // Log.d(TAG, loadAdError.getMessage());
-                     mInterstitialAd = null;
-                     sendSimpleMessage(MSG_INTERSTITIAL, EVENT_FAILED_TO_LOAD, "code", loadAdError.getCode(),
-                            "error", String.format("Error domain: \"%s\". %s", loadAdError.getDomain(), loadAdError.getMessage()));
-                  }
-              });
+                @Override
+                public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+                  // Handle the error
+                  // Log.d(TAG, loadAdError.getMessage());
+                   mInterstitialAd = null;
+                   sendSimpleMessage(MSG_INTERSTITIAL, EVENT_FAILED_TO_LOAD, "code", loadAdError.getCode(),
+                          "error", String.format("Error domain: \"%s\". %s", loadAdError.getDomain(), loadAdError.getMessage()));
+                }
+            });
           }
       });
   }
 
   public void showInterstitial() {
-      activity.runOnUiThread(new Runnable() {
-          @Override
-          public void run() {
-              if (isInterstitialLoaded()) {
-                mInterstitialAd.show(activity);
-              } else {
-                // Log.d(TAG, "The interstitial ad wasn't ready yet.");
-                sendSimpleMessage(MSG_INTERSTITIAL, EVENT_NOT_LOADED, "error", "Can't show Interstitial AD that wasn't loaded.");
-              }
-          }
-      });
+    activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+            if (isInterstitialLoaded()) {
+              mInterstitialAd.show(activity);
+            } else {
+              // Log.d(TAG, "The interstitial ad wasn't ready yet.");
+              sendSimpleMessage(MSG_INTERSTITIAL, EVENT_NOT_LOADED, "error", "Can't show Interstitial AD that wasn't loaded.");
+            }
+        }
+    });
   }
 
   public boolean isInterstitialLoaded() {
@@ -296,11 +312,16 @@ public class AdmobJNI {
   private AdView mBannerAdView;
   private boolean isShown = false;
 
-  public void loadBanner(final String unitId) {
+  public void loadBanner(final String unitId, int bannerSize) {
+    if (isBannerLoaded())
+    {
+      return;
+    }
     mBannerAdView = new AdView(activity);
     mBannerAdView.setAdUnitId(unitId);
-    AdSize adSize = getAdaptiveSize();
-    mBannerAdView.setAdSize(adSize); //TODO: Use different sizes
+    AdSize adSize = getSizeConstant(bannerSize);
+    mBannerAdView.setAdSize(adSize);
+    // Log.d(TAG, "loadBanner");
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -309,13 +330,16 @@ public class AdmobJNI {
             @Override
             public void onAdLoaded() {
               // Code to be executed when an ad finishes loading.
+              // Log.d(TAG, "onAdLoaded");
               createLayout();
+              mBannerAdView.pause();
               sendSimpleMessage(MSG_BANNER, EVENT_LOADED);
             }
 
             @Override
             public void onAdFailedToLoad(LoadAdError loadAdError) {
               // Code to be executed when an ad request fails.
+              // Log.d(TAG, "onAdFailedToLoad");
               sendSimpleMessage(MSG_BANNER, EVENT_FAILED_TO_LOAD, "code", loadAdError.getCode(),
                           "error", String.format("Error domain: \"%s\". %s", loadAdError.getDomain(), loadAdError.getMessage()));
             }
@@ -324,12 +348,14 @@ public class AdmobJNI {
             public void onAdOpened() {
               // Code to be executed when an ad opens an overlay that
               // covers the screen.
+              // Log.d(TAG, "onAdOpened");
               sendSimpleMessage(MSG_BANNER, EVENT_OPENING);
             }
 
             @Override
             public void onAdClicked() {
               // Code to be executed when the user clicks on an ad.
+              // Log.d(TAG, "onAdClicked");
               sendSimpleMessage(MSG_BANNER, EVENT_CLICKED);
             }
 
@@ -337,6 +363,7 @@ public class AdmobJNI {
             public void onAdClosed() {
               // Code to be executed when the user is about to return
               // to the app after tapping on an ad.
+              // Log.d(TAG, "onAdClosed");
               sendSimpleMessage(MSG_BANNER, EVENT_CLOSED);
             }
           });
@@ -345,22 +372,109 @@ public class AdmobJNI {
     });
   }
 
-  public void showBanner() {
-    if (isShown || mBannerAdView == null) {
-        return;
+  public void unloadBanner() {
+    if (!isBannerLoaded()){
+      return;
     }
-    isShown = true;
+    final LinearLayout _layout = layout;
     activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
+          if (!isShown) {
+            _unloadBanner();
+          } else {
             WindowManager wm = activity.getWindowManager();
-            // windowParams.gravity = m_bannerPosition.getGravity();
-            wm.addView(layout, windowParams);
+            wm.removeView(_layout);
+            _unloadBanner();
+          }
+        }
+      });
+  }
+
+  public void showBanner() {
+    if (isShown || !isBannerLoaded()) {
+        return;
+    }
+    isShown = true;
+    final LinearLayout _layout = layout;
+    activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          WindowManager wm = activity.getWindowManager();
+          // windowParams.gravity = m_bannerPosition.getGravity();
+          mBannerAdView.resume();
+          wm.addView(_layout, windowParams);
         }
     });
   }
 
   public void hideBanner() {
+    if (!isBannerLoaded()) {
+      return;
+    }
+    _hideBanner();
+  }
+
+  public boolean isBannerLoaded() {
+    return mBannerAdView != null;
+  }
+
+  private void _unloadBanner() {
+    mBannerAdView.destroy();
+    layout = null;
+    mBannerAdView = null;
+    windowParams = null;
+    isShown = false;
+    sendSimpleMessage(MSG_BANNER, EVENT_UNLOADED);
+  }
+
+  private void _hideBanner() {
+    if (!isShown) {
+        return;
+    }
+    isShown = false;
+    activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          WindowManager wm = activity.getWindowManager();
+          wm.removeView(layout);
+          mBannerAdView.pause();
+        }
+    });
+  }
+
+  private AdSize getSizeConstant(int bannerSizeConst) {
+    AdSize bannerSize = getAdaptiveSize(); // SIZE_ADAPTIVE_BANNER
+    switch (bannerSizeConst) {
+      case SIZE_BANNER:
+        bannerSize = AdSize.BANNER;
+        break;
+      case SIZE_FLUID:
+        bannerSize = AdSize.FLUID;
+        break;
+      case SIZE_FULL_BANNER:
+        bannerSize = AdSize.FULL_BANNER;
+        break;
+      case SIZE_LARGE_BANNER:
+        bannerSize = AdSize.LARGE_BANNER;
+        break;
+      case SIZE_LEADEARBOARD:
+        bannerSize = AdSize.LEADERBOARD;
+        break;
+      case SIZE_MEDIUM_RECTANGLE:
+        bannerSize = AdSize.MEDIUM_RECTANGLE;
+        break;
+      case SIZE_SEARH:
+        bannerSize = AdSize.SEARCH;
+        break;
+      case SIZE_SKYSCRAPER:
+        bannerSize = AdSize.WIDE_SKYSCRAPER;
+        break;
+      case SIZE_SMART_BANNER:
+        bannerSize = AdSize.SMART_BANNER;
+        break;
+      }
+    return bannerSize;
   }
 
   private AdSize getAdaptiveSize() {

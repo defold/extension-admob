@@ -7,8 +7,8 @@
 
 #if defined(DM_PLATFORM_ANDROID)//|| defined(DM_PLATFORM_IOS)
 
-#include "private_admob.h"
-#include "private_admob_callback.h"
+#include "admob_private.h"
+#include "admob_callback_private.h"
 
 namespace dmAdmob {
 
@@ -78,7 +78,18 @@ static int Lua_LoadBanner(lua_State* L)
         return 0;
     }
     const char* unitId_lua = luaL_checkstring(L, 1);
-    LoadBanner(unitId_lua);
+    BannerSize bannerSize_lua = SIZE_ADAPTIVE_BANNER;
+    if (lua_type(L, 2) != LUA_TNONE) {
+        bannerSize_lua = (BannerSize)luaL_checknumber(L, 2);
+    }
+    LoadBanner(unitId_lua, bannerSize_lua);
+    return 0;
+}
+
+static int Lua_UnloadBanner(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    UnloadBanner();
     return 0;
 }
 
@@ -112,6 +123,14 @@ static int Lua_IsInterstitialLoaded(lua_State* L)
     return 1;
 }
 
+static int Lua_IsBannerLoaded(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool is_loaded = IsBannerLoaded();
+    lua_pushboolean(L, is_loaded);
+    return 1;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"initialize", Lua_Initialize},
@@ -121,10 +140,12 @@ static const luaL_reg Module_methods[] =
     {"load_rewarded", Lua_LoadRewarded},
     {"show_rewarded", Lua_ShowRewarded},
     {"load_banner", Lua_LoadBanner},
+    {"unload_banner", Lua_UnloadBanner},
     {"show_banner", Lua_ShowBanner},
     {"hide_banner", Lua_HideBanner},
     {"is_rewarded_loaded", Lua_IsRewardedLoaded},
     {"is_interstitial_loaded", Lua_IsInterstitialLoaded},
+    {"is_banner_loaded", Lua_IsBannerLoaded},
     {0, 0}
 };
 
@@ -150,6 +171,19 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(EVENT_NOT_LOADED)
     SETCONSTANT(EVENT_EARNED_REWARD)
     SETCONSTANT(EVENT_COMPLETE)
+    SETCONSTANT(EVENT_CLICKED)
+    SETCONSTANT(EVENT_UNLOADED)
+
+    SETCONSTANT(SIZE_ADAPTIVE_BANNER)
+    SETCONSTANT(SIZE_BANNER)
+    SETCONSTANT(SIZE_FLUID)
+    SETCONSTANT(SIZE_FULL_BANNER)
+    SETCONSTANT(SIZE_LARGE_BANNER)
+    SETCONSTANT(SIZE_LEADEARBOARD)
+    SETCONSTANT(SIZE_MEDIUM_RECTANGLE)
+    SETCONSTANT(SIZE_SEARH)
+    SETCONSTANT(SIZE_SKYSCRAPER)
+    SETCONSTANT(SIZE_SMART_BANNER)
 
     #undef SETCONSTANT
 
