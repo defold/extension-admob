@@ -318,15 +318,15 @@ public class AdmobJNI {
       return;
     }
     final AdView view = new AdView(activity);
-    mBannerAdView.setAdUnitId(unitId);
+    view.setAdUnitId(unitId);
     AdSize adSize = getSizeConstant(bannerSize);
-    mBannerAdView.setAdSize(adSize);
+    view.setAdSize(adSize);
     // Log.d(TAG, "loadBanner");
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
           AdRequest adRequest = new AdRequest.Builder().build();
-          mBannerAdView.setAdListener(new AdListener() {
+          view.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
               // Code to be executed when an ad finishes loading.
@@ -368,7 +368,7 @@ public class AdmobJNI {
               sendSimpleMessage(MSG_BANNER, EVENT_CLOSED);
             }
           });
-          mBannerAdView.loadAd(adRequest);
+          view.loadAd(adRequest);
         }
     });
   }
