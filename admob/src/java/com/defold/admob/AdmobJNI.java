@@ -317,7 +317,7 @@ public class AdmobJNI {
     {
       return;
     }
-    mBannerAdView = new AdView(activity);
+    final AdView view = new AdView(activity);
     mBannerAdView.setAdUnitId(unitId);
     AdSize adSize = getSizeConstant(bannerSize);
     mBannerAdView.setAdSize(adSize);
@@ -331,6 +331,7 @@ public class AdmobJNI {
             public void onAdLoaded() {
               // Code to be executed when an ad finishes loading.
               // Log.d(TAG, "onAdLoaded");
+              mBannerAdView = view;
               createLayout();
               mBannerAdView.pause();
               sendSimpleMessage(MSG_BANNER, EVENT_LOADED);
