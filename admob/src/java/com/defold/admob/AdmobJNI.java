@@ -388,7 +388,6 @@ public class AdmobJNI {
     if (!isBannerLoaded()){
       return;
     }
-    final LinearLayout _layout = layout;
     activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
@@ -396,7 +395,7 @@ public class AdmobJNI {
             _unloadBanner();
           } else {
             WindowManager wm = activity.getWindowManager();
-            wm.removeView(_layout);
+            wm.removeView(layout);
             _unloadBanner();
           }
         }
@@ -417,14 +416,13 @@ public class AdmobJNI {
       return;
     }
     m_bannerPosition = gravity;
-    final LinearLayout _layout = layout;
     activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
           WindowManager wm = activity.getWindowManager();
           windowParams.gravity = m_bannerPosition;
+          wm.addView(layout, windowParams);
           mBannerAdView.resume();
-          wm.addView(_layout, windowParams);
           isShown = true;
         }
     });
