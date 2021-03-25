@@ -96,7 +96,11 @@ static int Lua_UnloadBanner(lua_State* L)
 static int Lua_ShowBanner(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    ShowBanner();
+    BannerPosition bannerPos_lua = POS_NONE;
+    if (lua_type(L, 1) != LUA_TNONE) {
+        bannerPos_lua = (BannerPosition)luaL_checknumber(L, 1);
+    }
+    ShowBanner(bannerPos_lua);
     return 0;
 }
 
@@ -184,6 +188,15 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(SIZE_SEARH)
     SETCONSTANT(SIZE_SKYSCRAPER)
     SETCONSTANT(SIZE_SMART_BANNER)
+
+    SETCONSTANT(POS_NONE)
+    SETCONSTANT(POS_TOP_LEFT)
+    SETCONSTANT(POS_TOP_CENTER)
+    SETCONSTANT(POS_TOP_RIGHT)
+    SETCONSTANT(POS_BOTTOM_LEFT)
+    SETCONSTANT(POS_BOTTOM_CENTER)
+    SETCONSTANT(POS_BOTTOM_RIGHT)
+    SETCONSTANT(POS_CENTER)
 
     #undef SETCONSTANT
 

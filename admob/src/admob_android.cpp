@@ -64,14 +64,22 @@ static void CallVoidMethodChar(jobject instance, jmethodID method, const char* c
     env->DeleteLocalRef(jstr);
 }
 
-static void CallVoidMethodCharInt(jobject instance, jmethodID method, const char* cstr, BannerSize bannerSize)
+static void CallVoidMethodCharInt(jobject instance, jmethodID method, const char* cstr, int cint)
 {
     ThreadAttacher attacher;
     JNIEnv *env = attacher.env;
 
     jstring jstr = env->NewStringUTF(cstr);
-    env->CallVoidMethod(instance, method, jstr, (int)bannerSize);
+    env->CallVoidMethod(instance, method, jstr, cint);
     env->DeleteLocalRef(jstr);
+}
+
+static void CallVoidMethodInt(jobject instance, jmethodID method, int cint)
+{
+    ThreadAttacher attacher;
+    JNIEnv *env = attacher.env;
+
+    env->CallVoidMethod(instance, method, cint);
 }
 
 static void InitJNIMethods(JNIEnv* env, jclass cls)
@@ -83,7 +91,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_ShowRewarded = env->GetMethodID(cls, "showRewarded", "()V");
     g_admob.m_LoadBanner = env->GetMethodID(cls, "loadBanner", "(Ljava/lang/String;I)V");
     g_admob.m_UnloadBanner = env->GetMethodID(cls, "unloadBanner", "()V");
-    g_admob.m_ShowBanner = env->GetMethodID(cls, "showBanner", "()V");
+    g_admob.m_ShowBanner = env->GetMethodID(cls, "showBanner", "(I)V");
     g_admob.m_HideBanner = env->GetMethodID(cls, "hideBanner", "()V");
 
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
@@ -142,7 +150,7 @@ bool IsRewardedLoaded()
 
 void LoadBanner(const char* unitId, BannerSize bannerSize)
 {
-    CallVoidMethodCharInt(g_admob.m_AdmobJNI, g_admob.m_LoadBanner, unitId, bannerSize);
+    CallVoidMethodCharInt(g_admob.m_AdmobJNI, g_admob.m_LoadBanner, unitId, (int)bannerSize);
 }
 
 void UnloadBanner()
@@ -150,9 +158,9 @@ void UnloadBanner()
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_UnloadBanner);
 }
 
-void ShowBanner()
+void ShowBanner(BannerPosition bannerPos)
 {
-    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowBanner);
+    CallVoidMethodInt(g_admob.m_AdmobJNI, g_admob.m_ShowBanner, (int)bannerPos);
 }
 
 void HideBanner()

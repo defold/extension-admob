@@ -5,6 +5,7 @@ import android.util.Log;
 import android.util.DisplayMetrics;
 import android.app.Activity;
 import android.view.Display;
+import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.view.ViewGroup.LayoutParams;
@@ -41,10 +42,10 @@ public class AdmobJNI {
 
   // duplicate of enums from admob_callback_private.h:
   // CONSTANTS:
-  private static final int MSG_INTERSTITIAL =       1;
-  private static final int MSG_REWARDED =           2;
-  private static final int MSG_BANNER =             3;
-  private static final int MSG_INITIALIZATION =     4;
+  private static final int MSG_INTERSTITIAL =         1;
+  private static final int MSG_REWARDED =             2;
+  private static final int MSG_BANNER =               3;
+  private static final int MSG_INITIALIZATION =       4;
 
   private static final int EVENT_CLOSED =             1;
   private static final int EVENT_FAILED_TO_SHOW =     2;
@@ -67,6 +68,15 @@ public class AdmobJNI {
   private static final int SIZE_SEARH =               7;
   private static final int SIZE_SKYSCRAPER =          8;
   private static final int SIZE_SMART_BANNER =        9;
+
+  private static final int POS_NONE =                 0;
+  private static final int POS_TOP_LEFT =             1;
+  private static final int POS_TOP_CENTER =           2;
+  private static final int POS_TOP_RIGHT =            3;
+  private static final int POS_BOTTOM_LEFT =          4;
+  private static final int POS_BOTTOM_CENTER =        5;
+  private static final int POS_BOTTOM_RIGHT =         6;
+  private static final int POS_CENTER =               7;
 
   // END CONSTANTS
 
@@ -311,6 +321,7 @@ public class AdmobJNI {
   private WindowManager.LayoutParams windowParams;
   private AdView mBannerAdView;
   private boolean isShown = false;
+  private int m_bannerPosition = Gravity.NO_GRAVITY;
 
   public void loadBanner(final String unitId, int bannerSize) {
     if (isBannerLoaded())
@@ -392,19 +403,29 @@ public class AdmobJNI {
       });
   }
 
-  public void showBanner() {
-    if (isShown || !isBannerLoaded()) {
+  public void showBanner(int pos) {
+    if (!isBannerLoaded()) {
         return;
     }
-    isShown = true;
+    int gravity = getGravity(pos);
+    if (isShown && m_bannerPosition != gravity)
+    {
+       _hideBanner();
+    }
+    else if (isShown)
+    {
+      return;
+    }
+    m_bannerPosition = gravity;
     final LinearLayout _layout = layout;
     activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
           WindowManager wm = activity.getWindowManager();
-          // windowParams.gravity = m_bannerPosition.getGravity();
+          windowParams.gravity = m_bannerPosition;
           mBannerAdView.resume();
           wm.addView(_layout, windowParams);
+          isShown = true;
         }
     });
   }
@@ -444,6 +465,34 @@ public class AdmobJNI {
     });
   }
 
+  private int getGravity(int bannerPosConst) {
+    int bannerPos = Gravity.NO_GRAVITY; //POS_NONE
+    switch (bannerPosConst) {
+      case POS_TOP_LEFT:
+        bannerPos = Gravity.TOP | Gravity.LEFT;
+        break;
+      case POS_TOP_CENTER:
+        bannerPos = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
+        break;
+      case POS_TOP_RIGHT:
+        bannerPos = Gravity.TOP | Gravity.RIGHT;
+        break;
+      case POS_BOTTOM_LEFT:
+        bannerPos = Gravity.BOTTOM | Gravity.LEFT;
+        break;
+      case POS_BOTTOM_CENTER:
+        bannerPos = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+        break;
+      case POS_BOTTOM_RIGHT:
+        bannerPos = Gravity.BOTTOM | Gravity.RIGHT;
+        break;
+      case POS_CENTER:
+        bannerPos = Gravity.CENTER;
+        break;
+      }
+    return bannerPos;
+  }
+
   private AdSize getSizeConstant(int bannerSizeConst) {
     AdSize bannerSize = getAdaptiveSize(); // SIZE_ADAPTIVE_BANNER
     switch (bannerSizeConst) {
@@ -479,15 +528,21 @@ public class AdmobJNI {
   }
 
   private AdSize getAdaptiveSize() {
+    // Determine the screen width (less decorations) to use for the ad width.
     Display display = activity.getWindowManager().getDefaultDisplay();
     DisplayMetrics outMetrics = new DisplayMetrics();
     display.getMetrics(outMetrics);
 
-    float widthPixels = outMetrics.widthPixels;
     float density = outMetrics.density;
 
-    int adWidth = (int) (widthPixels / density);
-    
+    float adWidthPixels = layout != null ? layout.getWidth() : 0;
+
+    // If the ad width isn't known, default to the full screen width.
+    if (adWidthPixels == 0) {
+      adWidthPixels = outMetrics.widthPixels;
+    }
+
+    int adWidth = (int) (adWidthPixels / density);
     return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity, adWidth);
   }
 

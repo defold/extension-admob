@@ -50,6 +50,7 @@ local function update_ui(self)
         gui.set_enabled(gui.get_node("load_ad/larrybutton"), false)
         gui.set_enabled(gui.get_node("show_ad/larrybutton"), false)
         gui.set_enabled(gui.get_node("hide_ad/larrybutton"), false)
+        gui.set_enabled(gui.get_node("unload_ad/larrybutton"), false)
     end
 end
 
@@ -123,6 +124,18 @@ function init(self)
         self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917"
     end
 
+    self.show_pos = 1
+    self.banner_positions = {
+        "POS_NONE",
+        "POS_TOP_LEFT",
+        "POS_TOP_CENTER",
+        "POS_TOP_RIGHT",
+        "POS_BOTTOM_LEFT",
+        "POS_BOTTOM_CENTER",
+        "POS_BOTTOM_RIGHT",
+        "POS_CENTER"
+    }
+
     if admob then
         admob.set_callback(admob_callback)
     end
@@ -171,8 +184,12 @@ function on_input(self, action_id, action)
             print("admob.show_rewarded()")
             admob.show_rewarded()
         elseif self.ad_type == admob.MSG_BANNER then
-            print("admob.show_banner()")
-            admob.show_banner()
+            print("admob.show_banner(admob."..self.banner_positions[self.show_pos]..")")
+            admob.show_banner(admob[self.banner_positions[self.show_pos]])
+            self.show_pos = self.show_pos + 1
+            if self.show_pos > #self.banner_positions then
+                self.show_pos = 1
+            end
         end
     end)
 
