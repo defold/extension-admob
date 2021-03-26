@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.WindowManager;
+import android.view.View;
 import android.widget.LinearLayout;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
@@ -345,7 +346,9 @@ public class AdmobJNI {
               // Log.d(TAG, "onAdLoaded");
               mBannerAdView = view;
               createLayout();
+              windowManager.addView(layout, windowParams);
               mBannerAdView.pause();
+              layout.setVisibility(View.GONE);
               sendSimpleMessage(MSG_BANNER, EVENT_LOADED);
             }
 
@@ -392,9 +395,7 @@ public class AdmobJNI {
           if (!isBannerLoaded()){
             return;
           }
-          if (isShown) {
-            windowManager.removeView(layout);
-          }
+          windowManager.removeView(layout);
           mBannerAdView.destroy();
           layout = null;
           mBannerAdView = null;
@@ -413,17 +414,17 @@ public class AdmobJNI {
             return;
           }
           int gravity = getGravity(pos);
-          if (isShown && m_bannerPosition != gravity)
+          if (m_bannerPosition != gravity)
           {
-             _hideBanner();
+            m_bannerPosition = gravity;
+            windowParams.gravity = m_bannerPosition;
+            windowManager.updateViewLayout(layout, windowParams);
           }
           else if (isShown)
           {
             return;
           }
-          m_bannerPosition = gravity;
-          windowParams.gravity = m_bannerPosition;
-          windowManager.addView(layout, windowParams);
+          layout.setVisibility(View.VISIBLE);
           mBannerAdView.resume();
           isShown = true;
         }
@@ -431,29 +432,21 @@ public class AdmobJNI {
   }
 
   public void hideBanner() {
-    if (!isBannerLoaded()) {
-      return;
-    }
-    _hideBanner();
+    activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          if (!isBannerLoaded() || !isShown) {
+            return;
+          }
+          isShown = false;
+          layout.setVisibility(View.GONE);
+          mBannerAdView.pause();
+        }
+    });
   }
 
   public boolean isBannerLoaded() {
     return mBannerAdView != null;
-  }
-
-  private void _hideBanner() {
-    activity.runOnUiThread(new Runnable() {
-        @Override
-        public void run() {
-          if (!isShown) {
-              return;
-          }
-          isShown = false;
-          WindowManager wm = activity.getWindowManager();
-          wm.removeView(layout);
-          mBannerAdView.pause();
-        }
-    });
   }
 
   private int getGravity(int bannerPosConst) {
