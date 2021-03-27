@@ -57,7 +57,7 @@ public class AdmobJNI {
   private static final int EVENT_EARNED_REWARD =      7;
   private static final int EVENT_COMPLETE =           8;
   private static final int EVENT_CLICKED =            9;
-  private static final int EVENT_UNLOADED =           10;
+  private static final int EVENT_DESTROYED =          10;
 
   private static final int SIZE_ADAPTIVE_BANNER =     0;
   private static final int SIZE_BANNER =              1;
@@ -320,7 +320,6 @@ public class AdmobJNI {
 
   private LinearLayout layout;
   private AdView mBannerAdView;
-  private WindowManager.LayoutParams windowParams;
   private WindowManager windowManager;
   private boolean isShown = false;
   private int m_bannerPosition = Gravity.NO_GRAVITY;
@@ -334,6 +333,7 @@ public class AdmobJNI {
     view.setAdUnitId(unitId);
     AdSize adSize = getSizeConstant(bannerSize);
     view.setAdSize(adSize);
+    view.pause();
     // Log.d(TAG, "loadBanner");
     activity.runOnUiThread(new Runnable() {
       @Override
@@ -342,13 +342,16 @@ public class AdmobJNI {
           view.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {
-              // Code to be executed when an ad finishes loading.
+              // Code to be executed when an ad finishes loading and when banner refreshed.
               // Log.d(TAG, "onAdLoaded");
-              mBannerAdView = view;
-              createLayout();
-              windowManager.addView(layout, windowParams);
-              mBannerAdView.pause();
-              layout.setVisibility(View.GONE);
+              if (!isBannerLoaded()) {
+                mBannerAdView = view;
+                createLayout();
+                windowManager.addView(layout, getParameters());
+                if (!isShown) {
+                  layout.setVisibility(View.GONE);
+                }
+              }
               sendSimpleMessage(MSG_BANNER, EVENT_LOADED);
             }
 
@@ -388,20 +391,19 @@ public class AdmobJNI {
     });
   }
 
-  public void unloadBanner() {
+  public void destroyBanner() {
     activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          if (!isBannerLoaded()){
+          if (!isBannerLoaded()) {
             return;
           }
           windowManager.removeView(layout);
           mBannerAdView.destroy();
           layout = null;
           mBannerAdView = null;
-          windowParams = null;
           isShown = false;
-          sendSimpleMessage(MSG_BANNER, EVENT_UNLOADED);
+          sendSimpleMessage(MSG_BANNER, EVENT_DESTROYED);
         }
       });
   }
@@ -417,6 +419,7 @@ public class AdmobJNI {
           if (m_bannerPosition != gravity)
           {
             m_bannerPosition = gravity;
+            WindowManager.LayoutParams windowParams = getParameters();
             windowParams.gravity = m_bannerPosition;
             windowManager.updateViewLayout(layout, windowParams);
           }
@@ -539,13 +542,16 @@ public class AdmobJNI {
     params.setMargins(0, 0, 0, 0);
 
     layout.addView(mBannerAdView, params);
+  }
 
-    windowParams = new WindowManager.LayoutParams();
+  private WindowManager.LayoutParams getParameters() {
+    WindowManager.LayoutParams windowParams = new WindowManager.LayoutParams();
     windowParams.x = WindowManager.LayoutParams.WRAP_CONTENT;
     windowParams.y = WindowManager.LayoutParams.WRAP_CONTENT;
     windowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
     windowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
     windowParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+    return windowParams;
   }
 
 }

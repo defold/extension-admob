@@ -9,3 +9,5 @@ build
 builtins
 .internal
 /.idea/
+/debug.keystore
+/debug.keystore.pass.txt

@@ -86,10 +86,10 @@ static int Lua_LoadBanner(lua_State* L)
     return 0;
 }
 
-static int Lua_UnloadBanner(lua_State* L)
+static int Lua_DestroyBanner(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    UnloadBanner();
+    DestroyBanner();
     return 0;
 }
 
@@ -144,7 +144,7 @@ static const luaL_reg Module_methods[] =
     {"load_rewarded", Lua_LoadRewarded},
     {"show_rewarded", Lua_ShowRewarded},
     {"load_banner", Lua_LoadBanner},
-    {"unload_banner", Lua_UnloadBanner},
+    {"destroy_banner", Lua_DestroyBanner},
     {"show_banner", Lua_ShowBanner},
     {"hide_banner", Lua_HideBanner},
     {"is_rewarded_loaded", Lua_IsRewardedLoaded},
@@ -176,7 +176,7 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(EVENT_EARNED_REWARD)
     SETCONSTANT(EVENT_COMPLETE)
     SETCONSTANT(EVENT_CLICKED)
-    SETCONSTANT(EVENT_UNLOADED)
+    SETCONSTANT(EVENT_DESTROYED)
 
     SETCONSTANT(SIZE_ADAPTIVE_BANNER)
     SETCONSTANT(SIZE_BANNER)

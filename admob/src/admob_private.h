@@ -36,7 +36,7 @@ void ShowInterstitial();
 void LoadRewarded(const char* unitId);
 void ShowRewarded();
 void LoadBanner(const char* unitId, BannerSize bannerSize);
-void UnloadBanner();
+void DestroyBanner();
 void ShowBanner(BannerPosition bannerPos);
 void HideBanner();
 

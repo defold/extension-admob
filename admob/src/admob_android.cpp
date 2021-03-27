@@ -26,7 +26,7 @@ struct Admob
     jmethodID      m_LoadRewarded;
     jmethodID      m_ShowRewarded;
     jmethodID      m_LoadBanner;
-    jmethodID      m_UnloadBanner;
+    jmethodID      m_DestroyBanner;
     jmethodID      m_ShowBanner;
     jmethodID      m_HideBanner;
     jmethodID      m_IsRewardedLoaded;
@@ -90,7 +90,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;)V");
     g_admob.m_ShowRewarded = env->GetMethodID(cls, "showRewarded", "()V");
     g_admob.m_LoadBanner = env->GetMethodID(cls, "loadBanner", "(Ljava/lang/String;I)V");
-    g_admob.m_UnloadBanner = env->GetMethodID(cls, "unloadBanner", "()V");
+    g_admob.m_DestroyBanner = env->GetMethodID(cls, "destroyBanner", "()V");
     g_admob.m_ShowBanner = env->GetMethodID(cls, "showBanner", "(I)V");
     g_admob.m_HideBanner = env->GetMethodID(cls, "hideBanner", "()V");
 
@@ -153,9 +153,9 @@ void LoadBanner(const char* unitId, BannerSize bannerSize)
     CallVoidMethodCharInt(g_admob.m_AdmobJNI, g_admob.m_LoadBanner, unitId, (int)bannerSize);
 }
 
-void UnloadBanner()
+void DestroyBanner()
 {
-    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_UnloadBanner);
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_DestroyBanner);
 }
 
 void ShowBanner(BannerPosition bannerPos)
