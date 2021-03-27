@@ -54,6 +54,17 @@ local function update_ui(self)
     end
 end
 
+local function set_block_height(height)
+    -- use banner height in gui
+    local screen_width, screen_height = window.get_size()
+    local settings_height = tonumber(sys.get_config("display.height"))
+    local mult = screen_height/settings_height
+    local height_b_node = gui.get_node("height_b")
+    local size = gui.get_size(height_b_node)
+    size.y = height/mult
+    gui.set_size(height_b_node, size)
+end
+
 local function admob_callback(self, message_id, message)
     pprint(message_id, message)
     if message_id == admob.MSG_INITIALIZATION then
@@ -93,7 +104,8 @@ local function admob_callback(self, message_id, message)
         end
     elseif message_id == admob.MSG_BANNER then
         if message.event == admob.EVENT_LOADED then
-            print("EVENT_LOADED: Banner AD loaded")
+            print("EVENT_LOADED: Banner AD loaded. Height: "..message.height.."px Width: "..message.width.."px")
+            set_block_height(message.height)
         elseif message.event == admob.EVENT_OPENING then
             print("EVENT_OPENING: Banner AD is opening")
         elseif message.event == admob.EVENT_FAILED_TO_LOAD then
@@ -126,13 +138,13 @@ function init(self)
 
     self.show_pos = 1
     self.banner_positions = {
+        "POS_BOTTOM_CENTER",
+        "POS_BOTTOM_LEFT",
+        "POS_BOTTOM_RIGHT",
         "POS_NONE",
         "POS_TOP_LEFT",
         "POS_TOP_CENTER",
         "POS_TOP_RIGHT",
-        "POS_BOTTOM_LEFT",
-        "POS_BOTTOM_CENTER",
-        "POS_BOTTOM_RIGHT",
         "POS_CENTER"
     }
 
@@ -171,7 +183,9 @@ function on_input(self, action_id, action)
             admob.load_rewarded(self.rewardedvideo_ad_unit)
         elseif self.ad_type == admob.MSG_BANNER then
             print("admob.load_banner()")
-            admob.load_banner(self.banner_ad_unit) --2nd parameter sizes
+            -- 2nd parameter size, adaptive banner by default:
+            -- https://developers.google.com/admob/android/banner/adaptive?hl=en
+            admob.load_banner(self.banner_ad_unit)
         end
     end)
 

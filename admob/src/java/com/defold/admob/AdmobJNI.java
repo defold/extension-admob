@@ -149,6 +149,20 @@ public class AdmobJNI {
       admobAddToQueue(msg, message);
     }
 
+  private void sendSimpleMessage(int msg, int eventId, String key_2, int value_2, String key_3, int value_3) {
+    String message = null;
+    try {
+        JSONObject obj = new JSONObject();
+        obj.put("event", eventId);
+        obj.put(key_2, value_2);
+        obj.put(key_3, value_3);
+        message = obj.toString();
+    } catch (JSONException e) {
+        message = getJsonConversionErrorMessage(e.getMessage());
+    }
+    admobAddToQueue(msg, message);
+  }
+
 //--------------------------------------------------
 // Interstitial ADS
 
@@ -333,6 +347,8 @@ public class AdmobJNI {
     view.setAdUnitId(unitId);
     AdSize adSize = getSizeConstant(bannerSize);
     view.setAdSize(adSize);
+    final int bannerWidth  = adSize.getWidthInPixels(activity);
+    final int bannerHeight = adSize.getHeightInPixels(activity);
     view.pause();
     // Log.d(TAG, "loadBanner");
     activity.runOnUiThread(new Runnable() {
@@ -352,7 +368,7 @@ public class AdmobJNI {
                   layout.setVisibility(View.GONE);
                 }
               }
-              sendSimpleMessage(MSG_BANNER, EVENT_LOADED);
+              sendSimpleMessage(MSG_BANNER, EVENT_LOADED, "height", bannerHeight, "width", bannerWidth);
             }
 
             @Override
