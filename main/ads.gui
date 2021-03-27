@@ -1434,7 +1434,7 @@ nodes {
   }
   type: TYPE_TEXT
   blend_mode: BLEND_MODE_ALPHA
-  text: "Banner (WIP)"
+  text: "Banner"
   font: "larryfont"
   id: "ad_type_banner/larrylabel"
   xanchor: XANCHOR_NONE
