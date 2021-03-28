@@ -1,3 +1,5 @@
+#if defined(DM_PLATFORM_ANDROID)
+
 #include <jni.h>
 /* Header for class com_defold_admob_AdmobJNI */
 
@@ -17,4 +19,6 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#endif
+
 #endif

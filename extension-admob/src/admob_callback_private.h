@@ -1,3 +1,4 @@
+#if defined(DM_PLATFORM_ANDROID) || defined(DM_PLATFORM_IOS)
 #pragma once
 
 #include "admob_private.h"
@@ -44,3 +45,5 @@ void FinalizeCallback();
 void AddToQueueCallback(MessageId type, const char*json);
 
 } //namespace
+
+#endif

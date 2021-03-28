@@ -1,3 +1,5 @@
+#if defined(DM_PLATFORM_ANDROID) || defined(DM_PLATFORM_IOS)
+
 #pragma once
 
 namespace dmAdmob {
@@ -45,3 +47,5 @@ bool IsRewardedLoaded();
 bool IsBannerLoaded();
 
 } //namespace dmAdmob
+
+#endif
