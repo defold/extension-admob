@@ -6,7 +6,7 @@
 namespace dmAdmob {
 
 // The same events and messages are in AdmobJNI.java
-// If you change enums here, pls nake sure you update them here as well
+// If you change enums here, pls nake sure you update the constants there as well
 
 enum MessageId
 {

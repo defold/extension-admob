@@ -363,10 +363,6 @@ public class AdmobJNI {
               if (!isBannerLoaded()) {
                 mBannerAdView = view;
                 createLayout();
-                windowManager.addView(layout, getParameters());
-                if (!isShown) {
-                  layout.setVisibility(View.GONE);
-                }
               }
               sendSimpleMessage(MSG_BANNER, EVENT_LOADED, "height", bannerHeight, "width", bannerWidth);
             }
@@ -414,7 +410,9 @@ public class AdmobJNI {
           if (!isBannerLoaded()) {
             return;
           }
-          windowManager.removeView(layout);
+          if (isShown) {
+            windowManager.removeView(layout);
+          }
           mBannerAdView.destroy();
           layout = null;
           mBannerAdView = null;
@@ -432,18 +430,14 @@ public class AdmobJNI {
             return;
           }
           int gravity = getGravity(pos);
-          if (m_bannerPosition != gravity)
+          if (m_bannerPosition != gravity && isShown)
           {
             m_bannerPosition = gravity;
-            WindowManager.LayoutParams windowParams = getParameters();
-            windowParams.gravity = m_bannerPosition;
-            windowManager.updateViewLayout(layout, windowParams);
-          }
-          else if (isShown)
-          {
+            windowManager.updateViewLayout(layout, getParameters());
             return;
           }
-          layout.setVisibility(View.VISIBLE);
+          m_bannerPosition = gravity;
+          windowManager.addView(layout, getParameters());
           mBannerAdView.resume();
           isShown = true;
         }
@@ -458,7 +452,7 @@ public class AdmobJNI {
             return;
           }
           isShown = false;
-          layout.setVisibility(View.GONE);
+          windowManager.removeView(layout);
           mBannerAdView.pause();
         }
     });
@@ -567,6 +561,7 @@ public class AdmobJNI {
     windowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
     windowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
     windowParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+    windowParams.gravity = m_bannerPosition;
     return windowParams;
   }
 
