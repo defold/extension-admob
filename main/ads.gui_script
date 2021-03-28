@@ -123,17 +123,25 @@ end
 
 function init(self)
     msg.post(".", "acquire_input_focus")
-    
-    if sys.get_sys_info().system_name == 'iPhone OS' then
-        -- https://developers.google.com/admob/ios/test-ads
-        self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716"
-        self.interstitial_ad_unit = "ca-app-pub-3940256099942544/4411468910"
-        self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/1712485313"
+
+    local engine_info = sys.get_engine_info()
+    self.is_debug = engine_info.is_debug
+
+    if self.is_debug then
+        -- Always test ONLY with test ads when you test integration!
+        if sys.get_sys_info().system_name == 'iPhone OS' then
+            -- https://developers.google.com/admob/ios/test-ads
+            self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716" -- test unit for banners
+            self.interstitial_ad_unit = "ca-app-pub-3940256099942544/4411468910" -- test unit for interstitial
+            self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/1712485313" -- test unit for rewarded
+        else --Android
+            -- From https://developers.google.com/admob/android/test-ads
+            self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111" -- test unit for banners
+            self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712" -- test unit for interstitial
+            self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917" -- test unit for rewarded
+        end
     else
-        -- From https://developers.google.com/admob/android/test-ads
-        self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111"
-        self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712"
-        self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917"
+        --provide your units
     end
 
     self.show_pos = 1
