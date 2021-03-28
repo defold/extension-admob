@@ -14,7 +14,7 @@
             <true/>
         </dict>
         <key>NSUserTrackingUsageDescription</key>
-        <string>This identifier will be used to deliver personalized ads to you.</string>
+        <string>{{admob.ios_tracking_usage_description}}</string>
         <key>SKAdNetworkItems</key>
         <array>
             <dict>
