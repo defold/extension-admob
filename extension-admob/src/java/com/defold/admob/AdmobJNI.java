@@ -57,6 +57,7 @@ public class AdmobJNI {
   private static final int EVENT_COMPLETE =           8;
   private static final int EVENT_CLICKED =            9;
   private static final int EVENT_DESTROYED =          10;
+  private static final int EVENT_JSON_ERROR =         11;
 
   private static final int SIZE_ADAPTIVE_BANNER =     0;
   private static final int SIZE_BANNER =              1;
@@ -102,9 +103,10 @@ public class AdmobJNI {
       try {
           JSONObject obj = new JSONObject();
           obj.put("error", messageText);
+          obj.put("event", EVENT_JSON_ERROR);
           message = obj.toString();
       } catch (JSONException e) {
-          message = "{ \"error\": \"Error while converting simple message to JSON.\" }";
+          message = "{ \"error\": \"Error while converting simple message to JSON.\", \"event\": "+EVENT_JSON_ERROR+" }";
       }
     return message;
   }
@@ -116,7 +118,7 @@ public class AdmobJNI {
           obj.put("event", eventId);
           message = obj.toString();
       } catch (JSONException e) {
-          message = getJsonConversionErrorMessage(e.getMessage());
+          message = getJsonConversionErrorMessage(e.getLocalizedMessage());
       }
       admobAddToQueue(msg, message);
   }
@@ -129,7 +131,7 @@ public class AdmobJNI {
           obj.put(key_2, value_2);
           message = obj.toString();
       } catch (JSONException e) {
-          message = getJsonConversionErrorMessage(e.getMessage());
+          message = getJsonConversionErrorMessage(e.getLocalizedMessage());
       }
       admobAddToQueue(msg, message);
     }
@@ -143,7 +145,7 @@ public class AdmobJNI {
           obj.put(key_3, value_3);
           message = obj.toString();
       } catch (JSONException e) {
-          message = getJsonConversionErrorMessage(e.getMessage());
+          message = getJsonConversionErrorMessage(e.getLocalizedMessage());
       }
       admobAddToQueue(msg, message);
     }
@@ -157,7 +159,7 @@ public class AdmobJNI {
         obj.put(key_3, value_3);
         message = obj.toString();
     } catch (JSONException e) {
-        message = getJsonConversionErrorMessage(e.getMessage());
+        message = getJsonConversionErrorMessage(e.getLocalizedMessage());
     }
     admobAddToQueue(msg, message);
   }
