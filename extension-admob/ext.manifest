@@ -6,4 +6,6 @@ platforms:
             aaptExtraPackages: ['androidx.work', 'com.google.android.gms.common']
     ios:
         context:
-            frameworks: ["AVFoundation", "AdSupport"]
+            frameworks: ['AVFoundation']
+            weakFrameworks: ['AdSupport', 'JavaScriptCore']
+            linkFlags:  ['-ObjC']
