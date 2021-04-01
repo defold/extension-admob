@@ -4,3 +4,6 @@ platforms:
     android:
         context:
             aaptExtraPackages: ['androidx.work', 'com.google.android.gms.common']
+    ios:
+        context:
+            frameworks: ["AVFoundation", "AdSupport"]
