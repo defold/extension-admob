@@ -3,9 +3,10 @@ name: "AdMobExt"
 platforms:
     android:
         context:
-            aaptExtraPackages: ['androidx.work', 'com.google.android.gms.common']
+            aaptExtraPackages: ["androidx.work", "com.google.android.gms.common"]
+
     ios:
         context:
-            frameworks: ['AVFoundation']
-            weakFrameworks: ['AdSupport', 'JavaScriptCore']
-            linkFlags:  ['-ObjC']
+            frameworks: ["UIKit"]
+            weakFrameworks: ["JavaScriptCore", "AdSupport"]
+            linkFlags:  ["-ObjC"]
