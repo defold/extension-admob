@@ -58,6 +58,7 @@ public class AdmobJNI {
   private static final int EVENT_CLICKED =            9;
   private static final int EVENT_DESTROYED =          10;
   private static final int EVENT_JSON_ERROR =         11;
+  private static final int EVENT_IMPRESSION_RECORDED =12;
 
   private static final int SIZE_ADAPTIVE_BANNER =     0;
   private static final int SIZE_BANNER =              1;

@@ -29,7 +29,8 @@ enum MessageEvent
     EVENT_COMPLETE =                8,
     EVENT_CLICKED =                 9,
     EVENT_DESTROYED =               10,
-    EVENT_JSON_ERROR =              11
+    EVENT_JSON_ERROR =              11,
+    EVENT_IMPRESSION_RECORDED =     12 // iOS only
 };
 
 struct CallbackData

@@ -124,6 +124,8 @@ local function admob_callback(self, message_id, message)
             print("EVENT_CLOSED: Banner AD closed")
         elseif message.event == admob.EVENT_DESTROYED then
             print("EVENT_DESTROYED: Banner AD destroyed")
+        elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
+            print("EVENT_IMPRESSION_RECORDED: Banner did record impression")
         elseif message.event == admob.EVENT_JSON_ERROR then
             print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
         end

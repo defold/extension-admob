@@ -320,15 +320,6 @@ namespace dmAdmob {
         [bannerAd loadRequest:[GADRequest request]];
     }
 
-    void DestroyBanner() {
-        if (!IsBannerLoaded()) {
-          return;
-        }
-        bannerAd.delegate = nil;
-        [bannerAd release];
-        bannerAd = nil;
-    }
-
     void ShowBanner(BannerPosition bannerPos) {
         if (!IsBannerLoaded()) {
           return;
@@ -345,6 +336,17 @@ namespace dmAdmob {
           return;
         }
         bannerAd.hidden = YES;
+    }
+
+    void DestroyBanner() {
+        if (!IsBannerLoaded()) {
+          return;
+        }
+        HideBanner();
+        bannerAd.delegate = nil;
+        [bannerAd release];
+        bannerAd = nil;
+        SendSimpleMessage(MSG_BANNER, EVENT_DESTROYED);
     }
 
 //--------------------------------------------------
@@ -400,39 +402,41 @@ void Initialize_Ext() {
 
 @implementation AdmobExtBannerAdDelegate
 
-- (void)adViewDidReceiveAd:(GADBannerView *)bannerView {
-    // Called when an ad request loaded an ad.
+- (void)bannerViewDidReceiveAd:(GADBannerView *)bannerView {
+    // Tells the delegate that an ad request successfully received an ad.
+    // The delegate may want to add the banner view to the view hierarchy if it hasn’t been added yet.
     [dmAdmob::uiViewController.view addSubview:bannerView];
     CGFloat bannerHeight = CGRectGetHeight(CGRectStandardize(bannerView.frame)) * [UIScreen mainScreen].scale;
     CGFloat bannerWidth = CGRectGetWidth(CGRectStandardize(bannerView.frame)) * [UIScreen mainScreen].scale;
     dmAdmob::SendSimpleMessageIntInt(dmAdmob::MSG_BANNER, dmAdmob::EVENT_LOADED, @"height", (int)ceilf(bannerHeight), @"width", (int)ceilf(bannerWidth));
 }
 
-- (void)adView:(GADBannerView *)bannerView didFailToReceiveAdWithError:(NSError *)error {
-    // Called when an ad request failed.
+- (void)bannerView:(GADBannerView *)bannerView didFailToReceiveAdWithError:(NSError *)error {
+    // Tells the delegate that an ad request failed.
+    // The failure is normally due to network connectivity or ad availablility (i.e., no fill).
     dmAdmob::SendSimpleMessageIntString(dmAdmob::MSG_BANNER, dmAdmob::EVENT_FAILED_TO_LOAD, @"code", [error code],
         @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
 }
 
-- (void)adViewWillPresentScreen:(GADBannerView *)bannerView {
-    // Called just before presenting the user a full screen view, such as a browser, in response to
-    // clicking on an ad.
-    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_CLICKED);
+- (void)bannerViewDidRecordImpression:(GADBannerView *)bannerView {
+    // Tells the delegate that an impression has been recorded for an ad.
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_IMPRESSION_RECORDED);
 }
 
-- (void)adViewWillDismissScreen:(GADBannerView *)bannerView {
-  // Called just before dismissing a full screen view.
+- (void)bannerViewWillDismissScreen:(GADBannerView *)bannerView {
+  // Tells the delegate that the full screen view will be dismissed.
 }
 
-- (void)adViewDidDismissScreen:(GADBannerView *)bannerView {
-  // Called just after dismissing a full screen view.
+- (void)bannerViewDidDismissScreen:(GADBannerView *)bannerView {
+    // Tells the delegate that the full screen view has been dismissed.
+    // The delegate should restart anything paused while handling bannerViewWillPresentScreen:.
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_CLOSED);
 }
 
-- (void)adViewWillLeaveApplication:(GADBannerView *)bannerView {
-    // Called just before the application will background or exit because the user clicked on an ad
-    // that will launch another application (such as the App Store).
-    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_OPENING);
+- (void)bannerViewWillPresentScreen:(GADBannerView *)bannerView {
+    // Tells the delegate that a full screen view will be presented in response to the user clicking on an ad.
+    // The delegate may want to pause animations and time sensitive interactions.
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_CLICKED);
 }
 
 @end
