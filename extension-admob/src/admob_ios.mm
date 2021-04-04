@@ -14,7 +14,6 @@
 @interface AdmobExtBannerAdDelegate : NSObject<GADBannerViewDelegate>
 @end
 
-
 namespace dmAdmob {
 
     static UIViewController *uiViewController = nil;
@@ -317,6 +316,7 @@ namespace dmAdmob {
         bannerAd.delegate = admobExtBannerAdDelegate;
         bannerAd.rootViewController = uiViewController;
         bannerAd.hidden = YES;
+        [uiViewController.view addSubview:bannerAd];
         [bannerAd loadRequest:[GADRequest request]];
     }
 
