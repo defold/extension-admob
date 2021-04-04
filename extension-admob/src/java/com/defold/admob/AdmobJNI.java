@@ -336,7 +336,7 @@ public class AdmobJNI {
   private LinearLayout layout;
   private AdView mBannerAdView;
   private WindowManager windowManager;
-  private boolean isShown = false;
+  private boolean isBannerShown = false;
   private int m_bannerPosition = Gravity.NO_GRAVITY;
 
   public void loadBanner(final String unitId, int bannerSize) {
@@ -411,13 +411,13 @@ public class AdmobJNI {
           if (!isBannerLoaded()) {
             return;
           }
-          if (isShown) {
+          if (isBannerShown) {
             windowManager.removeView(layout);
           }
           mBannerAdView.destroy();
           layout = null;
           mBannerAdView = null;
-          isShown = false;
+          isBannerShown = false;
           sendSimpleMessage(MSG_BANNER, EVENT_DESTROYED);
         }
       });
@@ -431,7 +431,7 @@ public class AdmobJNI {
             return;
           }
           int gravity = getGravity(pos);
-          if (m_bannerPosition != gravity && isShown)
+          if (m_bannerPosition != gravity && isBannerShown)
           {
             m_bannerPosition = gravity;
             windowManager.updateViewLayout(layout, getParameters());
@@ -440,7 +440,7 @@ public class AdmobJNI {
           m_bannerPosition = gravity;
           windowManager.addView(layout, getParameters());
           mBannerAdView.resume();
-          isShown = true;
+          isBannerShown = true;
         }
     });
   }
@@ -449,10 +449,10 @@ public class AdmobJNI {
     activity.runOnUiThread(new Runnable() {
         @Override
         public void run() {
-          if (!isBannerLoaded() || !isShown) {
+          if (!isBannerLoaded() || !isBannerShown) {
             return;
           }
-          isShown = false;
+          isBannerShown = false;
           windowManager.removeView(layout);
           mBannerAdView.pause();
         }

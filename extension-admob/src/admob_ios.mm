@@ -11,6 +11,9 @@
 @interface AdmobExtRewardedAdDelegate : NSObject<GADFullScreenContentDelegate>
 @end
 
+@interface AdmobExtBannerAdDelegate : NSObject<GADBannerViewDelegate>
+@end
+
 
 namespace dmAdmob {
 
@@ -51,6 +54,13 @@ namespace dmAdmob {
         SendSimpleMessageObjCObject(msg, dict);
     }
 
+    void SendSimpleMessageString(MessageId msg, MessageEvent event, NSString *key_2, NSString *value_2) {
+        NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+        [dict setObject:[NSNumber numberWithInt:event] forKey:@"event"];
+        [dict setObject:value_2 forKey:key_2];
+        SendSimpleMessageObjCObject(msg, dict);
+    }
+
     void SendSimpleMessageIntString(MessageId msg, MessageEvent event, NSString *key_2, int value_2, NSString *key_3, NSString *value_3) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         [dict setObject:[NSNumber numberWithInt:event] forKey:@"event"];
@@ -59,10 +69,11 @@ namespace dmAdmob {
         SendSimpleMessageObjCObject(msg, dict);
     }
 
-    void SendSimpleMessageString(MessageId msg, MessageEvent event, NSString *key_2, NSString *value_2) {
+    void SendSimpleMessageIntInt(MessageId msg, MessageEvent event, NSString *key_2, int value_2, NSString *key_3, int value_3) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         [dict setObject:[NSNumber numberWithInt:event] forKey:@"event"];
-        [dict setObject:value_2 forKey:key_2];
+        [dict setObject:[NSNumber numberWithInt:value_2] forKey:key_2];
+        [dict setObject:[NSNumber numberWithInt:value_3] forKey:key_3];
         SendSimpleMessageObjCObject(msg, dict);
     }
 
@@ -201,24 +212,139 @@ namespace dmAdmob {
 //--------------------------------------------------
 // Banner ADS
 
-    void LoadBanner(const char* unitId, BannerSize bannerSize) {
+    static GADBannerView *bannerAd = nil;
+    static AdmobExtBannerAdDelegate *admobExtBannerAdDelegate;
+    static BannerPosition lastBannerPos;
 
+    GADAdSize GetAdaptiveSize() {
+        UIView *defoldView = uiViewController.view;
+        CGRect frame = defoldView.frame;
+
+        if (@available(iOS 11.0, *)) {
+            frame = UIEdgeInsetsInsetRect(defoldView.frame, defoldView.safeAreaInsets);
+        }
+
+        CGFloat viewWidth = frame.size.width;
+        return GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(viewWidth);
     }
 
-    void DestroyBanner() {
-        
+    GADAdSize GetSizeConstant(BannerSize bannerSizeConst) {
+        GADAdSize bannerSize = GetAdaptiveSize(); // SIZE_ADAPTIVE_BANNER
+        //SIZE_FLUID, SIZE_SEARH, SIZE_SKYSCRAPER, SIZE_SMART_BANNER are not available on iOS
+        switch (bannerSizeConst) {
+          case SIZE_BANNER:
+            bannerSize = kGADAdSizeBanner;
+            break;
+          case SIZE_FULL_BANNER:
+            bannerSize = kGADAdSizeFullBanner;
+            break;
+          case SIZE_LARGE_BANNER:
+            bannerSize = kGADAdSizeLargeBanner;
+            break;
+          case SIZE_LEADEARBOARD:
+            bannerSize = kGADAdSizeLeaderboard;
+            break;
+          case SIZE_MEDIUM_RECTANGLE:
+            bannerSize = kGADAdSizeMediumRectangle;
+            break;
+          }
+        return bannerSize;
     }
 
-    void ShowBanner(BannerPosition bannerPos) {
-        
-    }
+    void UpdatePosition(BannerPosition bannerSizeConst) {
+        UIView *defoldView = uiViewController.view;
+        CGRect bounds = defoldView.bounds;
+        if (@available(iOS 11.0, *)) {
+            CGRect safeAreaFrame = defoldView.safeAreaLayoutGuide.layoutFrame;
+            if (!CGSizeEqualToSize(CGSizeZero, safeAreaFrame.size)) {
+                bounds = safeAreaFrame;
+            }
+        }
 
-    void HideBanner() {
-        
+        CGFloat top = CGRectGetMinY(bounds) + CGRectGetMidY(bannerAd.bounds);
+        CGFloat bottom = CGRectGetMaxY(bounds) - CGRectGetMidY(bannerAd.bounds);
+        CGFloat centerY = CGRectGetMidY(bounds);
+
+        if (CGRectGetHeight(bannerAd.bounds) >= CGRectGetHeight(defoldView.bounds)) {
+            top = CGRectGetMidY(defoldView.bounds);
+        }
+
+        CGFloat left = CGRectGetMinX(bounds) + CGRectGetMidX(bannerAd.bounds);
+        CGFloat right = CGRectGetMaxX(bounds) - CGRectGetMidX(bannerAd.bounds);
+        CGFloat centerX = CGRectGetMidX(bounds);
+
+        if (CGRectGetWidth(bannerAd.bounds) >= CGRectGetWidth(defoldView.bounds)) {
+            left = CGRectGetMidX(defoldView.bounds);
+        }
+
+        CGPoint bannerPos = CGPointMake(centerX, centerY);
+        switch (bannerSizeConst) {
+            case POS_TOP_LEFT:
+                bannerPos = CGPointMake(left, top);
+            break;
+            case POS_TOP_CENTER:
+                bannerPos = CGPointMake(centerX, top);
+            break;
+            case POS_TOP_RIGHT:
+                bannerPos = CGPointMake(right, top);
+            break;
+            case POS_BOTTOM_LEFT:
+                bannerPos = CGPointMake(left, bottom);
+            break;
+            case POS_BOTTOM_CENTER:
+                bannerPos = CGPointMake(centerX, bottom);
+            break;
+            case POS_BOTTOM_RIGHT:
+                bannerPos = CGPointMake(right, bottom);
+            break;
+            case POS_CENTER:
+                bannerPos = CGPointMake(centerX, centerY);
+            break;
+        }
+        bannerAd.center = bannerPos;
     }
 
     bool IsBannerLoaded() {
-        return false;
+        return bannerAd != nil;
+    }
+
+    void LoadBanner(const char* unitId, BannerSize bannerSize) {
+        if (IsBannerLoaded()) {
+          return;
+        }
+        bannerAd = [[GADBannerView alloc] initWithAdSize:GetSizeConstant(bannerSize)];
+        bannerAd.adUnitID = [NSString stringWithUTF8String:unitId];
+        bannerAd.delegate = admobExtBannerAdDelegate;
+        bannerAd.rootViewController = uiViewController;
+        bannerAd.hidden = YES;
+        [bannerAd loadRequest:[GADRequest request]];
+    }
+
+    void DestroyBanner() {
+        if (!IsBannerLoaded()) {
+          return;
+        }
+        bannerAd.delegate = nil;
+        [bannerAd release];
+        bannerAd = nil;
+    }
+
+    void ShowBanner(BannerPosition bannerPos) {
+        if (!IsBannerLoaded()) {
+          return;
+        }
+        bannerAd.hidden = NO;
+        if (bannerPos != lastBannerPos) {
+            UpdatePosition(bannerPos);
+            lastBannerPos = bannerPos;
+        }
+    }
+
+    void HideBanner() {
+        if (!IsBannerLoaded()) {
+          return;
+        }
+        bannerAd.hidden = YES;
     }
 
 //--------------------------------------------------
@@ -229,6 +355,7 @@ void Initialize_Ext() {
 
     admobExtInterstitialAdDelegate = [[AdmobExtInterstitialAdDelegate alloc] init];
     admobExtRewardedAdDelegate = [[AdmobExtRewardedAdDelegate alloc] init];
+    admobExtBannerAdDelegate = [[AdmobExtBannerAdDelegate alloc] init];
 }
 
 } //namespace
@@ -267,6 +394,45 @@ void Initialize_Ext() {
 
 - (void)adDidPresentFullScreenContent:(id)ad {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_OPENING);
+}
+
+@end
+
+@implementation AdmobExtBannerAdDelegate
+
+- (void)adViewDidReceiveAd:(GADBannerView *)bannerView {
+    // Called when an ad request loaded an ad.
+    [dmAdmob::uiViewController.view addSubview:bannerView];
+    CGFloat bannerHeight = CGRectGetHeight(CGRectStandardize(bannerView.frame)) * [UIScreen mainScreen].scale;
+    CGFloat bannerWidth = CGRectGetWidth(CGRectStandardize(bannerView.frame)) * [UIScreen mainScreen].scale;
+    dmAdmob::SendSimpleMessageIntInt(dmAdmob::MSG_BANNER, dmAdmob::EVENT_LOADED, @"height", (int)ceilf(bannerHeight), @"width", (int)ceilf(bannerWidth));
+}
+
+- (void)adView:(GADBannerView *)bannerView didFailToReceiveAdWithError:(NSError *)error {
+    // Called when an ad request failed.
+    dmAdmob::SendSimpleMessageIntString(dmAdmob::MSG_BANNER, dmAdmob::EVENT_FAILED_TO_LOAD, @"code", [error code],
+        @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
+}
+
+- (void)adViewWillPresentScreen:(GADBannerView *)bannerView {
+    // Called just before presenting the user a full screen view, such as a browser, in response to
+    // clicking on an ad.
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_CLICKED);
+}
+
+- (void)adViewWillDismissScreen:(GADBannerView *)bannerView {
+  // Called just before dismissing a full screen view.
+}
+
+- (void)adViewDidDismissScreen:(GADBannerView *)bannerView {
+  // Called just after dismissing a full screen view.
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_CLOSED);
+}
+
+- (void)adViewWillLeaveApplication:(GADBannerView *)bannerView {
+    // Called just before the application will background or exit because the user clicked on an ad
+    // that will launch another application (such as the App Store).
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_OPENING);
 }
 
 @end

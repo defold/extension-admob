@@ -138,7 +138,7 @@ function init(self)
     self.is_debug = engine_info.is_debug
 
     if self.is_debug then
-        -- Always test ONLY with test ads when you test integration!
+        -- Always test ONLY with test ads units when you test integration!
         if sys.get_sys_info().system_name == 'iPhone OS' then
             -- https://developers.google.com/admob/ios/test-ads
             self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716" -- test unit for banners
