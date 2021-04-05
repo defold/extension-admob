@@ -2,7 +2,6 @@
 title = AdMob
 version = 1.0
 dependencies = https://github.com/andsve/dirtylarry/archive/master.zip
-bundle_resources = /res
 
 [bootstrap]
 main_collection = /main/admob_example.collectionc
@@ -31,7 +30,7 @@ manifest = /builtins/manifests/android/AndroidManifest.xml
 bundle_identifier = com.defold.adtest
 
 [library]
-include_dirs = admob
+include_dirs = extension-admob
 
 [admob]
 app_id_ios = ca-app-pub-3940256099942544~1458002511
