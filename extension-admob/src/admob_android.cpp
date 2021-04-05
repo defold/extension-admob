@@ -32,6 +32,7 @@ struct Admob
     jmethodID      m_IsRewardedLoaded;
     jmethodID      m_IsInterstitialLoaded;
     jmethodID      m_IsBannerLoaded;
+    jmethodID      m_SetPrivacySettings;
 
 };
 
@@ -82,6 +83,14 @@ static void CallVoidMethodInt(jobject instance, jmethodID method, int cint)
     env->CallVoidMethod(instance, method, cint);
 }
 
+static void CallVoidMethodBool(jobject instance, jmethodID method, bool cbool)
+{
+    ThreadAttacher attacher;
+    JNIEnv *env = attacher.env;
+
+    env->CallVoidMethod(instance, method, cbool);
+}
+
 static void InitJNIMethods(JNIEnv* env, jclass cls)
 {
     g_admob.m_Initialize = env->GetMethodID(cls, "initialize", "()V");
@@ -93,6 +102,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_DestroyBanner = env->GetMethodID(cls, "destroyBanner", "()V");
     g_admob.m_ShowBanner = env->GetMethodID(cls, "showBanner", "(I)V");
     g_admob.m_HideBanner = env->GetMethodID(cls, "hideBanner", "()V");
+    g_admob.m_SetPrivacySettings = env->GetMethodID(cls, "setPrivacySettings", "(Z)V");
 
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
     g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
@@ -171,6 +181,11 @@ void HideBanner()
 bool IsBannerLoaded()
 {
     return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsBannerLoaded);
+}
+
+void SetPrivacySettings(bool enable_rdp)
+{
+    CallVoidMethodBool(g_admob.m_AdmobJNI, g_admob.m_SetPrivacySettings, enable_rdp);
 }
 
 }//namespace dmAdmob

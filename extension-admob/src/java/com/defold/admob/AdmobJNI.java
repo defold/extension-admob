@@ -10,6 +10,8 @@ import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.content.Context;
+import android.content.SharedPreferences;
 
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
@@ -96,6 +98,13 @@ public class AdmobJNI {
             sendSimpleMessage(MSG_INITIALIZATION, EVENT_COMPLETE);
           }
       });
+  }
+
+  public void setPrivacySettings(boolean enable_rdp) {
+    SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
+    SharedPreferences.Editor editor = sharedPref.edit();
+    editor.putInt("gad_rdp", 1);
+    editor.commit();
   }
 
   // https://www.baeldung.com/java-json-escaping

@@ -360,6 +360,10 @@ void Initialize_Ext() {
     admobExtBannerAdDelegate = [[AdmobExtBannerAdDelegate alloc] init];
 }
 
+void SetPrivacySettings(bool enable_rdp) {
+    [NSUserDefaults.standardUserDefaults setBool:enable_rdp ? YES : NO forKey:@"gad_rdp"];
+}
+
 } //namespace
 
 @implementation AdmobExtInterstitialAdDelegate

@@ -41,6 +41,7 @@ void LoadBanner(const char* unitId, BannerSize bannerSize);
 void DestroyBanner();
 void ShowBanner(BannerPosition bannerPos);
 void HideBanner();
+void SetPrivacySettings(bool enable_rdp);
 
 bool IsInterstitialLoaded();
 bool IsRewardedLoaded();

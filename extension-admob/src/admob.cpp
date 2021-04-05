@@ -9,6 +9,7 @@
 
 #include "admob_private.h"
 #include "admob_callback_private.h"
+#include "utils/LuaUtils.h"
 
 namespace dmAdmob {
 
@@ -71,7 +72,7 @@ static int Lua_ShowRewarded(lua_State* L)
 static int Lua_LoadBanner(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-        if (lua_type(L, 1) != LUA_TSTRING) {
+    if (lua_type(L, 1) != LUA_TSTRING) {
         char msg[256];
         snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
         luaL_error(L, msg);
@@ -135,6 +136,14 @@ static int Lua_IsBannerLoaded(lua_State* L)
     return 1;
 }
 
+static int Lua_SetPrivacySettings(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    bool enable_rdp = luaL_checkbool(L, 1);
+    SetPrivacySettings(enable_rdp);
+    return 0;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"initialize", Lua_Initialize},
@@ -150,6 +159,7 @@ static const luaL_reg Module_methods[] =
     {"is_rewarded_loaded", Lua_IsRewardedLoaded},
     {"is_interstitial_loaded", Lua_IsInterstitialLoaded},
     {"is_banner_loaded", Lua_IsBannerLoaded},
+    {"set_privacy_settings", Lua_SetPrivacySettings},
     {0, 0}
 };
 

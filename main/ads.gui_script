@@ -170,6 +170,9 @@ function init(self)
 
     if admob then
         admob.set_callback(admob_callback)
+        -- https://developers.google.com/admob/ios/ccpa
+        -- https://developers.google.com/admob/android/ccpa
+        admob.set_privacy_settings(true)
     end
     update_ui(self)
 end
