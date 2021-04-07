@@ -63,12 +63,12 @@
               - name: code
                 type: number
                 optional: true
-                desc: The error code (if any was happened or `nil` otherwise)
+                desc: The error code (if an error occurred or `nil` otherwise)
 
               - name: message
                 type: string
                 optional: true
-                desc: The error message (if any was happened or `nil` otherwise)
+                desc: The error message (if an error occurred or `nil` otherwise)
 
     examples:
       - desc: |-
@@ -317,7 +317,7 @@
 
   - name: hide_banner
     type: function
-    desc: Temporary hides Banner Ad, banner can be shown again using `admob.show_banner()`
+    desc: Temporarily hides Banner Ad, banner can be shown again using `admob.show_banner()`
           Original docs
           [Android](https://developers.google.com/admob/android/banner),
           [iOS](https://developers.google.com/admob/ios/banner)
