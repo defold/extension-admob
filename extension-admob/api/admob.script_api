@@ -286,7 +286,7 @@
 
   - name: show_banner
     type: function
-    desc: TODO 
+    desc: Shows loaded Banner Ad, can only be called after `admob.EVENT_LOADED` 
           Original docs
           [Android](https://developers.google.com/admob/android/banner),
           [iOS](https://developers.google.com/admob/ios/banner)
