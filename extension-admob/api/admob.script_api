@@ -1,0 +1,463 @@
+- name: admob
+  type: table
+  desc: Functions and constants for interacting with [Google AdMob APIs](https://developers.google.com/admob)
+
+  members:
+
+#*****************************************************************************************************
+
+  - name: initialize
+    type: function
+    desc: "Initialize the Mobile Ads SDK.
+          Warning: If you need to obtain consent from users in the European Economic Area (EEA), set
+          any request-specific flags, or otherwise take action before loading ads, ensure you do so
+          before initializing the Mobile Ads SDK.
+
+          Original docs
+          [Android](https://developers.google.com/admob/android/quick-start#initialize_the_mobile_ads_sdk),
+          [iOS](https://developers.google.com/admob/ios/quick-start#initialize_the_mobile_ads_sdk)"
+
+#*****************************************************************************************************
+
+  - name: set_callback
+    type: function
+    desc: Sets a callback function for receiving events from the SDK. Call `admob.set_callback(nil)`
+          to remove callback
+
+    parameters:
+    - name: callback
+      type: function
+      desc: Callback function that is executed on any event in the SDK.
+
+      parameters:
+        - name: self
+          type: object
+          desc: The calling script instance
+
+        - name: message_id
+          type: number
+          desc: "One of message types:
+               `admob.MSG_INITIALIZATION` initialization,
+               `admob.MSG_INTERSTITIAL` message from Interstitial ad unit,
+               `admob.MSG_REWARDED` message from Rewarded ad unit,
+               `admob.MSG_BANNER` message from Banner ad unit"
+
+        - name: message
+          type: table
+          desc: A table holding the data
+          fields:
+              - name: event
+                type: number
+                desc: "One of event types:
+                      `admod.EVENT_CLOSED`,
+                      `admod.EVENT_FAILED_TO_SHOW`,
+                      `admod.EVENT_OPENING`,
+                      `admod.EVENT_FAILED_TO_LOAD`,
+                      `admod.EVENT_LOADED`,
+                      `admod.EVENT_NOT_LOADED`,
+                      `admod.EVENT_EARNED_REWARD`,
+                      `admod.EVENT_COMPLETE`,
+                      `admod.EVENT_CLICKED`,
+                      `admod.EVENT_DESTROYED`
+                      `admob.EVENT_JSON_ERROR`"
+
+              - name: code
+                type: number
+                optional: true
+                desc: The error code (if an error occurred or `nil` otherwise)
+
+              - name: message
+                type: string
+                optional: true
+                desc: The error message (if an error occurred or `nil` otherwise)
+
+    examples:
+      - desc: |-
+                 ```lua
+                 local function admob_callback(self, message_id, message)
+                     pprint(message_id, message)
+                     if message_id == admob.MSG_INITIALIZATION then
+                         if message.event == admob.EVENT_COMPLETE then
+                             print("EVENT_COMPLETE: Initialization complete")
+                         elseif message.event == admob.EVENT_JSON_ERROR then
+                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
+                         end
+                         
+                     elseif message_id == admob.MSG_INTERSTITIAL then
+                         if message.event == admob.EVENT_CLOSED then
+                             print("EVENT_CLOSED: Interstitial AD closed")
+                         elseif message.event == admob.EVENT_FAILED_TO_SHOW then
+                             print("EVENT_FAILED_TO_SHOW: Interstitial AD failed to show", message.code, message.error)
+                         elseif message.event == admob.EVENT_OPENING then
+                             print("EVENT_OPENING: Interstitial AD is opening")
+                         elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+                             print("EVENT_FAILED_TO_LOAD: Interstitial AD failed to load", message.code, message.error)
+                         elseif message.event == admob.EVENT_LOADED then
+                             print("EVENT_LOADED: Interstitial AD loaded")
+                         elseif message.event == admob.EVENT_NOT_LOADED then
+                             print("EVENT_NOT_LOADED: can't call show_interstitial() before EVENT_LOADED", message.error)
+                         elseif message.event == admob.EVENT_JSON_ERROR then
+                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
+                         end
+                         
+                     elseif message_id == admob.MSG_REWARDED then
+                         if message.event == admob.EVENT_CLOSED then
+                             print("EVENT_CLOSED: Rewarded AD closed")
+                         elseif message.event == admob.EVENT_FAILED_TO_SHOW then
+                             print("EVENT_FAILED_TO_SHOW: Rewarded AD failed to show", message.code, message.error)
+                         elseif message.event == admob.EVENT_OPENING then
+                             print("EVENT_OPENING: Rewarded AD is opening")
+                         elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+                             print("EVENT_FAILED_TO_LOAD: Rewarded AD failed to load", message.code, message.error)
+                         elseif message.event == admob.EVENT_LOADED then
+                             print("EVENT_LOADED: Rewarded AD loaded")
+                         elseif message.event == admob.EVENT_NOT_LOADED then
+                             print("EVENT_NOT_LOADED: can't call show_rewarded() before EVENT_LOADED", message.error)
+                         elseif message.event == admob.EVENT_EARNED_REWARD then
+                             print("EVENT_EARNED_REWARD: Reward:", message.amount, message.type)
+                         elseif message.event == admob.EVENT_JSON_ERROR then
+                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
+                         end
+                         
+                     elseif message_id == admob.MSG_BANNER then
+                         if message.event == admob.EVENT_LOADED then
+                             print("EVENT_LOADED: Banner AD loaded", message.height, "x", message.width, "px")
+                         elseif message.event == admob.EVENT_OPENING then
+                             print("EVENT_OPENING: Banner AD is opening")
+                         elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+                             print("EVENT_FAILED_TO_LOAD: Banner AD failed to load", message.code, message.error)
+                         elseif message.event == admob.EVENT_CLICKED then
+                             print("EVENT_CLICKED: Banner AD loaded")
+                         elseif message.event == admob.EVENT_CLOSED then
+                             print("EVENT_CLOSED: Banner AD closed")
+                         elseif message.event == admob.EVENT_DESTROYED then
+                             print("EVENT_DESTROYED: Banner AD destroyed")
+                         elseif message.event == admob.EVENT_JSON_ERROR then
+                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
+                         end
+                     end
+                 end
+
+                 function init(self)
+                     if admob then
+                         admob.set_callback(admob_callback)
+                         admob.initialize()
+                     end
+                 end
+                 ```
+
+#*****************************************************************************************************
+
+  - name: set_privacy_settings
+    type: function
+    desc: Sets user privacy preferences (must be called before `admod.initialize()`).
+          Original docs
+          [Android](https://developers.google.com/admob/android/ccpa),
+          [iOS](https://developers.google.com/admob/ios/ccpa)
+
+    parameters:
+    - name: bool
+      type: boolean
+
+#*****************************************************************************************************
+
+  - name: load_interstitial
+    type: function
+    desc: Starts loading an Interstitial Ad, can only be called after `admob.MSG_INITIALIZATION` event
+          Original docs
+          [Android](https://developers.google.com/admob/android/interstitial-fullscreen),
+          [iOS](https://developers.google.com/admob/ios/interstitial)
+
+    parameters:
+    - name: ad_unit_id
+      type: string
+      desc: Ad unit ID, for test ads use on Android `"ca-app-pub-3940256099942544/1033173712"`, or
+            on iOS `"ca-app-pub-3940256099942544/4411468910"`
+            Original docs
+            [Android](https://developers.google.com/admob/android/interstitial-fullscreen),
+            [iOS](https://developers.google.com/admob/ios/interstitial)
+
+#*****************************************************************************************************
+
+  - name: show_interstitial
+    type: function
+    desc: Shows loaded Interstitial Ad, can only be called after `admob.EVENT_LOADED`
+          Original docs
+          [Android](https://developers.google.com/admob/android/interstitial-fullscreen),
+          [iOS](https://developers.google.com/admob/ios/interstitial)
+
+    examples:
+      - desc: |-
+                 ```lua
+                 if admob and admod.is_interstitial_loaded() then
+                     admob.show_interstitial()
+                 end
+                 ```
+
+#*****************************************************************************************************
+
+  - name: is_interstitial_loaded
+    type: function
+    desc: Checks if Interstitial Ad is loaded and ready to show
+          Original docs
+          [Android](https://developers.google.com/admob/android/interstitial-fullscreen),
+          [iOS](https://developers.google.com/admob/ios/interstitial)
+
+    returns:
+    - name: is_ready
+      type: boolean
+
+#*****************************************************************************************************
+
+  - name: load_rewarded
+    type: function
+    desc: Starts loading a Rewarded Ad, can only be called after `admob.MSG_INITIALIZATION` event
+          Original docs
+          [Android](https://developers.google.com/admob/android/rewarded-fullscreen),
+          [iOS](https://developers.google.com/admob/ios/rewarded-ads)
+
+    parameters:
+    - name: ad_unit_id
+      type: string
+      desc: Ad unit ID, for test ads use on Android `"ca-app-pub-3940256099942544/1712485313"`, or
+            on iOS `"ca-app-pub-3940256099942544/4411468910"`
+            Original docs
+            [Android](https://developers.google.com/admob/android/rewarded-fullscreen),
+            [iOS](https://developers.google.com/admob/ios/rewarded-ads)
+
+#*****************************************************************************************************
+
+  - name: show_rewarded
+    type: function
+    desc: Shows loaded Rewarded Ad, can only be called after `admob.EVENT_LOADED`
+          Original docs
+          [Android](https://developers.google.com/admob/android/rewarded-fullscreen),
+          [iOS](https://developers.google.com/admob/ios/rewarded-ads)
+
+    examples:
+      - desc: |-
+                 ```lua
+                 if admob and admod.is_rewarded_loaded() then
+                     admob.show_rewarded()
+                 end
+                 ```
+
+#*****************************************************************************************************
+
+  - name: is_rewarded_loaded
+    type: function
+    desc: Checks if Rewarded Ad is loaded and ready to show
+          Original docs
+          [Android](https://developers.google.com/admob/android/rewarded-fullscreen),
+          [iOS](https://developers.google.com/admob/ios/rewarded-ads)
+
+    returns:
+    - name: is_ready
+      type: boolean
+
+#*****************************************************************************************************
+
+  - name: load_banner
+    type: function
+    desc: Starts loading a Banner Ad, can only be called after `admob.MSG_INITIALIZATION` event 
+          Original docs
+          [Android](https://developers.google.com/admob/android/banner),
+          [iOS](https://developers.google.com/admob/ios/banner)
+
+    parameters:
+    - name: ad_unit_id
+      type: string
+      desc: Ad unit ID, for test ads use on Android `"ca-app-pub-3940256099942544/6300978111"`, or
+            on iOS `"ca-app-pub-3940256099942544/2934735716"`
+            Original docs
+            [Android](https://developers.google.com/admob/android/banner),
+            [iOS](https://developers.google.com/admob/ios/banner)
+
+    - name: size
+      type: number
+      optional: true
+      desc: "Requested Banner Ad size, possible values:
+            `admod.SIZE_ADAPTIVE_BANNER` (default),
+            `admod.SIZE_BANNER`,
+            `admod.SIZE_FLUID`,
+            `admod.SIZE_FULL_BANNER`,
+            `admod.SIZE_LARGE_BANNER`,
+            `admod.SIZE_LEADEARBOARD`,
+            `admod.SIZE_MEDIUM_RECTANGLE`,
+            `admod.SIZE_SEARH`,
+            `admod.SIZE_SKYSCRAPER`,
+            `admod.SIZE_SMART_BANNER`.
+            Original docs
+            [Android](https://developers.google.com/admob/android/banner#banner_sizes),
+            [iOS](https://developers.google.com/admob/ios/banner#banner_sizes)"
+
+#*****************************************************************************************************
+
+  - name: show_banner
+    type: function
+    desc: Shows loaded Banner Ad, can only be called after `admob.EVENT_LOADED` 
+          Original docs
+          [Android](https://developers.google.com/admob/android/banner),
+          [iOS](https://developers.google.com/admob/ios/banner)
+
+    parameters:
+    - name: position
+      type: number
+      optional: true
+      desc: "Banner Ad position, possible values:
+            `admod.POS_NONE` (default),
+            `admod.POS_TOP_LEFT`,
+            `admod.POS_TOP_CENTER`,
+            `admod.POS_TOP_RIGHT`,
+            `admod.POS_BOTTOM_LEFT`,
+            `admod.POS_BOTTOM_CENTER`,
+            `admod.POS_BOTTOM_RIGHT`,
+            `admod.POS_CENTER`"
+
+    examples:
+      - desc: |-
+                 ```lua
+                 if admob and admod.is_banner_loaded() then
+                     admob.show_banner(admod.POS_TOP_CENTER)
+                 end
+                 ```
+
+#*****************************************************************************************************
+
+  - name: hide_banner
+    type: function
+    desc: Temporarily hides Banner Ad, banner can be shown again using `admob.show_banner()`
+          Original docs
+          [Android](https://developers.google.com/admob/android/banner),
+          [iOS](https://developers.google.com/admob/ios/banner)
+
+#*****************************************************************************************************
+
+  - name: is_banner_loaded
+    type: function
+    desc: Checks if Banner Ad is loaded and ready to show
+          Original docs
+          [Android](https://developers.google.com/admob/android/banner),
+          [iOS](https://developers.google.com/admob/ios/banner)
+
+    returns:
+    - name: is_ready
+      type: boolean
+
+#*****************************************************************************************************
+
+  - name: destroy_banner
+    type: function
+    desc: Hides and unloads Banner Ad (needs to call `admob.load_banner()` later to show Banner Ad)
+          Original docs
+          [Android](https://developers.google.com/admob/android/banner),
+          [iOS](https://developers.google.com/admob/ios/banner)
+
+#*****************************************************************************************************
+
+  - name: MSG_INITIALIZATION
+    type: number
+
+  - name: MSG_INTERSTITIAL
+    type: number
+
+  - name: MSG_REWARDED
+    type: number
+
+  - name: MSG_BANNER
+    type: number
+
+#*****************************************************************************************************
+
+  - name: EVENT_CLOSED
+    type: number
+
+  - name: EVENT_FAILED_TO_SHOW
+    type: number
+
+  - name: EVENT_OPENING
+    type: number
+
+  - name: EVENT_FAILED_TO_LOAD
+    type: number
+
+  - name: EVENT_LOADED
+    type: number
+
+  - name: EVENT_NOT_LOADED
+    type: number
+
+  - name: EVENT_EARNED_REWARD
+    type: number
+
+  - name: EVENT_COMPLETE
+    type: number
+
+  - name: EVENT_CLICKED
+    type: number
+
+  - name: EVENT_DESTROYED
+    type: number
+
+  - name: EVENT_JSON_ERROR
+    type: number
+
+#*****************************************************************************************************
+
+  - name: SIZE_ADAPTIVE_BANNER
+    type: number
+
+  - name: SIZE_BANNER
+    type: number
+
+  - name: SIZE_FLUID
+    type: number
+
+  - name: SIZE_FULL_BANNER
+    type: number
+
+  - name: SIZE_LARGE_BANNER
+    type: number
+
+  - name: SIZE_LEADEARBOARD
+    type: number
+
+  - name: SIZE_MEDIUM_RECTANGLE
+    type: number
+
+  - name: SIZE_SEARH
+    type: number
+
+  - name: SIZE_SKYSCRAPER
+    type: number
+
+  - name: SIZE_SMART_BANNER
+    type: number
+
+#*****************************************************************************************************
+
+  - name: POS_NONE
+    type: number
+
+  - name: POS_TOP_LEFT
+    type: number
+
+  - name: POS_TOP_CENTER
+    type: number
+
+  - name: POS_TOP_RIGHT
+    type: number
+
+  - name: POS_BOTTOM_LEFT
+    type: number
+
+  - name: POS_BOTTOM_CENTER
+    type: number
+
+  - name: POS_BOTTOM_RIGHT
+    type: number
+
+  - name: POS_CENTER
+    type: number
+
+#*****************************************************************************************************
