@@ -58,7 +58,8 @@
                       `admod.EVENT_EARNED_REWARD`,
                       `admod.EVENT_COMPLETE`,
                       `admod.EVENT_CLICKED`,
-                      `admod.EVENT_DESTROYED`"
+                      `admod.EVENT_DESTROYED`
+                      `admob.EVENT_JSON_ERROR`"
 
               - name: code
                 type: number
@@ -73,18 +74,13 @@
     examples:
       - desc: |-
                  ```lua
-                 function init(self)
-                     if admob then
-                         admob.set_callback(admob_callback)
-                         admob.initialize()
-                     end
-                 end
-
                  local function admob_callback(self, message_id, message)
                      pprint(message_id, message)
                      if message_id == admob.MSG_INITIALIZATION then
                          if message.event == admob.EVENT_COMPLETE then
                              print("EVENT_COMPLETE: Initialization complete")
+                         elseif message.event == admob.EVENT_JSON_ERROR then
+                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
                          end
                          
                      elseif message_id == admob.MSG_INTERSTITIAL then
@@ -100,6 +96,8 @@
                              print("EVENT_LOADED: Interstitial AD loaded")
                          elseif message.event == admob.EVENT_NOT_LOADED then
                              print("EVENT_NOT_LOADED: can't call show_interstitial() before EVENT_LOADED", message.error)
+                         elseif message.event == admob.EVENT_JSON_ERROR then
+                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
                          end
                          
                      elseif message_id == admob.MSG_REWARDED then
@@ -117,8 +115,10 @@
                              print("EVENT_NOT_LOADED: can't call show_rewarded() before EVENT_LOADED", message.error)
                          elseif message.event == admob.EVENT_EARNED_REWARD then
                              print("EVENT_EARNED_REWARD: Reward:", message.amount, message.type)
+                         elseif message.event == admob.EVENT_JSON_ERROR then
+                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
                          end
-
+                         
                      elseif message_id == admob.MSG_BANNER then
                          if message.event == admob.EVENT_LOADED then
                              print("EVENT_LOADED: Banner AD loaded", message.height, "x", message.width, "px")
@@ -132,7 +132,16 @@
                              print("EVENT_CLOSED: Banner AD closed")
                          elseif message.event == admob.EVENT_DESTROYED then
                              print("EVENT_DESTROYED: Banner AD destroyed")
+                         elseif message.event == admob.EVENT_JSON_ERROR then
+                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
                          end
+                     end
+                 end
+
+                 function init(self)
+                     if admob then
+                         admob.set_callback(admob_callback)
+                         admob.initialize()
                      end
                  end
                  ```
