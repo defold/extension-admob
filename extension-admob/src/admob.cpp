@@ -144,6 +144,13 @@ static int Lua_SetPrivacySettings(lua_State* L)
     return 0;
 }
 
+static int Lua_RequestIDFA(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    RequestIDFA();
+    return 0;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"initialize", Lua_Initialize},
@@ -160,6 +167,7 @@ static const luaL_reg Module_methods[] =
     {"is_interstitial_loaded", Lua_IsInterstitialLoaded},
     {"is_banner_loaded", Lua_IsBannerLoaded},
     {"set_privacy_settings", Lua_SetPrivacySettings},
+    {"request_idfa", Lua_RequestIDFA},
     {0, 0}
 };
 
@@ -176,6 +184,7 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(MSG_REWARDED)
     SETCONSTANT(MSG_BANNER)
     SETCONSTANT(MSG_INITIALIZATION)
+    SETCONSTANT(MSG_IDFA)
 
     SETCONSTANT(EVENT_CLOSED)
     SETCONSTANT(EVENT_FAILED_TO_SHOW)
@@ -189,6 +198,11 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(EVENT_DESTROYED)
     SETCONSTANT(EVENT_JSON_ERROR)
     SETCONSTANT(EVENT_IMPRESSION_RECORDED)
+    SETCONSTANT(EVENT_STATUS_AUTORIZED)
+    SETCONSTANT(EVENT_STATUS_DENIED)
+    SETCONSTANT(EVENT_STATUS_NOT_DETERMINED)
+    SETCONSTANT(EVENT_STATUS_RESTRICTED)
+    SETCONSTANT(EVENT_NOT_SUPPORTED)
 
     SETCONSTANT(SIZE_ADAPTIVE_BANNER)
     SETCONSTANT(SIZE_BANNER)

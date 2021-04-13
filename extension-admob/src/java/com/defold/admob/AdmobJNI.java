@@ -48,6 +48,7 @@ public class AdmobJNI {
   private static final int MSG_REWARDED =             2;
   private static final int MSG_BANNER =               3;
   private static final int MSG_INITIALIZATION =       4;
+  private static final int MSG_IDFA =                 5;
 
   private static final int EVENT_CLOSED =             1;
   private static final int EVENT_FAILED_TO_SHOW =     2;
@@ -60,7 +61,8 @@ public class AdmobJNI {
   private static final int EVENT_CLICKED =            9;
   private static final int EVENT_DESTROYED =          10;
   private static final int EVENT_JSON_ERROR =         11;
-  private static final int EVENT_IMPRESSION_RECORDED =12;
+  // 12-16 are for iOS only
+  private static final int EVENT_NOT_SUPPORTED =      17;
 
   private static final int SIZE_ADAPTIVE_BANNER =     0;
   private static final int SIZE_BANNER =              1;
@@ -105,6 +107,10 @@ public class AdmobJNI {
     SharedPreferences.Editor editor = sharedPref.edit();
     editor.putInt("gad_rdp", 1);
     editor.commit();
+  }
+
+  public void requestIDFA() {
+    sendSimpleMessage(MSG_IDFA, EVENT_NOT_SUPPORTED);
   }
 
   // https://www.baeldung.com/java-json-escaping

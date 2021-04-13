@@ -15,6 +15,7 @@ enum MessageId
     MSG_REWARDED =                  2,
     MSG_BANNER =                    3,
     MSG_INITIALIZATION =            4,
+    MSG_IDFA =                      5
 };
 
 enum MessageEvent
@@ -30,7 +31,12 @@ enum MessageEvent
     EVENT_CLICKED =                 9,
     EVENT_DESTROYED =               10,
     EVENT_JSON_ERROR =              11,
-    EVENT_IMPRESSION_RECORDED =     12 // iOS only
+    EVENT_IMPRESSION_RECORDED =     12,
+    EVENT_STATUS_AUTORIZED =        13,
+    EVENT_STATUS_DENIED =           14,
+    EVENT_STATUS_NOT_DETERMINED =   15,
+    EVENT_STATUS_RESTRICTED =       16,
+    EVENT_NOT_SUPPORTED =           17
 };
 
 struct CallbackData

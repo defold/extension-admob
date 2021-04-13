@@ -4,6 +4,12 @@
 
 #include <GoogleMobileAds/GoogleMobileAds.h>
 #include <UIKit/UIKit.h>
+#import <AdSupport/AdSupport.h>
+
+#if __has_include(<AppTrackingTransparency/ATTrackingManager.h>)
+#import <AppTrackingTransparency/ATTrackingManager.h>
+#endif
+
 
 @interface AdmobExtInterstitialAdDelegate : NSObject<GADFullScreenContentDelegate>
 @end
@@ -362,6 +368,32 @@ void Initialize_Ext() {
 
 void SetPrivacySettings(bool enable_rdp) {
     [NSUserDefaults.standardUserDefaults setBool:enable_rdp ? YES : NO forKey:@"gad_rdp"];
+}
+
+void RequestIDFA() {
+    if (@available(iOS 14, *))
+    {
+        [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+            switch (status) {
+              case ATTrackingManagerAuthorizationStatusAuthorized:
+                SendSimpleMessage(MSG_IDFA, EVENT_STATUS_AUTORIZED);
+                break;
+              case ATTrackingManagerAuthorizationStatusDenied:
+                SendSimpleMessage(MSG_IDFA, EVENT_STATUS_DENIED);
+                break;
+              case ATTrackingManagerAuthorizationStatusNotDetermined:
+                SendSimpleMessage(MSG_IDFA, EVENT_STATUS_NOT_DETERMINED);
+                break;
+              case ATTrackingManagerAuthorizationStatusRestricted:
+                SendSimpleMessage(MSG_IDFA, EVENT_STATUS_RESTRICTED);
+                break;
+              }
+        }];
+    }
+    else
+    {
+        SendSimpleMessage(MSG_IDFA, EVENT_NOT_SUPPORTED);
+    }
 }
 
 } //namespace
