@@ -61,7 +61,8 @@ public class AdmobJNI {
   private static final int EVENT_CLICKED =            9;
   private static final int EVENT_DESTROYED =          10;
   private static final int EVENT_JSON_ERROR =         11;
-  // 12-16 are for iOS only
+  private static final int EVENT_IMPRESSION_RECORDED =12;
+  // 13-16 are for iOS only
   private static final int EVENT_NOT_SUPPORTED =      17;
 
   private static final int SIZE_ADAPTIVE_BANNER =     0;
@@ -225,6 +226,11 @@ public class AdmobJNI {
                         mInterstitialAd = null;
                         sendSimpleMessage(MSG_INTERSTITIAL, EVENT_OPENING);
                       }
+
+                      @Override
+                      public void onAdImpression() {
+                        sendSimpleMessage(MSG_INTERSTITIAL, EVENT_IMPRESSION_RECORDED);
+                      }
                     });
                 }
 
@@ -304,8 +310,16 @@ public class AdmobJNI {
                   mRewardedAd = null;
                   sendSimpleMessage(MSG_REWARDED, EVENT_OPENING);
                 }
+
+
+                @Override
+                public void onAdImpression() {
+                  sendSimpleMessage(MSG_REWARDED, EVENT_IMPRESSION_RECORDED);
+                }
+
               });
             }
+
             @Override
             public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
               // Handle the error.
@@ -413,6 +427,11 @@ public class AdmobJNI {
               // to the app after tapping on an ad.
               // Log.d(TAG, "onAdClosed");
               sendSimpleMessage(MSG_BANNER, EVENT_CLOSED);
+            }
+
+            @Override
+            public void onAdImpression() {
+              sendSimpleMessage(MSG_BANNER, EVENT_IMPRESSION_RECORDED);
             }
           });
           view.loadAd(adRequest);
