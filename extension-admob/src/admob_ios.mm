@@ -415,6 +415,10 @@ void RequestIDFA() {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_INTERSTITIAL, dmAdmob::EVENT_OPENING);
 }
 
+- (void)adDidRecordImpression:(id)ad {
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_INTERSTITIAL, dmAdmob::EVENT_IMPRESSION_RECORDED);
+}
+
 @end
 
 @implementation AdmobExtRewardedAdDelegate
@@ -432,6 +436,10 @@ void RequestIDFA() {
 
 - (void)adDidPresentFullScreenContent:(id)ad {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_OPENING);
+}
+
+- (void)adDidRecordImpression:(id)ad {
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_IMPRESSION_RECORDED);
 }
 
 @end
