@@ -77,65 +77,80 @@
                  local function admob_callback(self, message_id, message)
                      pprint(message_id, message)
                      if message_id == admob.MSG_INITIALIZATION then
-                         if message.event == admob.EVENT_COMPLETE then
-                             print("EVENT_COMPLETE: Initialization complete")
-                         elseif message.event == admob.EVENT_JSON_ERROR then
-                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
-                         end
-                         
-                     elseif message_id == admob.MSG_INTERSTITIAL then
-                         if message.event == admob.EVENT_CLOSED then
-                             print("EVENT_CLOSED: Interstitial AD closed")
-                         elseif message.event == admob.EVENT_FAILED_TO_SHOW then
-                             print("EVENT_FAILED_TO_SHOW: Interstitial AD failed to show", message.code, message.error)
-                         elseif message.event == admob.EVENT_OPENING then
-                             print("EVENT_OPENING: Interstitial AD is opening")
-                         elseif message.event == admob.EVENT_FAILED_TO_LOAD then
-                             print("EVENT_FAILED_TO_LOAD: Interstitial AD failed to load", message.code, message.error)
-                         elseif message.event == admob.EVENT_LOADED then
-                             print("EVENT_LOADED: Interstitial AD loaded")
-                         elseif message.event == admob.EVENT_NOT_LOADED then
-                             print("EVENT_NOT_LOADED: can't call show_interstitial() before EVENT_LOADED", message.error)
-                         elseif message.event == admob.EVENT_JSON_ERROR then
-                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
-                         end
-                         
-                     elseif message_id == admob.MSG_REWARDED then
-                         if message.event == admob.EVENT_CLOSED then
-                             print("EVENT_CLOSED: Rewarded AD closed")
-                         elseif message.event == admob.EVENT_FAILED_TO_SHOW then
-                             print("EVENT_FAILED_TO_SHOW: Rewarded AD failed to show", message.code, message.error)
-                         elseif message.event == admob.EVENT_OPENING then
-                             print("EVENT_OPENING: Rewarded AD is opening")
-                         elseif message.event == admob.EVENT_FAILED_TO_LOAD then
-                             print("EVENT_FAILED_TO_LOAD: Rewarded AD failed to load", message.code, message.error)
-                         elseif message.event == admob.EVENT_LOADED then
-                             print("EVENT_LOADED: Rewarded AD loaded")
-                         elseif message.event == admob.EVENT_NOT_LOADED then
-                             print("EVENT_NOT_LOADED: can't call show_rewarded() before EVENT_LOADED", message.error)
-                         elseif message.event == admob.EVENT_EARNED_REWARD then
-                             print("EVENT_EARNED_REWARD: Reward:", message.amount, message.type)
-                         elseif message.event == admob.EVENT_JSON_ERROR then
-                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
-                         end
-                         
-                     elseif message_id == admob.MSG_BANNER then
-                         if message.event == admob.EVENT_LOADED then
-                             print("EVENT_LOADED: Banner AD loaded", message.height, "x", message.width, "px")
-                         elseif message.event == admob.EVENT_OPENING then
-                             print("EVENT_OPENING: Banner AD is opening")
-                         elseif message.event == admob.EVENT_FAILED_TO_LOAD then
-                             print("EVENT_FAILED_TO_LOAD: Banner AD failed to load", message.code, message.error)
-                         elseif message.event == admob.EVENT_CLICKED then
-                             print("EVENT_CLICKED: Banner AD loaded")
-                         elseif message.event == admob.EVENT_CLOSED then
-                             print("EVENT_CLOSED: Banner AD closed")
-                         elseif message.event == admob.EVENT_DESTROYED then
-                             print("EVENT_DESTROYED: Banner AD destroyed")
-                         elseif message.event == admob.EVENT_JSON_ERROR then
-                             print("EVENT_JSON_ERROR: Internal NE json error:", message.error)
-                         end
-                     end
+                        if message.event == admob.EVENT_COMPLETE then
+                            print("EVENT_COMPLETE: Initialization complete")
+                        elseif message.event == admob.EVENT_JSON_ERROR then
+                            print("EVENT_JSON_ERROR: Internal NE json error "..message.error)
+                        end
+                    elseif message_id == admob.MSG_IDFA then
+                        if message.event == admob.EVENT_STATUS_AUTORIZED then
+                            print("EVENT_STATUS_AUTORIZED: ATTrackingManagerAuthorizationStatusAuthorized")
+                        elseif message.event == admob.EVENT_STATUS_DENIED then
+                            print("EVENT_STATUS_DENIED: ATTrackingManagerAuthorizationStatusDenied")
+                        elseif message.event == admob.EVENT_STATUS_NOT_DETERMINED then
+                            print("EVENT_STATUS_NOT_DETERMINED: ATTrackingManagerAuthorizationStatusNotDetermined")
+                        elseif message.event == admob.EVENT_STATUS_RESTRICTED then
+                            print("EVENT_STATUS_RESTRICTED: ATTrackingManagerAuthorizationStatusRestricted")
+                        elseif message.event == admob.EVENT_NOT_SUPPORTED then
+                            print("EVENT_NOT_SUPPORTED: IDFA request not supported on this platform or OS version")
+                        end
+                    elseif message_id == admob.MSG_INTERSTITIAL then
+                        if message.event == admob.EVENT_CLOSED then
+                            print("EVENT_CLOSED: Interstitial AD closed")
+                        elseif message.event == admob.EVENT_FAILED_TO_SHOW then
+                            print("EVENT_FAILED_TO_SHOW: Interstitial AD failed to show\nCode: "..message.code.."\nError: "..message.error)
+                        elseif message.event == admob.EVENT_OPENING then
+                            print("EVENT_OPENING: Interstitial AD is opening")
+                        elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+                            print("EVENT_FAILED_TO_LOAD: Interstitial AD failed to load\nCode: "..message.code.."\nError: "..message.error)
+                        elseif message.event == admob.EVENT_LOADED then
+                            print("EVENT_LOADED: Interstitial AD loaded")
+                        elseif message.event == admob.EVENT_NOT_LOADED then
+                            print("EVENT_NOT_LOADED: can't call show_interstitial() before EVENT_LOADED\nError: "..message.error)
+                        elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
+                            print("EVENT_IMPRESSION_RECORDED: Interstitial did record impression")
+                        elseif message.event == admob.EVENT_JSON_ERROR then
+                            print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
+                        end
+                    elseif message_id == admob.MSG_REWARDED then
+                        if message.event == admob.EVENT_CLOSED then
+                            print("EVENT_CLOSED: Rewarded AD closed")
+                        elseif message.event == admob.EVENT_FAILED_TO_SHOW then
+                            print("EVENT_FAILED_TO_SHOW: Rewarded AD failed to show\nCode: "..message.code.."\nError: "..message.error)
+                        elseif message.event == admob.EVENT_OPENING then
+                            print("EVENT_OPENING: Rewarded AD is opening")
+                        elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+                            print("EVENT_FAILED_TO_LOAD: Rewarded AD failed to load\nCode: "..message.code.."\nError: "..message.error)
+                        elseif message.event == admob.EVENT_LOADED then
+                            print("EVENT_LOADED: Rewarded AD loaded")
+                        elseif message.event == admob.EVENT_NOT_LOADED then
+                            print("EVENT_NOT_LOADED: can't call show_rewarded() before EVENT_LOADED\nError: "..message.error)
+                        elseif message.event == admob.EVENT_EARNED_REWARD then
+                            print("EVENT_EARNED_REWARD: Reward: " .. tostring(message.amount) .. " " .. tostring(message.type))
+                        elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
+                            print("EVENT_IMPRESSION_RECORDED: Rewarded did record impression")
+                        elseif message.event == admob.EVENT_JSON_ERROR then
+                            print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
+                        end
+                    elseif message_id == admob.MSG_BANNER then
+                        if message.event == admob.EVENT_LOADED then
+                            print("EVENT_LOADED: Banner AD loaded. Height: "..message.height.."px Width: "..message.width.."px")
+                        elseif message.event == admob.EVENT_OPENING then
+                            print("EVENT_OPENING: Banner AD is opening")
+                        elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+                            print("EVENT_FAILED_TO_LOAD: Banner AD failed to load\nCode: "..message.code.."\nError: "..message.error)
+                        elseif message.event == admob.EVENT_CLICKED then
+                            print("EVENT_CLICKED: Banner AD loaded")
+                        elseif message.event == admob.EVENT_CLOSED then
+                            print("EVENT_CLOSED: Banner AD closed")
+                        elseif message.event == admob.EVENT_DESTROYED then
+                            print("EVENT_DESTROYED: Banner AD destroyed")
+                        elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
+                            print("EVENT_IMPRESSION_RECORDED: Banner did record impression")
+                        elseif message.event == admob.EVENT_JSON_ERROR then
+                            print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
+                        end
+                    end
                  end
 
                  function init(self)
@@ -158,6 +173,25 @@
     parameters:
     - name: bool
       type: boolean
+
+#*****************************************************************************************************
+
+  - name: request_idfa
+    type: function
+    desc: Display the App Tracking Transparency authorization request for accessing the IDFA.
+          Original docs
+          [iOS](https://developers.google.com/admob/ios/ios14#request)
+
+#*****************************************************************************************************
+
+  - name: show_ad_inspector
+    type: function
+    desc: Show Ad Inspector. This is an in-app overlay that enables authorized devices to perform
+          realtime analysis of test ad requests directly within a mobile app.
+          Ad Inspector only launces on [test devices](https://support.google.com/admob/answer/9691433).
+          Original docs
+          [Android](https://developers.google.com/admob/android/ad-inspector),
+          [iOS](https://developers.google.com/admob/ios/ad-inspector)
 
 #*****************************************************************************************************
 
@@ -367,6 +401,9 @@
   - name: MSG_BANNER
     type: number
 
+  - name: MSG_IDFA
+    type: number
+
 #*****************************************************************************************************
 
   - name: EVENT_CLOSED
@@ -400,6 +437,24 @@
     type: number
 
   - name: EVENT_JSON_ERROR
+    type: number
+
+  - name: EVENT_IMPRESSION_RECORDED
+    type: number
+
+  - name: EVENT_STATUS_AUTORIZED
+    type: number
+
+  - name: EVENT_STATUS_DENIED
+    type: number
+
+  - name: EVENT_STATUS_NOT_DETERMINED
+    type: number
+
+  - name: EVENT_STATUS_RESTRICTED
+    type: number
+
+  - name: EVENT_NOT_SUPPORTED
     type: number
 
 #*****************************************************************************************************
