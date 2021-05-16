@@ -24,7 +24,7 @@ namespace dmAdmob {
 
     static UIViewController *uiViewController = nil;
 
-    void SendSimpleMessageObjCObject(MessageId msg, id obj) {
+    void SendSimpleMessage(MessageId msg, id obj) {
         NSError* error;
         NSData* jsonData = [NSJSONSerialization dataWithJSONObject:obj options:(NSJSONWritingOptions)0 error:&error];
         if (jsonData)
@@ -56,30 +56,30 @@ namespace dmAdmob {
     void SendSimpleMessage(MessageId msg, MessageEvent event) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         [dict setObject:[NSNumber numberWithInt:event] forKey:@"event"];
-        SendSimpleMessageObjCObject(msg, dict);
+        SendSimpleMessage(msg, dict);
     }
 
-    void SendSimpleMessageString(MessageId msg, MessageEvent event, NSString *key_2, NSString *value_2) {
+    void SendSimpleMessage(MessageId msg, MessageEvent event, NSString *key_2, NSString *value_2) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         [dict setObject:[NSNumber numberWithInt:event] forKey:@"event"];
         [dict setObject:value_2 forKey:key_2];
-        SendSimpleMessageObjCObject(msg, dict);
+        SendSimpleMessage(msg, dict);
     }
 
-    void SendSimpleMessageIntString(MessageId msg, MessageEvent event, NSString *key_2, int value_2, NSString *key_3, NSString *value_3) {
+    void SendSimpleMessage(MessageId msg, MessageEvent event, NSString *key_2, int value_2, NSString *key_3, NSString *value_3) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         [dict setObject:[NSNumber numberWithInt:event] forKey:@"event"];
         [dict setObject:[NSNumber numberWithInt:value_2] forKey:key_2];
         [dict setObject:value_3 forKey:key_3];
-        SendSimpleMessageObjCObject(msg, dict);
+        SendSimpleMessage(msg, dict);
     }
 
-    void SendSimpleMessageIntInt(MessageId msg, MessageEvent event, NSString *key_2, int value_2, NSString *key_3, int value_3) {
+    void SendSimpleMessage(MessageId msg, MessageEvent event, NSString *key_2, int value_2, NSString *key_3, int value_3) {
         NSMutableDictionary *dict = [NSMutableDictionary dictionary];
         [dict setObject:[NSNumber numberWithInt:event] forKey:@"event"];
         [dict setObject:[NSNumber numberWithInt:value_2] forKey:key_2];
         [dict setObject:[NSNumber numberWithInt:value_3] forKey:key_3];
-        SendSimpleMessageObjCObject(msg, dict);
+        SendSimpleMessage(msg, dict);
     }
 
     void Initialize() {
@@ -117,7 +117,7 @@ namespace dmAdmob {
                 if (error) {
                     SetInterstitialAd(nil);
                     NSLog([NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
-                    SendSimpleMessageIntString(MSG_INTERSTITIAL, EVENT_FAILED_TO_LOAD, @"code", [error code],
+                    SendSimpleMessage(MSG_INTERSTITIAL, EVENT_FAILED_TO_LOAD, @"code", [error code],
                           @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
                     return;
                 }
@@ -138,14 +138,14 @@ namespace dmAdmob {
                 [interstitialAd presentFromRootViewController:uiViewController];
             } else {
                 if (error) {
-                    SendSimpleMessageIntString(MSG_INTERSTITIAL, EVENT_NOT_LOADED, @"code", [error code],
+                    SendSimpleMessage(MSG_INTERSTITIAL, EVENT_NOT_LOADED, @"code", [error code],
                           @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
                 } else {
-                    SendSimpleMessageString(MSG_INTERSTITIAL, EVENT_NOT_LOADED, @"error", @"Can't present interstitial AD");
+                    SendSimpleMessage(MSG_INTERSTITIAL, EVENT_NOT_LOADED, @"error", @"Can't present interstitial AD");
                 }
             }
         } else {
-            SendSimpleMessageString(MSG_INTERSTITIAL, EVENT_NOT_LOADED, @"error", @"Can't show interstitial AD that wasn't loaded.");
+            SendSimpleMessage(MSG_INTERSTITIAL, EVENT_NOT_LOADED, @"error", @"Can't show interstitial AD that wasn't loaded.");
         }
     }
 
@@ -177,7 +177,7 @@ namespace dmAdmob {
                 if (error) {
                     SetRewardedAd(nil);
                     NSLog([NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
-                    SendSimpleMessageIntString(MSG_REWARDED, EVENT_FAILED_TO_LOAD, @"code", [error code],
+                    SendSimpleMessage(MSG_REWARDED, EVENT_FAILED_TO_LOAD, @"code", [error code],
                           @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
                     return;
                 }
@@ -198,18 +198,18 @@ namespace dmAdmob {
                 [rewardedAd presentFromRootViewController:uiViewController
                     userDidEarnRewardHandler:^{
                             GADAdReward *reward = rewardedAd.adReward;
-                            SendSimpleMessageIntString(MSG_REWARDED, EVENT_EARNED_REWARD, @"amount", [reward.amount doubleValue], @"type", [reward type]);
+                            SendSimpleMessage(MSG_REWARDED, EVENT_EARNED_REWARD, @"amount", [reward.amount doubleValue], @"type", [reward type]);
                         }];
             } else {
                 if (error) {
-                    SendSimpleMessageIntString(MSG_REWARDED, EVENT_NOT_LOADED, @"code", [error code],
+                    SendSimpleMessage(MSG_REWARDED, EVENT_NOT_LOADED, @"code", [error code],
                           @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
                 } else {
-                    SendSimpleMessageString(MSG_REWARDED, EVENT_NOT_LOADED, @"error", @"Can't present rewarded AD");
+                    SendSimpleMessage(MSG_REWARDED, EVENT_NOT_LOADED, @"error", @"Can't present rewarded AD");
                 }
             }
         } else {
-            SendSimpleMessageString(MSG_REWARDED, EVENT_NOT_LOADED, @"error", @"Can't show rewarded AD that wasn't loaded.");
+            SendSimpleMessage(MSG_REWARDED, EVENT_NOT_LOADED, @"error", @"Can't show rewarded AD that wasn't loaded.");
         }
     }
 
@@ -416,7 +416,7 @@ void ShowAdInspector() {
 
 - (void)ad:(id)ad didFailToPresentFullScreenContentWithError:(NSError *)error {
     dmAdmob::SetInterstitialAd(nil);
-    dmAdmob::SendSimpleMessageIntString(dmAdmob::MSG_INTERSTITIAL, dmAdmob::EVENT_FAILED_TO_SHOW, @"code", [error code],
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_INTERSTITIAL, dmAdmob::EVENT_FAILED_TO_SHOW, @"code", [error code],
         @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
 }
 
@@ -439,7 +439,7 @@ void ShowAdInspector() {
 
 - (void)ad:(id)ad didFailToPresentFullScreenContentWithError:(NSError *)error {
     dmAdmob::SetRewardedAd(nil);
-    dmAdmob::SendSimpleMessageIntString(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_FAILED_TO_SHOW, @"code", [error code],
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_FAILED_TO_SHOW, @"code", [error code],
         @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
 }
 
@@ -461,13 +461,13 @@ void ShowAdInspector() {
     [dmAdmob::uiViewController.view addSubview:bannerView];
     CGFloat bannerHeight = CGRectGetHeight(CGRectStandardize(bannerView.frame)) * [UIScreen mainScreen].scale;
     CGFloat bannerWidth = CGRectGetWidth(CGRectStandardize(bannerView.frame)) * [UIScreen mainScreen].scale;
-    dmAdmob::SendSimpleMessageIntInt(dmAdmob::MSG_BANNER, dmAdmob::EVENT_LOADED, @"height", (int)ceilf(bannerHeight), @"width", (int)ceilf(bannerWidth));
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_LOADED, @"height", (int)ceilf(bannerHeight), @"width", (int)ceilf(bannerWidth));
 }
 
 - (void)bannerView:(GADBannerView *)bannerView didFailToReceiveAdWithError:(NSError *)error {
     // Tells the delegate that an ad request failed.
     // The failure is normally due to network connectivity or ad availablility (i.e., no fill).
-    dmAdmob::SendSimpleMessageIntString(dmAdmob::MSG_BANNER, dmAdmob::EVENT_FAILED_TO_LOAD, @"code", [error code],
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_FAILED_TO_LOAD, @"code", [error code],
         @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
 }
 
