@@ -21,6 +21,8 @@ import com.google.android.gms.ads.AdError;
 import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.AdInspectorError;
+import com.google.android.gms.ads.OnAdInspectorClosedListener;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
@@ -112,6 +114,17 @@ public class AdmobJNI {
 
   public void requestIDFA() {
     sendSimpleMessage(MSG_IDFA, EVENT_NOT_SUPPORTED);
+  }
+
+  public void showAdInspector() {
+    MobileAds.openAdInspector(activity, new OnAdInspectorClosedListener() {
+      public void onAdInspectorClosed(AdInspectorError error) {
+        // Error will be non-null if ad inspector closed due to an error.
+        if (error != null) {
+          Log.d(TAG, error.toString());
+        }
+      }
+    });
   }
 
   // https://www.baeldung.com/java-json-escaping

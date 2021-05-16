@@ -275,5 +275,12 @@ function on_input(self, action_id, action)
         end)
     end
 
+    if gui.is_enabled(gui.get_node("show_ad_inspector/larrybutton")) then
+        dirtylarry:button("show_ad_inspector", action_id, action, function ()
+            print("admob.show_ad_inspector()")
+            admob.show_ad_inspector()
+        end)
+    end
+
 end
 

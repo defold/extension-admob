@@ -34,6 +34,7 @@ struct Admob
     jmethodID      m_IsBannerLoaded;
     jmethodID      m_SetPrivacySettings;
     jmethodID      m_RequestIDFA;
+    jmethodID      m_ShowAdInspector;
 
 };
 
@@ -105,6 +106,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_HideBanner = env->GetMethodID(cls, "hideBanner", "()V");
     g_admob.m_SetPrivacySettings = env->GetMethodID(cls, "setPrivacySettings", "(Z)V");
     g_admob.m_RequestIDFA = env->GetMethodID(cls, "requestIDFA", "()V");
+    g_admob.m_ShowAdInspector = env->GetMethodID(cls, "showAdInspector", "()V");
 
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
     g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
@@ -193,6 +195,11 @@ void SetPrivacySettings(bool enable_rdp)
 void RequestIDFA()
 {
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_RequestIDFA);
+}
+
+void ShowAdInspector()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowAdInspector);
 }
 
 }//namespace dmAdmob

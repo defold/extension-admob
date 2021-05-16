@@ -396,6 +396,15 @@ void RequestIDFA() {
     }
 }
 
+void ShowAdInspector() {
+    [GADMobileAds.sharedInstance presentAdInspectorFromViewController:uiViewController completionHandler:^(NSError *error) { 
+        // error will be non-nil if there was an issue and the inspector was not displayed. 
+        if (error) {
+            dmLogInfo("AdInspector Error: %s", error);
+        }
+    }];
+}
+
 } //namespace
 
 @implementation AdmobExtInterstitialAdDelegate

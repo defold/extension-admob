@@ -151,6 +151,13 @@ static int Lua_RequestIDFA(lua_State* L)
     return 0;
 }
 
+static int Lua_ShowAdInspector(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    ShowAdInspector();
+    return 0;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"initialize", Lua_Initialize},
@@ -168,6 +175,7 @@ static const luaL_reg Module_methods[] =
     {"is_banner_loaded", Lua_IsBannerLoaded},
     {"set_privacy_settings", Lua_SetPrivacySettings},
     {"request_idfa", Lua_RequestIDFA},
+    {"show_ad_inspector", Lua_ShowAdInspector},
     {0, 0}
 };
 

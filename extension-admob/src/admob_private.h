@@ -43,6 +43,7 @@ void ShowBanner(BannerPosition bannerPos);
 void HideBanner();
 void SetPrivacySettings(bool enable_rdp);
 void RequestIDFA();
+void ShowAdInspector();
 
 bool IsInterstitialLoaded();
 bool IsRewardedLoaded();
