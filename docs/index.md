@@ -20,7 +20,6 @@ We recommend using a link to a zip file of a [specific release](https://github.c
 The extension can be configured by adding the following fields to game.project:
 
 ```
-
 [admob]
 app_id_ios = ca-app-pub-3940256099942544~1458002511
 app_id_android = ca-app-pub-3940256099942544~3347511713
