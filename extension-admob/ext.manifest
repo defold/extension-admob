@@ -1,0 +1,12 @@
+name: "AdMobExt"
+
+platforms:
+    android:
+        context:
+            aaptExtraPackages: ["androidx.work", "com.google.android.gms.common"]
+
+    ios:
+        context:
+            frameworks: ["UIKit", "AppTrackingTransparency"]
+            weakFrameworks: ["JavaScriptCore", "AdSupport"]
+            linkFlags:  ["-ObjC"]

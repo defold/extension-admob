@@ -1,8 +1,7 @@
 [project]
 title = AdMob
-version = 0.1
-dependencies = https://github.com/andsve/dirtylarry/archive/master.zip
-bundle_resources = /res
+version = 1.0
+dependencies#0 = https://github.com/andsve/dirtylarry/archive/master.zip
 
 [bootstrap]
 main_collection = /main/admob_example.collectionc
@@ -14,9 +13,6 @@ game_binding = /input/game.input_bindingc
 width = 720
 height = 1280
 
-[physics]
-scale = 0.02
-
 [script]
 shared_state = 1
 
@@ -25,19 +21,15 @@ bundle_identifier = com.defold.adtest
 
 [android]
 package = com.defold.adtest
-manifest = /admob/AndroidManifest.xml
 
 [osx]
 bundle_identifier = com.defold.adtest
 
 [library]
-include_dirs = admob
+include_dirs = extension-admob
 
 [admob]
 app_id_ios = ca-app-pub-3940256099942544~1458002511
 app_id_android = ca-app-pub-3940256099942544~3347511713
-
-[native_extension]
-app_manifest = game.appmanifest
-
+ios_tracking_usage_description = Your data will be used to provide you a better and personalized ad experience.
 

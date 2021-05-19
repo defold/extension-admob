@@ -1,185 +1,286 @@
 local dirtylarry = require "dirtylarry/dirtylarry"
 
-local admob_types = { "BANNER", "INTERSTITIAL", "REWARDED VIDEO", "NATIVE EXPRESS" }
-local admob_messages = { "MESSAGE_LOADED", "MESSAGE_FAILED_TO_LOAD", "MESSAGE_SHOW", "MESSAGE_HIDE", "MESSAGE_REWARD", "MESSAGE_APP_LEAVE", "MESSAGE_UNLOADED" }
+local MAX_LOG_LINES = 10
 
+--log logic
+local gprint = print
+local log = {}
+local text = ""
+_G.print = function(...)
+    gprint(...)
+    local args = {...}
+    local num = #log+1
+    log[num] = "--"
+    for k, v in pairs(args) do
+        log[num] = log[num] .. tostring(v) .. " "
+    end
+    log[num] = log[num] .. "\n"
+    text = ""
+    if num > MAX_LOG_LINES then
+        table.remove(log, 1)
+    end
+    for k, v in pairs(log) do
+        text = text .. v
+    end
+end
 
-local function update_buttons(self)
-    local banner_type = self.ad_type == admob.TYPE_BANNER or self.ad_type == admob.TYPE_NATIVEEXPRESS
-    local loaded = self.states[self.ad_type] ~= admob.MESSAGE_UNLOADED
-    
-    gui.set_enabled(gui.get_node("load_ad/larrybutton"), not loaded or self.states[self.ad_type] == admob.MESSAGE_UNLOADED) 
-    if banner_type then
-        gui.set_enabled(gui.get_node("hide_ad/larrybutton"), loaded)
-        gui.set_enabled(gui.get_node("move_ad/larrybutton"), loaded)
-    else
+function update()
+    gui.set_text(gui.get_node("console"), text)
+end
+-- end log logic
+
+local function update_ui(self)
+    gui.set_enabled(gui.get_node("inited"), self.initialized)
+    gui.set_enabled(gui.get_node("initialization_box"), not self.initialized)
+    if self.ad_type then
+        gui.set_enabled(gui.get_node("load_ad/larrybutton"), true)
         gui.set_enabled(gui.get_node("hide_ad/larrybutton"), false)
-        gui.set_enabled(gui.get_node("move_ad/larrybutton"), false)
-    end
-    
-    if self.ad_type == admob.TYPE_INTERSTITIAL or self.ad_type == admob.TYPE_REWARDEDVIDEO then
-        -- the interstitial/rewarded video can only be shown once
-        gui.set_enabled(gui.get_node("show_ad/larrybutton"), self.states[self.ad_type] == admob.MESSAGE_LOADED)
+        gui.set_enabled(gui.get_node("destroy_ad/larrybutton"), false)
+        if self.ad_type == admob.MSG_INTERSTITIAL then
+            gui.set_enabled(gui.get_node("show_ad/larrybutton"), admob.is_interstitial_loaded())
+        elseif self.ad_type == admob.MSG_REWARDED then
+            gui.set_enabled(gui.get_node("show_ad/larrybutton"), admob.is_rewarded_loaded())
+        elseif self.ad_type == admob.MSG_BANNER then
+            local is_banner_loaded = admob.is_banner_loaded()
+            gui.set_enabled(gui.get_node("show_ad/larrybutton"), is_banner_loaded)
+            gui.set_enabled(gui.get_node("hide_ad/larrybutton"), is_banner_loaded)
+            gui.set_enabled(gui.get_node("destroy_ad/larrybutton"), is_banner_loaded)
+        end
     else
-        gui.set_enabled(gui.get_node("show_ad/larrybutton"), loaded)
+        gui.set_enabled(gui.get_node("load_ad/larrybutton"), false)
+        gui.set_enabled(gui.get_node("show_ad/larrybutton"), false)
+        gui.set_enabled(gui.get_node("hide_ad/larrybutton"), false)
+        gui.set_enabled(gui.get_node("destroy_ad/larrybutton"), false)
     end
-    gui.set_enabled(gui.get_node("unload_ad/larrybutton"), loaded)
 end
 
-
-local function callback(self, info)
-    print("CALLBACK ad", admob_types[info.type+1], admob_messages[info.message+1])
-
-    if info.message == admob.MESSAGE_LOADED or info.message == admob.MESSAGE_UNLOADED or info.message == admob.MESSAGE_HIDE or info.message == admob.MESSAGE_SHOW then
-        self.states[info.type] = info.message
-        update_buttons(self)
-    end
-        
-    if info.message == admob.MESSAGE_FAILED_TO_LOAD then
-        self.states[info.type] = admob.MESSAGE_UNLOADED
-        local status = string.format("%s %s (%d): %s (%d)\n  %s", admob_types[info.type+1], admob_messages[info.message+1], info.message, info.result_string, info.result, info.ad_unit)
-	    self.log = status .. '\n' .. self.log
-    elseif info.message == admob.MESSAGE_REWARD then
-        local status = string.format("%s %s (%d)\n    Reward: %f %s", admob_types[info.type+1], admob_messages[info.message+1], info.message, info.reward, info.reward_type)
-        self.log = status .. '\n' .. self.log
-    else
-        self.log = '' .. admob_types[info.type+1] .. " " .. admob_messages[info.message+1] .. '\n' .. self.log
-    end
-    
-    gui.set_text(gui.get_node("status"), self.log)
+local function set_block_height(height)
+    -- use banner height in gui
+    local screen_width, screen_height = window.get_size()
+    local settings_height = tonumber(sys.get_config("display.height"))
+    local mult = screen_height/settings_height
+    local height_b_node = gui.get_node("height_b")
+    local size = gui.get_size(height_b_node)
+    size.y = height/mult
+    gui.set_size(height_b_node, size)
 end
 
+local function admob_callback(self, message_id, message)
+    if message_id == admob.MSG_INITIALIZATION then
+        self.initialized = true
+        if message.event == admob.EVENT_COMPLETE then
+            print("EVENT_COMPLETE: Initialization complete")
+        elseif message.event == admob.EVENT_JSON_ERROR then
+            print("EVENT_JSON_ERROR: Internal NE json error "..message.error)
+        end
+    elseif message_id == admob.MSG_IDFA then
+        if message.event == admob.EVENT_STATUS_AUTORIZED then
+            print("EVENT_STATUS_AUTORIZED: ATTrackingManagerAuthorizationStatusAuthorized")
+        elseif message.event == admob.EVENT_STATUS_DENIED then
+            print("EVENT_STATUS_DENIED: ATTrackingManagerAuthorizationStatusDenied")
+        elseif message.event == admob.EVENT_STATUS_NOT_DETERMINED then
+            print("EVENT_STATUS_NOT_DETERMINED: ATTrackingManagerAuthorizationStatusNotDetermined")
+        elseif message.event == admob.EVENT_STATUS_RESTRICTED then
+            print("EVENT_STATUS_RESTRICTED: ATTrackingManagerAuthorizationStatusRestricted")
+        elseif message.event == admob.EVENT_NOT_SUPPORTED then
+            print("EVENT_NOT_SUPPORTED: IDFA request not supported on this platform or OS version")
+        end
+    elseif message_id == admob.MSG_INTERSTITIAL then
+        if message.event == admob.EVENT_CLOSED then
+            print("EVENT_CLOSED: Interstitial AD closed")
+        elseif message.event == admob.EVENT_FAILED_TO_SHOW then
+            print("EVENT_FAILED_TO_SHOW: Interstitial AD failed to show\nCode: "..message.code.."\nError: "..message.error)
+        elseif message.event == admob.EVENT_OPENING then
+            -- on android this event fire only when ADS activity closed =(
+            print("EVENT_OPENING: Interstitial AD is opening")
+        elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+            print("EVENT_FAILED_TO_LOAD: Interstitial AD failed to load\nCode: "..message.code.."\nError: "..message.error)
+        elseif message.event == admob.EVENT_LOADED then
+            print("EVENT_LOADED: Interstitial AD loaded")
+        elseif message.event == admob.EVENT_NOT_LOADED then
+            print("EVENT_NOT_LOADED: can't call show_interstitial() before EVENT_LOADED\nError: "..message.error)
+        elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
+            print("EVENT_IMPRESSION_RECORDED: Interstitial did record impression")
+        elseif message.event == admob.EVENT_JSON_ERROR then
+            print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
+        end
+    elseif message_id == admob.MSG_REWARDED then
+        if message.event == admob.EVENT_CLOSED then
+            print("EVENT_CLOSED: Rewarded AD closed")
+        elseif message.event == admob.EVENT_FAILED_TO_SHOW then
+            print("EVENT_FAILED_TO_SHOW: Rewarded AD failed to show\nCode: "..message.code.."\nError: "..message.error)
+        elseif message.event == admob.EVENT_OPENING then
+            -- on android this event fire only when ADS activity closed =(
+            print("EVENT_OPENING: Rewarded AD is opening")
+        elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+            print("EVENT_FAILED_TO_LOAD: Rewarded AD failed to load\nCode: "..message.code.."\nError: "..message.error)
+        elseif message.event == admob.EVENT_LOADED then
+            print("EVENT_LOADED: Rewarded AD loaded")
+        elseif message.event == admob.EVENT_NOT_LOADED then
+            print("EVENT_NOT_LOADED: can't call show_rewarded() before EVENT_LOADED\nError: "..message.error)
+        elseif message.event == admob.EVENT_EARNED_REWARD then
+            print("EVENT_EARNED_REWARD: Reward: " .. tostring(message.amount) .. " " .. tostring(message.type))
+        elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
+            print("EVENT_IMPRESSION_RECORDED: Rewarded did record impression")
+        elseif message.event == admob.EVENT_JSON_ERROR then
+            print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
+        end
+    elseif message_id == admob.MSG_BANNER then
+        if message.event == admob.EVENT_LOADED then
+            print("EVENT_LOADED: Banner AD loaded. Height: "..message.height.."px Width: "..message.width.."px")
+            set_block_height(message.height)
+        elseif message.event == admob.EVENT_OPENING then
+            print("EVENT_OPENING: Banner AD is opening")
+        elseif message.event == admob.EVENT_FAILED_TO_LOAD then
+            print("EVENT_FAILED_TO_LOAD: Banner AD failed to load\nCode: "..message.code.."\nError: "..message.error)
+        elseif message.event == admob.EVENT_CLICKED then
+            print("EVENT_CLICKED: Banner AD loaded")
+        elseif message.event == admob.EVENT_CLOSED then
+            print("EVENT_CLOSED: Banner AD closed")
+        elseif message.event == admob.EVENT_DESTROYED then
+            print("EVENT_DESTROYED: Banner AD destroyed")
+        elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
+            print("EVENT_IMPRESSION_RECORDED: Banner did record impression")
+        elseif message.event == admob.EVENT_JSON_ERROR then
+            print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
+        end
+    end
+    update_ui(self)
+end
 
 function init(self)
     msg.post(".", "acquire_input_focus")
-    
-    -- the test devices that we can run on (see your debug log for these)
-    self.testdevices = {
-        "199e2e182e2f89a2c22a47e03e048772",
-        "ea71229c04c0e221e30a2be8a076f1aa",
-        "94314a156642dca3c2e9b09eafc61032", -- DVS-538
-        "d6fafe1dc659201e741c1dfdf00223fc", -- DVS-1190
-        "8497A7462C631CD09AA9DDD6C1D23B0F", -- DVS-1004
-        "ED455496C7B5BC4ADF3137A45385199B", -- Nexus 6P, Android 7.0
-    }
-    
-    self.keywords = {"development", "games", "fun"}
-    
-    if sys.get_sys_info().system_name == 'iPhone OS' then
-        -- https://developers.google.com/admob/ios/test-ads
-        self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716"
-        self.interstitial_ad_unit = "ca-app-pub-3940256099942544/4411468910"
-        self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/4270592515"
-        self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/1712485313"
-    else
-        -- From https://developers.google.com/admob/android/test-ads
-        self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111"
-        self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712"
-        self.nativeexpress_ad_unit = "ca-app-pub-3940256099942544/2793859312"
-        self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917"
-    end
-    
-    
-    -- some state handling for our radio buttons/ads
-    self.ad_type = admob.TYPE_INTERSTITIAL
-    
-    self.states = {}
-    self.states[admob.TYPE_BANNER]          = admob.MESSAGE_UNLOADED
-    self.states[admob.TYPE_NATIVEEXPRESS]   = admob.MESSAGE_UNLOADED
-    self.states[admob.TYPE_INTERSTITIAL]    = admob.MESSAGE_UNLOADED
-    self.states[admob.TYPE_REWARDEDVIDEO]   = admob.MESSAGE_UNLOADED
-    
-    update_buttons(self)
-    
-    -- helper utils
-    self.log = ''
-    self.time = 0.0
-    
-    -- Print the LUA API
-    print("AdMob LUA API:")
-    for key,value in pairs(admob) do
-	    print("admob." .. key);
-	end
-    print("")
-end
 
-function update(self, dt)
-    self.time = self.time + dt
-    gui.set_text(gui.get_node("time"), string.format("%.2f", self.time))
+    local engine_info = sys.get_engine_info()
+    self.is_debug = engine_info.is_debug
+
+    if self.is_debug then
+        -- Always test ONLY with test ads units when you test integration!
+        if sys.get_sys_info().system_name == 'iPhone OS' then
+            -- https://developers.google.com/admob/ios/test-ads
+            self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716" -- test unit for banners
+            self.interstitial_ad_unit = "ca-app-pub-3940256099942544/4411468910" -- test unit for interstitial
+            self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/1712485313" -- test unit for rewarded
+        else --Android
+            -- From https://developers.google.com/admob/android/test-ads
+            self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111" -- test unit for banners
+            self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712" -- test unit for interstitial
+            self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917" -- test unit for rewarded
+        end
+    else
+        --provide your units
+    end
+
+    self.show_pos = 1
+    self.banner_positions = {
+        "POS_BOTTOM_CENTER",
+        "POS_BOTTOM_LEFT",
+        "POS_BOTTOM_RIGHT",
+        "POS_NONE",
+        "POS_TOP_LEFT",
+        "POS_TOP_CENTER",
+        "POS_TOP_RIGHT",
+        "POS_CENTER"
+    }
+
+    if admob then
+        admob.set_callback(admob_callback)
+        -- https://developers.google.com/admob/ios/ccpa
+        -- https://developers.google.com/admob/android/ccpa
+        admob.set_privacy_settings(true)
+    end
+    update_ui(self)
 end
 
 function on_input(self, action_id, action)
-
-    local prev_type = self.ad_type
-    
-    self.ad_type = dirtylarry:radio("ad_type_banner", action_id, action, admob.TYPE_BANNER, self.ad_type)
-    self.ad_type = dirtylarry:radio("ad_type_interstitial", action_id, action, admob.TYPE_INTERSTITIAL, self.ad_type)
-    self.ad_type = dirtylarry:radio("ad_type_nativeexpress", action_id, action, admob.TYPE_NATIVEEXPRESS, self.ad_type)
-    if self.rewardedvideo_ad_unit ~= nil then
-        self.ad_type = dirtylarry:radio("ad_type_video", action_id, action, admob.TYPE_REWARDEDVIDEO, self.ad_type)
+    if not admob then
+        return
     end
+    
+    local prev_type = self.ad_type
+
+    if gui.is_enabled(gui.get_node("initialization_box")) then
+        dirtylarry:button("initialization", action_id, action, function ()
+            print("admob.initialize()")
+            admob.initialize()
+        end)
+
+        dirtylarry:button("idfa", action_id, action, function ()
+            print("admob.request_idfa()")
+            admob.request_idfa()
+        end)
+    end
+    
+    self.ad_type = dirtylarry:radio("ad_type_interstitial", action_id, action, admob.MSG_INTERSTITIAL, self.ad_type)
+    self.ad_type = dirtylarry:radio("ad_type_rewarded", action_id, action, admob.MSG_REWARDED, self.ad_type)
+    self.ad_type = dirtylarry:radio("ad_type_banner", action_id, action, admob.MSG_BANNER, self.ad_type)
     
     if prev_type ~= self.ad_type then
-        update_buttons(self)
+        update_ui(self)
+    end
+
+    if gui.is_enabled(gui.get_node("load_ad/larrybutton")) then
+        dirtylarry:button("load_ad", action_id, action, function ()
+            if self.ad_type == 0 then
+            elseif self.ad_type == admob.MSG_INTERSTITIAL then
+                print("admob.load_interstitial()")
+                admob.load_interstitial(self.interstitial_ad_unit)
+            elseif self.ad_type == admob.MSG_REWARDED then
+                print("admob.load_rewarded()")
+                admob.load_rewarded(self.rewardedvideo_ad_unit)
+            elseif self.ad_type == admob.MSG_BANNER then
+                print("admob.load_banner()")
+                -- 2nd parameter size, adaptive banner by default:
+                -- https://developers.google.com/admob/android/banner/adaptive?hl=en
+                admob.load_banner(self.banner_ad_unit)
+            end
+        end)
+    end
+
+    if gui.is_enabled(gui.get_node("show_ad/larrybutton")) then
+        dirtylarry:button("show_ad", action_id, action, function ()
+            if self.ad_type == 0 then
+            elseif self.ad_type == admob.MSG_INTERSTITIAL then
+                print("admob.show_interstitial()")
+                admob.show_interstitial()
+            elseif self.ad_type == admob.MSG_REWARDED then
+                print("admob.show_rewarded()")
+                admob.show_rewarded()
+            elseif self.ad_type == admob.MSG_BANNER then
+                print("admob.show_banner( admob."..self.banner_positions[self.show_pos]..")")
+                admob.show_banner(admob[self.banner_positions[self.show_pos]])
+                self.show_pos = self.show_pos + 1
+                if self.show_pos > #self.banner_positions then
+                    self.show_pos = 1
+                end
+            end
+        end)
     end
     
-    dirtylarry:button("load_ad", action_id, action, function ()
-        if self.ad_type == admob.TYPE_BANNER then
-            admob.load_banner(self.banner_ad_unit, { width = 320, height = 50, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback )
-        elseif self.ad_type == admob.TYPE_INTERSTITIAL then
-            admob.load_interstitial(self.interstitial_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
-        elseif self.ad_type == admob.TYPE_REWARDEDVIDEO then
-            admob.load_rewardedvideo(self.rewardedvideo_ad_unit, { gender = admob.GENDER_UNKNOWN, birthday_day = 13, testdevices = self.testdevices, keywords = self.keywords }, callback)
-        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
-            admob.load_nativeexpress(self.banner_ad_unit, { width = 320, height = 220, testdevices = self.testdevices, keywords = self.keywords }, callback )
-        end
-    end)
+    if gui.is_enabled(gui.get_node("hide_ad/larrybutton")) then
+        dirtylarry:button("hide_ad", action_id, action, function ()
+            if self.ad_type == admob.MSG_BANNER then
+                print("admob.hide_banner()")
+                admob.hide_banner()
+            end
+        end)
+    end
 
-    dirtylarry:button("show_ad", action_id, action, function ()
-        if self.ad_type == admob.TYPE_BANNER then
-            admob.show_banner()
-        elseif self.ad_type == admob.TYPE_INTERSTITIAL then
-            admob.show_interstitial()
-        elseif self.ad_type == admob.TYPE_REWARDEDVIDEO then
-            admob.show_rewardedvideo()
-        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
-            admob.show_nativeexpress()
-        end
-    end)
-    
-    dirtylarry:button("hide_ad", action_id, action, function ()
-        if self.ad_type == admob.TYPE_BANNER then
-            admob.hide_banner()
-        elseif self.ad_type == admob.TYPE_INTERSTITIAL then
-            admob.hide_interstitial()
-        elseif self.ad_type == admob.TYPE_REWARDEDVIDEO then
-            admob.hide_rewardedvideo()
-        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
-            admob.hide_nativeexpress()
-        end
-    end)
-    
-        
-    dirtylarry:button("unload_ad", action_id, action, function ()
-        if self.ad_type == admob.TYPE_BANNER then
-            admob.unload_banner()
-        elseif self.ad_type == admob.TYPE_INTERSTITIAL then
-            admob.unload_interstitial()
-        elseif self.ad_type == admob.TYPE_REWARDEDVIDEO then
-            admob.unload_rewardedvideo()
-        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
-            admob.unload_nativeexpress()
-        end
-    end)
+    if gui.is_enabled(gui.get_node("destroy_ad/larrybutton")) then
+        dirtylarry:button("destroy_ad", action_id, action, function ()
+            if self.ad_type == admob.MSG_BANNER then
+                print("admob.destroy_banner()")
+                admob.destroy_banner()
+            end
+        end)
+    end
 
-
-    dirtylarry:button("move_ad", action_id, action, function ()
-        if self.ad_type == admob.TYPE_BANNER then
-            admob.move_banner(action.screen_x - 50, action.screen_y)
-        elseif self.ad_type == admob.TYPE_NATIVEEXPRESS then
-            admob.move_nativeexpress(action.screen_x - 50, action.screen_y)
-        end
-    end)
+    if gui.is_enabled(gui.get_node("show_ad_inspector/larrybutton")) then
+        dirtylarry:button("show_ad_inspector", action_id, action, function ()
+            print("admob.show_ad_inspector()")
+            admob.show_ad_inspector()
+        end)
+    end
 
 end
 
