@@ -485,10 +485,13 @@ public class AdmobJNI {
             windowManager.updateViewLayout(layout, getParameters());
             return;
           }
-          m_bannerPosition = gravity;
-          windowManager.addView(layout, getParameters());
-          mBannerAdView.resume();
-          isBannerShown = true;
+          if (!layout.isShown())
+          {
+            m_bannerPosition = gravity;
+            windowManager.addView(layout, getParameters());
+            mBannerAdView.resume();
+            isBannerShown = true;
+          }
         }
     });
   }
