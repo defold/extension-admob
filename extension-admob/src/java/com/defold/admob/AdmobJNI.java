@@ -8,6 +8,7 @@ import android.view.Display;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.view.View;
 import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.content.Context;
@@ -599,6 +600,11 @@ public class AdmobJNI {
     windowManager = activity.getWindowManager();
     layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setSystemUiVisibility(
+      View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
+      View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
+      View.SYSTEM_UI_FLAG_FULLSCREEN |
+      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
     MarginLayoutParams params = new MarginLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
     params.setMargins(0, 0, 0, 0);
