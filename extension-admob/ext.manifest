@@ -7,6 +7,6 @@ platforms:
 
     ios:
         context:
-            frameworks: ["UIKit", "AppTrackingTransparency"]
+            frameworks: ["UIKit", "AppTrackingTransparency", "AVFoundation"]
             weakFrameworks: ["JavaScriptCore", "AdSupport"]
             linkFlags:  ["-ObjC"]
