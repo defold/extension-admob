@@ -16,6 +16,11 @@ To use this library in your Defold project, add the following URL to your `game.
 We recommend using a link to a zip file of a [specific release](https://github.com/defold/extension-admob/releases).
 
 
+## Setup
+
+Before you begin you need to either [sign in](https://admob.google.com/home/) to or [sign up for](https://support.google.com/admob/answer/7356219) an AdMob account. Next you need to [register your app with AdMob](https://support.google.com/admob/answer/2773509) to get an AdMob App Id. You need this id when you configure your Defold game.
+
+
 ## Configuration
 The extension can be configured by adding the following fields to game.project:
 
