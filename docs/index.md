@@ -47,7 +47,7 @@ Apple documentation: https://developer.apple.com/documentation/apptrackingtransp
 ## Example
 
 [Refer to the example project](https://github.com/defold/extension-admob/blob/master/main/ads.gui_script) to check how itergation works.
-Make sure you test example and you integration usingtest ADS units (see [init()](https://github.com/defold/extension-admob/blob/02d00565ada09c0b3329c852f9db841731763fd0/main/ads.gui_script#L157-L172) in the example)
+Make sure you test example and you integration usingtest ADS units (see [init()](https://github.com/defold/extension-admob/blob/28452b6b49c6304b274a80070279768f89cab8ac/main/ads.gui_script#L157-L183) in the example)
 
 Please, make sure you test AdMob on iOS or Android (on the other platforms `admob` table will be nil).
 
