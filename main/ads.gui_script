@@ -168,7 +168,18 @@ function init(self)
             self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917" -- test unit for rewarded
         end
     else
-        --provide your units
+        -- Always test ONLY with test ads units when you test integration!
+        --  !!! Replace this keys with your own keys : 
+        -- https://developers.google.com/admob/android/quick-start#set_up_your_app_in_your_admob_account
+        if sys.get_sys_info().system_name == 'iPhone OS' then
+            self.banner_ad_unit = "ca-app-pub-3940256099942544/2934735716" -- !!! replace it with iOS banner unit
+            self.interstitial_ad_unit = "ca-app-pub-3940256099942544/4411468910" -- !!! replace it with iOS interstitial unit
+            self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/1712485313" --  !!! replace it with iOS rewarded unit
+        else --Android
+            self.banner_ad_unit = "ca-app-pub-3940256099942544/6300978111" --  !!! replace it with Android banner unit
+            self.interstitial_ad_unit = "ca-app-pub-3940256099942544/1033173712" -- !!! replace it with Android interstitial unit
+            self.rewardedvideo_ad_unit = "ca-app-pub-3940256099942544/5224354917" -- !!! replace it with Android rewarded unit
+        end
     end
 
     self.show_pos = 1
@@ -183,8 +194,11 @@ function init(self)
         "POS_CENTER"
     }
 
+    -- `admob` works only on iOS and Android, make sure the extension is available
     if admob then
+        -- !!! Set callback before initialization
         admob.set_callback(admob_callback)
+        -- !!! Read documentation about privacy settings and use the following method if you need to apply it
         -- https://developers.google.com/admob/ios/ccpa
         -- https://developers.google.com/admob/android/ccpa
         admob.set_privacy_settings(true)
