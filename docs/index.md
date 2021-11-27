@@ -5,11 +5,11 @@ brief: This manual covers how to get use AdMob to show ads on iOS and Android in
 
 # Defold AdMob extension API documentation
 
-This extension provides a unified, simple to use interface to show AdMob ads on iOS and Android.
+This extension provides a unified, simple to use interface to show AdMob ADS on iOS and Android.
 
 
 ## Installation
-To use this library in your Defold project, add the following URL to your `game.project` dependencies:
+To use this library in your Defold project, add the following URL to your `game.project` dependencies and then fetch libraries using `Project->Fetch Libraries` :
 
 [https://github.com/defold/extension-admob/archive/master.zip](https://github.com/defold/extension-admob/archive/master.zip)
 
@@ -22,7 +22,7 @@ Before you begin you need to either [sign in](https://admob.google.com/home/) to
 
 
 ## Configuration
-The extension can be configured by adding the following fields to game.project:
+The extension can be configured by adding the following fields to `game.project` ( just open this file in any text editor and paste these lines):
 
 ```
 [admob]
@@ -46,8 +46,10 @@ Apple documentation: https://developer.apple.com/documentation/apptrackingtransp
 
 ## Example
 
-[Refer to the example project](https://github.com/defold/extension-admob/blob/master/main/ads.gui_script).
+[Refer to the example project](https://github.com/defold/extension-admob/blob/master/main/ads.gui_script) to check how itergation works.
+Make sure you test example and you integration usingtest ADS units (see [init()](https://github.com/defold/extension-admob/blob/02d00565ada09c0b3329c852f9db841731763fd0/main/ads.gui_script#L157-L172) in the example)
 
+Please, make sure you test AdMob on iOS or Android (on the other platforms `admob` table will be nil).
 
 ## Source code
 
