@@ -234,6 +234,10 @@ static void LuaInit(lua_State* L)
 
     #undef SETCONSTANT
 
+    // for backwards compatibility (Issue #18)
+    lua_pushnumber(L, EVENT_STATUS_AUTHORIZED);
+    lua_setfield(L, -2, "EVENT_STATUS_AUTORIZED");
+
     lua_pop(L, 1);
 }
 
