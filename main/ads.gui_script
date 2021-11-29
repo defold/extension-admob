@@ -74,8 +74,8 @@ local function admob_callback(self, message_id, message)
             print("EVENT_JSON_ERROR: Internal NE json error "..message.error)
         end
     elseif message_id == admob.MSG_IDFA then
-        if message.event == admob.EVENT_STATUS_AUTORIZED then
-            print("EVENT_STATUS_AUTORIZED: ATTrackingManagerAuthorizationStatusAuthorized")
+        if message.event == admob.EVENT_STATUS_AUTHORIZED then
+            print("EVENT_STATUS_AUTHORIZED: ATTrackingManagerAuthorizationStatusAuthorized")
         elseif message.event == admob.EVENT_STATUS_DENIED then
             print("EVENT_STATUS_DENIED: ATTrackingManagerAuthorizationStatusDenied")
         elseif message.event == admob.EVENT_STATUS_NOT_DETERMINED then

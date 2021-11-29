@@ -83,8 +83,8 @@
                             print("EVENT_JSON_ERROR: Internal NE json error "..message.error)
                         end
                     elseif message_id == admob.MSG_IDFA then
-                        if message.event == admob.EVENT_STATUS_AUTORIZED then
-                            print("EVENT_STATUS_AUTORIZED: ATTrackingManagerAuthorizationStatusAuthorized")
+                        if message.event == admob.EVENT_STATUS_AUTHORIZED then
+                            print("EVENT_STATUS_AUTHORIZED: ATTrackingManagerAuthorizationStatusAuthorized")
                         elseif message.event == admob.EVENT_STATUS_DENIED then
                             print("EVENT_STATUS_DENIED: ATTrackingManagerAuthorizationStatusDenied")
                         elseif message.event == admob.EVENT_STATUS_NOT_DETERMINED then
@@ -293,7 +293,7 @@
 
   - name: load_banner
     type: function
-    desc: Starts loading a Banner Ad, can only be called after `admob.MSG_INITIALIZATION` event 
+    desc: Starts loading a Banner Ad, can only be called after `admob.MSG_INITIALIZATION` event
           Original docs
           [Android](https://developers.google.com/admob/android/banner),
           [iOS](https://developers.google.com/admob/ios/banner)
@@ -329,7 +329,7 @@
 
   - name: show_banner
     type: function
-    desc: Shows loaded Banner Ad, can only be called after `admob.EVENT_LOADED` 
+    desc: Shows loaded Banner Ad, can only be called after `admob.EVENT_LOADED`
           Original docs
           [Android](https://developers.google.com/admob/android/banner),
           [iOS](https://developers.google.com/admob/ios/banner)
@@ -442,7 +442,7 @@
   - name: EVENT_IMPRESSION_RECORDED
     type: number
 
-  - name: EVENT_STATUS_AUTORIZED
+  - name: EVENT_STATUS_AUTHORIZED
     type: number
 
   - name: EVENT_STATUS_DENIED
