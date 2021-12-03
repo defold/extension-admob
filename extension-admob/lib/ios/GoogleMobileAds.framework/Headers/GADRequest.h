@@ -12,7 +12,8 @@
 #import <UIKit/UIKit.h>
 
 /// Add this constant to the testDevices property's array to receive test ads on the simulator.
-GAD_EXTERN const id _Nonnull kGADSimulatorID;
+GAD_EXTERN NSString *_Nonnull const kGADSimulatorID GAD_DEPRECATED_MSG_ATTRIBUTE(
+    "Use GADRequestConfiguration/GADSimulatorID instead.");
 
 /// Deprecated gender constants.
 typedef NS_ENUM(NSInteger, GADGender) {
@@ -62,7 +63,7 @@ typedef NS_ENUM(NSInteger, GADGender) {
 
 /// Array of keyword strings. Keywords are words or phrases describing the current user activity
 /// such as @"Sports Scores" or @"Football". Set this property to nil to clear the keywords.
-@property(nonatomic, copy, nullable) NSArray *keywords;
+@property(nonatomic, copy, nullable) NSArray<NSString *> *keywords;
 
 /// URL string for a webpage whose content matches the app's primary content. This webpage content
 /// is used for targeting and brand safety purposes.

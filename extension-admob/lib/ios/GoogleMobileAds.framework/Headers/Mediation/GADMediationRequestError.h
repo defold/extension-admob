@@ -9,7 +9,8 @@
 #import <GoogleMobileAds/GoogleMobileAdsDefines.h>
 
 /// Google AdMob Ads error domain.
-GAD_EXTERN NSString *_Nonnull const kGADErrorDomain;
+GAD_EXTERN NSString *_Nonnull const kGADErrorDomain DEPRECATED_MSG_ATTRIBUTE(
+    "Use GADRequestError/GADErrorDomain instead");
 
 /// NSError codes for GAD error domain.
 typedef NS_ENUM(NSInteger, GADMediationErrorCode) {

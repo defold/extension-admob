@@ -20,6 +20,9 @@ GAD_EXTERN GADMaxAdContentRating _Nonnull const GADMaxAdContentRatingTeen;
 /// Rating for content suitable only for mature audiences.
 GAD_EXTERN GADMaxAdContentRating _Nonnull const GADMaxAdContentRatingMatureAudience;
 
+/// Add this constant to the testDevices property's array to receive test ads on the simulator.
+GAD_EXTERN NSString *_Nonnull const GADSimulatorID;
+
 /// Request configuration. The settings in this class will apply to all ad requests.
 @interface GADRequestConfiguration : NSObject
 
