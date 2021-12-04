@@ -101,6 +101,8 @@ local function admob_callback(self, message_id, message)
             print("EVENT_NOT_LOADED: can't call show_interstitial() before EVENT_LOADED\nError: "..message.error)
         elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
             print("EVENT_IMPRESSION_RECORDED: Interstitial did record impression")
+        elseif message.event == admob.EVENT_CLICKED then
+            print("EVENT_CLICKED: Interstitial clicked")
         elseif message.event == admob.EVENT_JSON_ERROR then
             print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
         end
@@ -122,6 +124,8 @@ local function admob_callback(self, message_id, message)
             print("EVENT_EARNED_REWARD: Reward: " .. tostring(message.amount) .. " " .. tostring(message.type))
         elseif message.event == admob.EVENT_IMPRESSION_RECORDED then
             print("EVENT_IMPRESSION_RECORDED: Rewarded did record impression")
+        elseif message.event == admob.EVENT_CLICKED then
+            print("EVENT_CLICKED: Rewarded clicked")
         elseif message.event == admob.EVENT_JSON_ERROR then
             print("EVENT_JSON_ERROR: Internal NE json error: "..message.error)
         end
@@ -134,7 +138,7 @@ local function admob_callback(self, message_id, message)
         elseif message.event == admob.EVENT_FAILED_TO_LOAD then
             print("EVENT_FAILED_TO_LOAD: Banner AD failed to load\nCode: "..message.code.."\nError: "..message.error)
         elseif message.event == admob.EVENT_CLICKED then
-            print("EVENT_CLICKED: Banner AD loaded")
+            print("EVENT_CLICKED: Banner AD clicked")
         elseif message.event == admob.EVENT_CLOSED then
             print("EVENT_CLOSED: Banner AD closed")
         elseif message.event == admob.EVENT_DESTROYED then

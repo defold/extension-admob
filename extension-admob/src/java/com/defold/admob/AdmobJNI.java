@@ -118,12 +118,17 @@ public class AdmobJNI {
   }
 
   public void showAdInspector() {
-    MobileAds.openAdInspector(activity, new OnAdInspectorClosedListener() {
-      public void onAdInspectorClosed(AdInspectorError error) {
-        // Error will be non-null if ad inspector closed due to an error.
-        if (error != null) {
-          Log.d(TAG, error.toString());
-        }
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        MobileAds.openAdInspector(activity, new OnAdInspectorClosedListener() {
+          public void onAdInspectorClosed(AdInspectorError error) {
+            // Error will be non-null if ad inspector closed due to an error.
+            if (error != null) {
+              Log.d(TAG, error.toString());
+            }
+          }
+        });
       }
     });
   }
@@ -245,6 +250,11 @@ public class AdmobJNI {
                       public void onAdImpression() {
                         sendSimpleMessage(MSG_INTERSTITIAL, EVENT_IMPRESSION_RECORDED);
                       }
+
+                      @Override
+                      public void onAdClicked() {
+                        sendSimpleMessage(MSG_INTERSTITIAL, EVENT_CLICKED);
+                      }
                     });
                 }
 
@@ -325,10 +335,14 @@ public class AdmobJNI {
                   sendSimpleMessage(MSG_REWARDED, EVENT_OPENING);
                 }
 
-
                 @Override
                 public void onAdImpression() {
                   sendSimpleMessage(MSG_REWARDED, EVENT_IMPRESSION_RECORDED);
+                }
+
+                @Override
+                public void onAdClicked() {
+                  sendSimpleMessage(MSG_REWARDED, EVENT_CLICKED);
                 }
 
               });

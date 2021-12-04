@@ -3,7 +3,7 @@ name: "AdMobExt"
 platforms:
     android:
         context:
-            aaptExtraPackages: ["androidx.work", "com.google.android.gms.common"]
+            aaptExtraPackages: ["androidx.work", "com.google.android.gms.common", "androidx.startup"]
 
     ios:
         context:
