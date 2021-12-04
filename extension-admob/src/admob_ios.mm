@@ -428,6 +428,10 @@ void ShowAdInspector() {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_INTERSTITIAL, dmAdmob::EVENT_IMPRESSION_RECORDED);
 }
 
+- (void)adDidRecordClick:(id)ad {
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_INTERSTITIAL, dmAdmob::EVENT_CLICKED);
+}
+
 @end
 
 @implementation AdmobExtRewardedAdDelegate
@@ -449,6 +453,9 @@ void ShowAdInspector() {
 
 - (void)adDidRecordImpression:(id)ad {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_IMPRESSION_RECORDED);
+}
+- (void)adDidRecordClick:(id)ad {
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_CLICKED);
 }
 
 @end
@@ -486,7 +493,7 @@ void ShowAdInspector() {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_CLOSED);
 }
 
-- (void)bannerViewWillPresentScreen:(GADBannerView *)bannerView {
+- (void)bannerViewDidRecordClick:(GADBannerView *)bannerView {
     // Tells the delegate that a full screen view will be presented in response to the user clicking on an ad.
     // The delegate may want to pause animations and time sensitive interactions.
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_CLICKED);
