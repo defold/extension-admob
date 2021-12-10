@@ -49,16 +49,16 @@
               - name: event
                 type: number
                 desc: "One of event types:
-                      `admod.EVENT_CLOSED`,
-                      `admod.EVENT_FAILED_TO_SHOW`,
-                      `admod.EVENT_OPENING`,
-                      `admod.EVENT_FAILED_TO_LOAD`,
-                      `admod.EVENT_LOADED`,
-                      `admod.EVENT_NOT_LOADED`,
-                      `admod.EVENT_EARNED_REWARD`,
-                      `admod.EVENT_COMPLETE`,
-                      `admod.EVENT_CLICKED`,
-                      `admod.EVENT_DESTROYED`
+                      `admob.EVENT_CLOSED`,
+                      `admob.EVENT_FAILED_TO_SHOW`,
+                      `admob.EVENT_OPENING`,
+                      `admob.EVENT_FAILED_TO_LOAD`,
+                      `admob.EVENT_LOADED`,
+                      `admob.EVENT_NOT_LOADED`,
+                      `admob.EVENT_EARNED_REWARD`,
+                      `admob.EVENT_COMPLETE`,
+                      `admob.EVENT_CLICKED`,
+                      `admob.EVENT_DESTROYED`
                       `admob.EVENT_JSON_ERROR`"
 
               - name: code
@@ -165,7 +165,7 @@
 
   - name: set_privacy_settings
     type: function
-    desc: Sets user privacy preferences (must be called before `admod.initialize()`).
+    desc: Sets user privacy preferences (must be called before `admob.initialize()`).
           Original docs
           [Android](https://developers.google.com/admob/android/ccpa),
           [iOS](https://developers.google.com/admob/ios/ccpa)
@@ -223,7 +223,7 @@
     examples:
       - desc: |-
                  ```lua
-                 if admob and admod.is_interstitial_loaded() then
+                 if admob and admob.is_interstitial_loaded() then
                      admob.show_interstitial()
                  end
                  ```
@@ -271,7 +271,7 @@
     examples:
       - desc: |-
                  ```lua
-                 if admob and admod.is_rewarded_loaded() then
+                 if admob and admob.is_rewarded_loaded() then
                      admob.show_rewarded()
                  end
                  ```
@@ -311,16 +311,16 @@
       type: number
       optional: true
       desc: "Requested Banner Ad size, possible values:
-            `admod.SIZE_ADAPTIVE_BANNER` (default),
-            `admod.SIZE_BANNER`,
-            `admod.SIZE_FLUID`,
-            `admod.SIZE_FULL_BANNER`,
-            `admod.SIZE_LARGE_BANNER`,
-            `admod.SIZE_LEADEARBOARD`,
-            `admod.SIZE_MEDIUM_RECTANGLE`,
-            `admod.SIZE_SEARH`,
-            `admod.SIZE_SKYSCRAPER`,
-            `admod.SIZE_SMART_BANNER`.
+            `admob.SIZE_ADAPTIVE_BANNER` (default),
+            `admob.SIZE_BANNER`,
+            `admob.SIZE_FLUID`,
+            `admob.SIZE_FULL_BANNER`,
+            `admob.SIZE_LARGE_BANNER`,
+            `admob.SIZE_LEADEARBOARD`,
+            `admob.SIZE_MEDIUM_RECTANGLE`,
+            `admob.SIZE_SEARH`,
+            `admob.SIZE_SKYSCRAPER`,
+            `admob.SIZE_SMART_BANNER`.
             Original docs
             [Android](https://developers.google.com/admob/android/banner#banner_sizes),
             [iOS](https://developers.google.com/admob/ios/banner#banner_sizes)"
@@ -339,20 +339,20 @@
       type: number
       optional: true
       desc: "Banner Ad position, possible values:
-            `admod.POS_NONE` (default),
-            `admod.POS_TOP_LEFT`,
-            `admod.POS_TOP_CENTER`,
-            `admod.POS_TOP_RIGHT`,
-            `admod.POS_BOTTOM_LEFT`,
-            `admod.POS_BOTTOM_CENTER`,
-            `admod.POS_BOTTOM_RIGHT`,
-            `admod.POS_CENTER`"
+            `admob.POS_NONE` (default),
+            `admob.POS_TOP_LEFT`,
+            `admob.POS_TOP_CENTER`,
+            `admob.POS_TOP_RIGHT`,
+            `admob.POS_BOTTOM_LEFT`,
+            `admob.POS_BOTTOM_CENTER`,
+            `admob.POS_BOTTOM_RIGHT`,
+            `admob.POS_CENTER`"
 
     examples:
       - desc: |-
                  ```lua
-                 if admob and admod.is_banner_loaded() then
-                     admob.show_banner(admod.POS_TOP_CENTER)
+                 if admob and admob.is_banner_loaded() then
+                     admob.show_banner(admob.POS_TOP_CENTER)
                  end
                  ```
 
