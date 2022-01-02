@@ -267,9 +267,19 @@ static dmExtension::Result UpdateAdmob(dmExtension::Params* params)
     return dmExtension::RESULT_OK;
 }
 
+static void OnEventAdmob(dmExtension::Params* params, const dmExtension::Event* event)
+ {
+    switch(event->m_Event)
+    {
+        case dmExtension::EVENT_ID_ACTIVATEAPP:
+            ActivateApp();
+            break;
+    }
+ }
+
 } //namespace dmAdmob
 
-DM_DECLARE_EXTENSION(EXTENSION_NAME, LIB_NAME, dmAdmob::AppInitializeAdmob, dmAdmob::AppFinalizeAdmob, dmAdmob::InitializeAdmob, dmAdmob::UpdateAdmob, 0, dmAdmob::FinalizeAdmob)
+DM_DECLARE_EXTENSION(EXTENSION_NAME, LIB_NAME, dmAdmob::AppInitializeAdmob, dmAdmob::AppFinalizeAdmob, dmAdmob::InitializeAdmob, dmAdmob::UpdateAdmob, dmAdmob::OnEventAdmob, dmAdmob::FinalizeAdmob)
 
 #else
 

@@ -493,6 +493,7 @@ public class AdmobJNI {
           if (!isBannerLoaded()) {
             return;
           }
+          layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
           int gravity = getGravity(pos);
           if (m_bannerPosition != gravity && isBannerShown)
           {
@@ -527,6 +528,30 @@ public class AdmobJNI {
 
   public boolean isBannerLoaded() {
     return mBannerAdView != null;
+  }
+
+  public void updateBannerLayout() {
+    activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          if (!isBannerLoaded()) {
+            return;
+          }
+          layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
+          if (!isBannerShown) {
+            return;
+          }
+          windowManager.removeView(layout);
+          if (isBannerShown)
+          {
+            windowManager.updateViewLayout(layout, getParameters());
+            if (!layout.isShown())
+            {
+              windowManager.addView(layout, getParameters());
+            }
+          }
+        }
+    });
   }
 
   private int getGravity(int bannerPosConst) {
@@ -614,14 +639,10 @@ public class AdmobJNI {
     windowManager = activity.getWindowManager();
     layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setSystemUiVisibility(
-      View.SYSTEM_UI_FLAG_LAYOUT_STABLE |
-      View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN |
-      View.SYSTEM_UI_FLAG_FULLSCREEN |
-      View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
     MarginLayoutParams params = new MarginLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
     params.setMargins(0, 0, 0, 0);
+    layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
 
     layout.addView(mBannerAdView, params);
   }

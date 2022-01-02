@@ -21,6 +21,8 @@ bundle_identifier = com.defold.adtest
 
 [android]
 package = com.defold.adtest
+immersive_mode = 1
+display_cutout = 0
 
 [osx]
 bundle_identifier = com.defold.adtest
