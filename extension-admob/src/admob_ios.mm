@@ -405,6 +405,9 @@ void ShowAdInspector() {
     }];
 }
 
+void ActivateApp() {
+}
+
 } //namespace
 
 @implementation AdmobExtInterstitialAdDelegate

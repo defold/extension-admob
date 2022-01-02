@@ -44,6 +44,7 @@ void HideBanner();
 void SetPrivacySettings(bool enable_rdp);
 void RequestIDFA();
 void ShowAdInspector();
+void ActivateApp();
 
 bool IsInterstitialLoaded();
 bool IsRewardedLoaded();

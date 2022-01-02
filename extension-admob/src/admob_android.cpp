@@ -33,6 +33,7 @@ struct Admob
     jmethodID      m_SetPrivacySettings;
     jmethodID      m_RequestIDFA;
     jmethodID      m_ShowAdInspector;
+    jmethodID      m_UpdateBannerLayout;
 
 };
 
@@ -105,6 +106,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_SetPrivacySettings = env->GetMethodID(cls, "setPrivacySettings", "(Z)V");
     g_admob.m_RequestIDFA = env->GetMethodID(cls, "requestIDFA", "()V");
     g_admob.m_ShowAdInspector = env->GetMethodID(cls, "showAdInspector", "()V");
+    g_admob.m_UpdateBannerLayout= env->GetMethodID(cls, "updateBannerLayout", "()V");
 
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
     g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
@@ -197,6 +199,11 @@ void RequestIDFA()
 void ShowAdInspector()
 {
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowAdInspector);
+}
+
+void ActivateApp()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_UpdateBannerLayout);
 }
 
 }//namespace dmAdmob
