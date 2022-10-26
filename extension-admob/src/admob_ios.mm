@@ -376,7 +376,7 @@ void RequestIDFA() {
         [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
             switch (status) {
               case ATTrackingManagerAuthorizationStatusAuthorized:
-                SendSimpleMessage(MSG_IDFA, EVENT_STATUS_AUTORIZED);
+                SendSimpleMessage(MSG_IDFA, EVENT_STATUS_AUTHORIZED);
                 break;
               case ATTrackingManagerAuthorizationStatusDenied:
                 SendSimpleMessage(MSG_IDFA, EVENT_STATUS_DENIED);

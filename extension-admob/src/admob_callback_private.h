@@ -32,7 +32,7 @@ enum MessageEvent
     EVENT_DESTROYED =               10,
     EVENT_JSON_ERROR =              11,
     EVENT_IMPRESSION_RECORDED =     12,
-    EVENT_STATUS_AUTORIZED =        13,
+    EVENT_STATUS_AUTHORIZED =       13,
     EVENT_STATUS_DENIED =           14,
     EVENT_STATUS_NOT_DETERMINED =   15,
     EVENT_STATUS_RESTRICTED =       16,
