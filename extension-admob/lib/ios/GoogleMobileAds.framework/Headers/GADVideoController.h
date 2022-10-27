@@ -36,7 +36,7 @@
 /// of the video. Doesn't do anything if -customControlsEnabled returns NO.
 - (void)stop;
 
-/// Indicates whether video custom controls (i.e. play/pause/mute/unmute) are enabled.
+/// Indicates whether video custom controls (for example, play/pause/mute/unmute) are enabled.
 - (BOOL)customControlsEnabled;
 
 /// Indicates whether video click to expand behavior is enabled.

@@ -88,6 +88,7 @@
     didFailInterstitial:(NSError *)error GAD_DEPRECATED_MSG_ATTRIBUTE("Use -adapter:didFailAd:");
 
 /// Deprecated. No replacement.
-- (void)adapterWillLeaveApplication:(id<GADMAdNetworkAdapter>)adapter GAD_DEPRECATED_ATTRIBUTE;
+- (void)adapterWillLeaveApplication:(id<GADMAdNetworkAdapter>)adapter
+    GAD_DEPRECATED_MSG_ATTRIBUTE("Deprecated. No replacement.");
 
 @end

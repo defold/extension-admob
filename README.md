@@ -1,6 +1,6 @@
-Android SDK 20.5.0 and iOS SDK 8.13.0
-![](https://img.shields.io/badge/Android%20SDK%2020.5.0-green)
-![](https://img.shields.io/badge/iOS%20SDK8.13.0-green)
+Android SDK 21.3.0 and iOS SDK 9.12.0
+![](https://img.shields.io/badge/Android%20SDK%2021.3.0-green)
+![](https://img.shields.io/badge/iOS%20SDK%209.12.0-green)
 
 # AdMob Extension for Defold
 

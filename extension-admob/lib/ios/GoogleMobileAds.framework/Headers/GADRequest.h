@@ -11,10 +11,6 @@
 #import <GoogleMobileAds/GoogleMobileAdsDefines.h>
 #import <UIKit/UIKit.h>
 
-/// Add this constant to the testDevices property's array to receive test ads on the simulator.
-GAD_EXTERN NSString *_Nonnull const kGADSimulatorID GAD_DEPRECATED_MSG_ATTRIBUTE(
-    "Use GADRequestConfiguration/GADSimulatorID instead.");
-
 /// Deprecated gender constants.
 typedef NS_ENUM(NSInteger, GADGender) {
   kGADGenderUnknown,  ///< Deprecated.
@@ -49,15 +45,6 @@ typedef NS_ENUM(NSInteger, GADGender) {
 
 /// Scene object. Used in multiscene apps to request ads of the appropriate size.
 @property(nonatomic, nullable, weak) UIWindowScene *scene API_AVAILABLE(ios(13.0));
-
-#pragma mark User Information
-
-/// The user's current location. Location data is not used to target Google ads; however, it may be
-/// used by 3rd party ad networks. Do not use Core Location just for advertising. Your app should
-/// have a valid use case for it as well.
-- (void)setLocationWithLatitude:(CGFloat)latitude
-                      longitude:(CGFloat)longitude
-                       accuracy:(CGFloat)accuracyInMeters;
 
 #pragma mark Contextual Information
 

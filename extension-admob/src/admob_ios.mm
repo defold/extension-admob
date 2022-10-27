@@ -238,19 +238,19 @@ namespace dmAdmob {
         //SIZE_FLUID, SIZE_SEARH, SIZE_SKYSCRAPER, SIZE_SMART_BANNER are not available on iOS
         switch (bannerSizeConst) {
           case SIZE_BANNER:
-            bannerSize = kGADAdSizeBanner;
+            bannerSize = GADAdSizeBanner;
             break;
           case SIZE_FULL_BANNER:
-            bannerSize = kGADAdSizeFullBanner;
+            bannerSize = GADAdSizeFullBanner;
             break;
           case SIZE_LARGE_BANNER:
-            bannerSize = kGADAdSizeLargeBanner;
+            bannerSize = GADAdSizeLargeBanner;
             break;
           case SIZE_LEADEARBOARD:
-            bannerSize = kGADAdSizeLeaderboard;
+            bannerSize = GADAdSizeLeaderboard;
             break;
           case SIZE_MEDIUM_RECTANGLE:
-            bannerSize = kGADAdSizeMediumRectangle;
+            bannerSize = GADAdSizeMediumRectangle;
             break;
           }
         return bannerSize;
@@ -423,7 +423,7 @@ void ActivateApp() {
         @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
 }
 
-- (void)adDidPresentFullScreenContent:(id)ad {
+- (void)adWillPresentFullScreenContent:(id)ad {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_INTERSTITIAL, dmAdmob::EVENT_OPENING);
 }
 
@@ -450,7 +450,7 @@ void ActivateApp() {
         @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
 }
 
-- (void)adDidPresentFullScreenContent:(id)ad {
+- (void)adWillPresentFullScreenContent:(id)ad {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_OPENING);
 }
 

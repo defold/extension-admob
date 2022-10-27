@@ -18,15 +18,4 @@ typedef NS_ENUM(NSInteger, GADMBannerAnimationType) {
   GADMBannerAnimationTypeSlideFromRight = 6,  ///< Slide from right.
   GADMBannerAnimationTypeFadeIn = 7,          ///< Fade in.
   GADMBannerAnimationTypeRandom = 8,          ///< Random animation.
-
-  /// Deprecated enums.
-  kGADMBannerAnimationTypeNone = 0,            ///< Deprecated. No animation.
-  kGADMBannerAnimationTypeFlipFromLeft = 1,    ///< Deprecated. Flip from left.
-  kGADMBannerAnimationTypeFlipFromRight = 2,   ///< Deprecated. Flip from right.
-  kGADMBannerAnimationTypeCurlUp = 3,          ///< Deprecated. Curl up.
-  kGADMBannerAnimationTypeCurlDown = 4,        ///< Deprecated. Curl down.
-  kGADMBannerAnimationTypeSlideFromLeft = 5,   ///< Deprecated. Slide from left.
-  kGADMBannerAnimationTypeSlideFromRight = 6,  ///< Deprecated. Slide from right.
-  kGADMBannerAnimationTypeFadeIn = 7,          ///< Deprecated. Fade in.
-  kGADMBannerAnimationTypeRandom = 8,          ///< Deprecated. Random animation.
 };

@@ -18,7 +18,7 @@
 typedef void (^GADNativeAdCustomClickHandler)(NSString *_Nonnull assetID);
 
 /// Asset key for the GADMediaView asset view.
-GAD_EXTERN NSString *_Nonnull const GADCustomNativeAdMediaViewKey;
+FOUNDATION_EXPORT NSString *_Nonnull const GADCustomNativeAdMediaViewKey;
 
 @protocol GADCustomNativeAdDelegate;
 
@@ -72,11 +72,6 @@ GAD_EXTERN NSString *_Nonnull const GADCustomNativeAdMediaViewKey;
 /// Call when the ad is displayed on screen to the user. Can be called multiple times. Only the
 /// first impression is recorded.
 - (void)recordImpression;
-
-/// Returns media view for rendering video loaded by the receiver. Returns nil if receiver doesn't
-/// have a video.
-@property(nonatomic, readonly, nullable) GADMediaView *mediaView GAD_DEPRECATED_MSG_ATTRIBUTE(
-    "Use the mediaContent property to set the media content on your own GADMediaView.");
 
 @end
 

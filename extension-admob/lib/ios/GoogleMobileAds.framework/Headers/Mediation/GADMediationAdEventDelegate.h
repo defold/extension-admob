@@ -21,7 +21,7 @@
 - (void)reportClick;
 
 /// Notifies Google Mobile Ads SDK that the GADMediationAd will present a full screen modal view.
-/// Maps to adDidPresentFullScreenContent: for full screen ads.
+/// Maps to adWillPresentFullScreenContent: for full screen ads.
 - (void)willPresentFullScreenView;
 
 /// Notifies Google Mobile Ads SDK that the GADMediationAd failed to present with an error.
@@ -40,7 +40,7 @@
 @protocol GADMediationBannerAdEventDelegate <GADMediationAdEventDelegate>
 
 /// Deprecated. No replacement.
-- (void)willBackgroundApplication GAD_DEPRECATED_ATTRIBUTE;
+- (void)willBackgroundApplication GAD_DEPRECATED_MSG_ATTRIBUTE("Deprecated. No replacement.");
 
 @end
 
@@ -48,7 +48,7 @@
 @protocol GADMediationInterstitialAdEventDelegate <GADMediationAdEventDelegate>
 
 /// Deprecated. No replacement.
-- (void)willBackgroundApplication GAD_DEPRECATED_ATTRIBUTE;
+- (void)willBackgroundApplication GAD_DEPRECATED_MSG_ATTRIBUTE("Deprecated. No replacement.");
 
 @end
 
@@ -71,20 +71,25 @@
 - (void)didUnmuteVideo;
 
 /// Deprecated. No replacement.
-- (void)willBackgroundApplication GAD_DEPRECATED_ATTRIBUTE;
+- (void)willBackgroundApplication GAD_DEPRECATED_MSG_ATTRIBUTE("Deprecated. No replacement.");
 
 @end
 
 /// Reports rewarded related information to the Google Mobile Ads SDK from the adapter.
 @protocol GADMediationRewardedAdEventDelegate <GADMediationAdEventDelegate>
 
-/// Notifies the Google Mobile Ads SDK that the GADMediationAd has rewarded the user with a reward.
-- (void)didRewardUserWithReward:(nonnull GADAdReward *)reward;
+/// Notifies the Google Mobile Ads SDK that the GADMediationAd has rewarded the user.
+- (void)didRewardUser;
 
 /// Notifies Google Mobile Ads SDK that the GADMediationAd started video playback.
 - (void)didStartVideo;
 
 /// Notifies Google Mobile Ads SDK that the GADMediationAd's video playback finished.
 - (void)didEndVideo;
+
+#pragma mark - Deprecated
+/// Deprecated. Use -didRewardUser.
+- (void)didRewardUserWithReward:(nonnull GADAdReward *)reward
+    GAD_DEPRECATED_MSG_ATTRIBUTE("Deprecated. Use -didRewardUser.");
 
 @end
