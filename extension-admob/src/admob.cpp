@@ -33,7 +33,7 @@ static int Lua_LoadInterstitial(lua_State* L)
     if (lua_type(L, 1) != LUA_TSTRING) {
         char msg[256];
         snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
-        luaL_error(L, msg);
+        luaL_error(L, "%s", msg);
         return 0;
     }
     const char* unitId_lua = luaL_checkstring(L, 1);
@@ -54,7 +54,7 @@ static int Lua_LoadRewarded(lua_State* L)
     if (lua_type(L, 1) != LUA_TSTRING) {
         char msg[256];
         snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
-        luaL_error(L, msg);
+        luaL_error(L, "%s", msg);
         return 0;
     }
     const char* unitId_lua = luaL_checkstring(L, 1);
@@ -75,7 +75,7 @@ static int Lua_LoadBanner(lua_State* L)
     if (lua_type(L, 1) != LUA_TSTRING) {
         char msg[256];
         snprintf(msg, sizeof(msg), "Expected string, got %s. Wrong type for Interstitial UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
-        luaL_error(L, msg);
+        luaL_error(L, "%s", msg);
         return 0;
     }
     const char* unitId_lua = luaL_checkstring(L, 1);
