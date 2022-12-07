@@ -59,7 +59,6 @@
 
 /// Deprecated. No replacement.
 - (void)adapterWillLeaveApplication:
-    (id<GADMRewardBasedVideoAdNetworkAdapter>)rewardBasedVideoAdAdapter
-    GAD_DEPRECATED_MSG_ATTRIBUTE("Deprecated. No replacement.");
+    (id<GADMRewardBasedVideoAdNetworkAdapter>)rewardBasedVideoAdAdapter GAD_DEPRECATED_ATTRIBUTE;
 
 @end

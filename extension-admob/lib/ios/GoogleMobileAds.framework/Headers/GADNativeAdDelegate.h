@@ -16,14 +16,13 @@
 
 #pragma mark - Ad Lifecycle Events
 
-/// Called when an impression is recorded for an ad.
+/// Called when an impression is recorded for an ad. Only called for Google ads and is not supported
+/// for mediated ads.
 - (void)nativeAdDidRecordImpression:(nonnull GADNativeAd *)nativeAd;
 
-/// Called when a click is recorded for an ad.
+/// Called when a click is recorded for an ad. Only called for Google ads and is not supported for
+/// mediated ads.
 - (void)nativeAdDidRecordClick:(nonnull GADNativeAd *)nativeAd;
-
-/// Called when a swipe gesture click is recorded for an ad.
-- (void)nativeAdDidRecordSwipeGestureClick:(nonnull GADNativeAd *)nativeAd;
 
 #pragma mark - Click-Time Lifecycle Notifications
 

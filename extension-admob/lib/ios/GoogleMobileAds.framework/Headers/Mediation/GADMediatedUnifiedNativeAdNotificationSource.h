@@ -50,7 +50,6 @@
 
 /// Deprecated. No replacement.
 + (void)mediatedNativeAdWillLeaveApplication:
-    (nonnull id<GADMediatedUnifiedNativeAd>)mediatedNativeAd
-    GAD_DEPRECATED_MSG_ATTRIBUTE("Deprecated. No replacement.");
+    (nonnull id<GADMediatedUnifiedNativeAd>)mediatedNativeAd GAD_DEPRECATED_ATTRIBUTE;
 
 @end
