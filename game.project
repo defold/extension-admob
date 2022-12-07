@@ -23,7 +23,6 @@ bundle_identifier = com.defold.adtest
 package = com.defold.adtest
 immersive_mode = 1
 display_cutout = 0
-minimum_sdk_version = 19
 
 [osx]
 bundle_identifier = com.defold.adtest
