@@ -1,0 +1,2 @@
+platform :ios, '10.0'
+pod 'Google-Mobile-Ads-SDK', '9.12.0'
