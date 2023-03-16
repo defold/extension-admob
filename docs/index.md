@@ -44,7 +44,7 @@ Apple documentation: https://developer.apple.com/documentation/apptrackingtransp
 
 ## Usage
 
-### Configuration
+### Setup
 To start using AdMob in Defold you need to first set-up an AdMob callback and configure privacy settings:
 
 ```lua
