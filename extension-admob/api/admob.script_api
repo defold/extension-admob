@@ -358,6 +358,30 @@
 
 #*****************************************************************************************************
 
+  - name: set_max_ad_content_rating
+    type: function
+    desc: Sets a maximum ad content rating. AdMob ads returned for your app will have a content rating at or below that level. 
+          Original docs
+          [Android](https://developers.google.com/admob/android/targeting#ad_content_filtering),
+          [iOS](https://developers.google.com/admob/ios/targeting#ad_content_filtering)
+
+    parameters:
+    - name: max_ad_rating
+      type: number
+      desc: "Max Ad Rating, possible values:
+            `admob.MAX_AD_CONTENT_RATING_G`,
+            `admob.MAX_AD_CONTENT_RATING_PG`,
+            `admob.MAX_AD_CONTENT_RATING_T`,
+            `admob.MAX_AD_CONTENT_RATING_MA`"
+
+    examples:
+      - desc: |-
+                 ```lua
+                   admob.set_max_ad_content_rating(admob.MAX_AD_CONTENT_RATING_PG)
+                 ```
+
+#*****************************************************************************************************
+
   - name: hide_banner
     type: function
     desc: Temporarily hides Banner Ad, banner can be shown again using `admob.show_banner()`
@@ -513,6 +537,20 @@
     type: number
 
   - name: POS_CENTER
+    type: number
+
+#*****************************************************************************************************
+
+  - name: MAX_AD_CONTENT_RATING_G
+    type: number
+
+  - name: MAX_AD_CONTENT_RATING_PG
+    type: number
+
+  - name: MAX_AD_CONTENT_RATING_T
+    type: number
+
+  - name: MAX_AD_CONTENT_RATING_MA
     type: number
 
 #*****************************************************************************************************
