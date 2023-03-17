@@ -149,6 +149,14 @@ static int Lua_ShowAdInspector(lua_State* L)
     return 0;
 }
 
+static int Lua_SetMaxAdContentRating(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    MaxAdRating max_ad_rating = (MaxAdRating)luaL_checknumber(L, 1);
+    SetMaxAdContentRating(max_ad_rating);
+    return 0;
+}
+
 static const luaL_reg Module_methods[] =
 {
     {"initialize", Lua_Initialize},
@@ -167,6 +175,7 @@ static const luaL_reg Module_methods[] =
     {"set_privacy_settings", Lua_SetPrivacySettings},
     {"request_idfa", Lua_RequestIDFA},
     {"show_ad_inspector", Lua_ShowAdInspector},
+    {"set_max_ad_content_rating", Lua_SetMaxAdContentRating},
     {0, 0}
 };
 
@@ -222,6 +231,11 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(POS_BOTTOM_CENTER)
     SETCONSTANT(POS_BOTTOM_RIGHT)
     SETCONSTANT(POS_CENTER)
+
+    SETCONSTANT(MAX_AD_CONTENT_RATING_G)
+    SETCONSTANT(MAX_AD_CONTENT_RATING_PG)
+    SETCONSTANT(MAX_AD_CONTENT_RATING_T)
+    SETCONSTANT(MAX_AD_CONTENT_RATING_MA)
 
     #undef SETCONSTANT
 

@@ -34,6 +34,7 @@ struct Admob
     jmethodID      m_RequestIDFA;
     jmethodID      m_ShowAdInspector;
     jmethodID      m_UpdateBannerLayout;
+    jmethodID      m_SetMaxAdContentRating;
 
 };
 
@@ -111,6 +112,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
     g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
     g_admob.m_IsBannerLoaded = env->GetMethodID(cls, "isBannerLoaded", "()Z");
+    g_admob.m_SetMaxAdContentRating = env->GetMethodID(cls, "setMaxAdContentRating", "(I)V");
 }
 
 void Initialize_Ext()
@@ -204,6 +206,11 @@ void ShowAdInspector()
 void ActivateApp()
 {
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_UpdateBannerLayout);
+}
+
+void SetMaxAdContentRating(MaxAdRating max_ad_rating)
+{
+    CallVoidMethodInt(g_admob.m_AdmobJNI, g_admob.m_SetMaxAdContentRating, (int)max_ad_rating);
 }
 
 }//namespace dmAdmob
