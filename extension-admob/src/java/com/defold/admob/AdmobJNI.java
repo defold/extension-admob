@@ -141,6 +141,7 @@ public class AdmobJNI {
         .setMaxAdContentRating(rating)
         .build();
       MobileAds.setRequestConfiguration(requestConfiguration);
+      Log.d(TAG, "setMaxAdContentRating " + rating);
     }
   }
 
