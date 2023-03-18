@@ -4,6 +4,10 @@
 
 namespace dmAdmob {
 
+
+// The same constants/enums are in AdmobJNI.java
+// If you change enums here, pls make sure you update the constants there as well
+    
 enum BannerSize
 {
     SIZE_ADAPTIVE_BANNER =  0,
@@ -30,6 +34,14 @@ enum BannerPosition
     POS_CENTER =            7
 };
 
+enum MaxAdRating
+{
+    MAX_AD_CONTENT_RATING_G      = 0,
+    MAX_AD_CONTENT_RATING_PG     = 1,
+    MAX_AD_CONTENT_RATING_T      = 2,
+    MAX_AD_CONTENT_RATING_MA     = 3
+};
+
 void Initialize_Ext();
 
 void Initialize();
@@ -45,6 +57,7 @@ void SetPrivacySettings(bool enable_rdp);
 void RequestIDFA();
 void ShowAdInspector();
 void ActivateApp();
+void SetMaxAdContentRating(MaxAdRating max_ad_rating);
 
 bool IsInterstitialLoaded();
 bool IsRewardedLoaded();

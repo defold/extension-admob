@@ -408,6 +408,23 @@ void ShowAdInspector() {
 void ActivateApp() {
 }
 
+void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
+    switch (max_ad_rating) {
+        case MAX_AD_CONTENT_RATING_G:
+            GADMobileAds.sharedInstance.requestConfiguration.maxAdContentRating = GADMaxAdContentRatingGeneral;
+            break;
+        case MAX_AD_CONTENT_RATING_PG:
+            GADMobileAds.sharedInstance.requestConfiguration.maxAdContentRating = GADMaxAdContentRatingParentalGuidance;
+            break;
+        case MAX_AD_CONTENT_RATING_T:
+            GADMobileAds.sharedInstance.requestConfiguration.maxAdContentRating = GADMaxAdContentRatingTeen;
+            break;
+        case MAX_AD_CONTENT_RATING_MA:
+            GADMobileAds.sharedInstance.requestConfiguration.maxAdContentRating = GADMaxAdContentRatingMatureAudience;
+            break;
+    }
+}
+
 } //namespace
 
 @implementation AdmobExtInterstitialAdDelegate

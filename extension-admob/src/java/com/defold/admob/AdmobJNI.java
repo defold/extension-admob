@@ -24,6 +24,7 @@ import com.google.android.gms.ads.LoadAdError;
 import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.AdInspectorError;
 import com.google.android.gms.ads.OnAdInspectorClosedListener;
+import com.google.android.gms.ads.RequestConfiguration;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
 
@@ -88,6 +89,11 @@ public class AdmobJNI {
   private static final int POS_BOTTOM_RIGHT =         6;
   private static final int POS_CENTER =               7;
 
+  private static final int MAX_AD_CONTENT_RATING_G =  0;
+  private static final int MAX_AD_CONTENT_RATING_PG = 1;
+  private static final int MAX_AD_CONTENT_RATING_T =  2;
+  private static final int MAX_AD_CONTENT_RATING_MA = 3;
+
   // END CONSTANTS
 
 
@@ -111,6 +117,32 @@ public class AdmobJNI {
     SharedPreferences.Editor editor = sharedPref.edit();
     editor.putInt("gad_rdp", 1);
     editor.commit();
+  }
+
+  public void setMaxAdContentRating(final int max_ad_rating) {
+    String rating = null;
+    switch (max_ad_rating) {
+      case MAX_AD_CONTENT_RATING_G:
+        rating = RequestConfiguration.MAX_AD_CONTENT_RATING_G;
+        break;
+      case MAX_AD_CONTENT_RATING_PG:
+        rating = RequestConfiguration.MAX_AD_CONTENT_RATING_PG;
+        break;
+      case MAX_AD_CONTENT_RATING_T:
+        rating = RequestConfiguration.MAX_AD_CONTENT_RATING_T;
+        break;
+      case MAX_AD_CONTENT_RATING_MA:
+        rating = RequestConfiguration.MAX_AD_CONTENT_RATING_MA;
+        break;
+      }
+    if (rating != null) {
+      RequestConfiguration requestConfiguration = MobileAds.getRequestConfiguration()
+        .toBuilder()
+        .setMaxAdContentRating(rating)
+        .build();
+      MobileAds.setRequestConfiguration(requestConfiguration);
+      Log.d(TAG, "setMaxAdContentRating " + rating);
+    }
   }
 
   public void requestIDFA() {
