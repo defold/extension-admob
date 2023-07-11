@@ -1,4 +1,8 @@
+repositories {
+  mavenCentral()
+}
+
 dependencies {
   // https://developers.google.com/admob/android/quick-start#example_app-level_buildgradle_excerpt
-  compile 'com.google.android.gms:play-services-ads:21.3.0'
+  implementation 'com.google.android.gms:play-services-ads:21.3.0'
 }
