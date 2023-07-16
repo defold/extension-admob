@@ -95,7 +95,7 @@ static void CallVoidMethodBool(jobject instance, jmethodID method, bool cbool)
 
 static void InitJNIMethods(JNIEnv* env, jclass cls)
 {
-    g_admob.m_Initialize = env->GetMethodID(cls, "initialize", "()V");
+    g_admob.m_Initialize = env->GetMethodID(cls, "initialize", "(Ljava/lang/String;)V");
     g_admob.m_LoadInterstitial = env->GetMethodID(cls, "loadInterstitial", "(Ljava/lang/String;)V");
     g_admob.m_ShowInterstitial = env->GetMethodID(cls, "showInterstitial", "()V");
     g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;)V");
@@ -128,9 +128,9 @@ void Initialize_Ext()
     g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz));
 }
 
-void Initialize()
+void Initialize(const char* defoldUserAgent)
 {
-    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_Initialize);
+    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_Initialize, defoldUserAgent);
 }
 
 void LoadInterstitial(const char* unitId)

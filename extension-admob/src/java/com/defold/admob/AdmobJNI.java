@@ -96,6 +96,8 @@ public class AdmobJNI {
 
   // END CONSTANTS
 
+  private String defoldUserAgent = "defold-x.y.z";
+
 
   private Activity activity;
 
@@ -103,7 +105,8 @@ public class AdmobJNI {
       this.activity = activity;
   }
 
-  public void initialize() {
+  public void initialize(String defoldUserAgent) {
+    this.defoldUserAgent = defoldUserAgent;
       MobileAds.initialize(activity, new OnInitializationCompleteListener() {
           @Override
           public void onInitializationComplete(InitializationStatus initializationStatus) {
@@ -232,6 +235,10 @@ public class AdmobJNI {
     admobAddToQueue(msg, message);
   }
 
+  private AdRequest createAdRequest() {
+    return new AdRequest.Builder().setRequestAgent(defoldUserAgent).build();
+  }
+
 //--------------------------------------------------
 // Interstitial ADS
 
@@ -241,7 +248,7 @@ public class AdmobJNI {
       activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = createAdRequest();
 
         InterstitialAd.load(activity, unitId, adRequest, new InterstitialAdLoadCallback() {
                 @Override
@@ -330,7 +337,7 @@ public class AdmobJNI {
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-        AdRequest adRequest = new AdRequest.Builder().build();
+        AdRequest adRequest = createAdRequest();
 
         RewardedAd.load(activity, unitId,
           adRequest, new RewardedAdLoadCallback(){
@@ -445,7 +452,7 @@ public class AdmobJNI {
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
-          AdRequest adRequest = new AdRequest.Builder().build();
+          AdRequest adRequest = createAdRequest();
           view.setAdListener(new AdListener() {
             @Override
             public void onAdLoaded() {

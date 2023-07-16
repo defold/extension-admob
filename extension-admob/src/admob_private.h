@@ -44,7 +44,7 @@ enum MaxAdRating
 
 void Initialize_Ext();
 
-void Initialize();
+void Initialize(const char* defoldUserAgent);
 void LoadInterstitial(const char* unitId);
 void ShowInterstitial();
 void LoadRewarded(const char* unitId);
