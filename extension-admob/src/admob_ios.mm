@@ -22,6 +22,8 @@
 
 namespace dmAdmob {
 
+    static const char* m_DefoldUserAgent = nil;
+
     static UIViewController *uiViewController = nil;
 
     void SendSimpleMessage(MessageId msg, id obj) {
@@ -82,11 +84,18 @@ namespace dmAdmob {
         SendSimpleMessage(msg, dict);
     }
 
-    void Initialize() {
+    void Initialize(const char* defoldUserAgent) {
+        m_DefoldUserAgent = defoldUserAgent;
         [[GADMobileAds sharedInstance]
         startWithCompletionHandler:^(GADInitializationStatus *_Nonnull status) {
             SendSimpleMessage(MSG_INITIALIZATION, EVENT_COMPLETE);
         }];
+    }
+
+    GADRequest* createGADRequest() {
+        GADRequest *request = [GADRequest request];
+        request.requestAgent = [NSString stringWithUTF8String: m_DefoldUserAgent];
+        return request;
     }
 
 //--------------------------------------------------
@@ -109,10 +118,9 @@ namespace dmAdmob {
     }
 
     void LoadInterstitial(const char* unitId) {
-        GADRequest *request = [GADRequest request];
         [GADInterstitialAd
             loadWithAdUnitID:[NSString stringWithUTF8String:unitId]
-            request:request
+            request:createGADRequest()
             completionHandler:^(GADInterstitialAd *ad, NSError *error) {
                 if (error) {
                     SetInterstitialAd(nil);
@@ -169,10 +177,9 @@ namespace dmAdmob {
     }
 
     void LoadRewarded(const char* unitId) {
-        GADRequest *request = [GADRequest request];
         [GADRewardedAd
             loadWithAdUnitID:[NSString stringWithUTF8String:unitId]
-            request:request
+            request:createGADRequest()
             completionHandler:^(GADRewardedAd *ad, NSError *error) {
                 if (error) {
                     SetRewardedAd(nil);
@@ -323,7 +330,7 @@ namespace dmAdmob {
         bannerAd.rootViewController = uiViewController;
         bannerAd.hidden = YES;
         [uiViewController.view addSubview:bannerAd];
-        [bannerAd loadRequest:[GADRequest request]];
+        [bannerAd loadRequest:createGADRequest()];
     }
 
     void ShowBanner(BannerPosition bannerPos) {
