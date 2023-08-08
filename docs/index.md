@@ -9,11 +9,11 @@ This extension provides a unified and simple to use interface to show AdMob Ads 
 
 
 ## Installation
-To use this extension in your Defold project, add one of the available release URLs to your `game.project` dependencies and then fetch libraries using `Project->Fetch Libraries`:
-
-[https://github.com/defold/extension-admob/releases](https://github.com/defold/extension-admob/releases).
+To use AdMob in your Defold project, add a version of the AdMob extension to your `game.project` dependencies from the list of available [Releases](https://github.com/defold/extension-admob/releases). Find the version you want, copy the URL to ZIP archive of the release and add it to the project dependencies.
 
 ![](add-dependency.png)
+
+Select `Project->Fetch Libraries` once you have added the version to `game.project` to download the version and make it available in your project.
 
 
 ## Setup
