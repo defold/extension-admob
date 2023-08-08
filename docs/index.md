@@ -13,6 +13,8 @@ To use this extension in your Defold project, add one of the available release U
 
 [https://github.com/defold/extension-admob/releases](https://github.com/defold/extension-admob/releases).
 
+![](add-dependency.png)
+
 
 ## Setup
 
