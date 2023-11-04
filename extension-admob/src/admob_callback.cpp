@@ -23,7 +23,7 @@ static void InvokeCallback(MessageId type, const char*json)
 {
     if (!dmScript::IsCallbackValid(m_luaCallback))
     {
-        dmLogError("Admob callback is invalid. Set new callback unsing `admob.setCallback()` function.");
+        dmLogError("Admob callback is invalid. Set new callback unsing `admob.set_callback()` function.");
         return;
     }
 
