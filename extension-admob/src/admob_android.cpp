@@ -23,12 +23,15 @@ struct Admob
     jmethodID      m_ShowInterstitial;
     jmethodID      m_LoadRewarded;
     jmethodID      m_ShowRewarded;
+    jmethodID      m_LoadRewardedInterstitial;
+    jmethodID      m_ShowRewardedInterstitial;
     jmethodID      m_LoadBanner;
     jmethodID      m_DestroyBanner;
     jmethodID      m_ShowBanner;
     jmethodID      m_HideBanner;
     jmethodID      m_IsRewardedLoaded;
     jmethodID      m_IsInterstitialLoaded;
+    jmethodID      m_IsRewardedInterstitialLoaded;
     jmethodID      m_IsBannerLoaded;
     jmethodID      m_SetPrivacySettings;
     jmethodID      m_RequestIDFA;
@@ -100,6 +103,8 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_ShowInterstitial = env->GetMethodID(cls, "showInterstitial", "()V");
     g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;)V");
     g_admob.m_ShowRewarded = env->GetMethodID(cls, "showRewarded", "()V");
+    g_admob.m_LoadRewardedInterstitial  = env->GetMethodID(cls, "loadRewardedInterstitial", "(Ljava/lang/String;)V");
+    g_admob.m_ShowRewardedInterstitial  = env->GetMethodID(cls, "showRewardedInterstitial", "()V");
     g_admob.m_LoadBanner = env->GetMethodID(cls, "loadBanner", "(Ljava/lang/String;I)V");
     g_admob.m_DestroyBanner = env->GetMethodID(cls, "destroyBanner", "()V");
     g_admob.m_ShowBanner = env->GetMethodID(cls, "showBanner", "(I)V");
@@ -111,6 +116,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
 
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
     g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
+    g_admob.m_IsRewardedInterstitialLoaded = env->GetMethodID(cls, "isRewardedInterstitialLoaded", "()Z");
     g_admob.m_IsBannerLoaded = env->GetMethodID(cls, "isBannerLoaded", "()Z");
     g_admob.m_SetMaxAdContentRating = env->GetMethodID(cls, "setMaxAdContentRating", "(I)V");
 }
@@ -165,6 +171,21 @@ void ShowRewarded()
 bool IsRewardedLoaded()
 {
     return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsRewardedLoaded);
+}
+
+void LoadRewardedInterstitial(const char* unitId)
+{
+    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadRewardedInterstitial, unitId);
+}
+
+void ShowRewardedInterstitial()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowRewardedInterstitial);
+}
+
+bool IsRewardedInterstitialLoaded()
+{
+    return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsRewardedInterstitialLoaded);
 }
 
 void LoadBanner(const char* unitId, BannerSize bannerSize)

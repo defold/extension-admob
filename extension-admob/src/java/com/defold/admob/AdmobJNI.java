@@ -36,6 +36,9 @@ import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
 
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
+import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
@@ -53,6 +56,7 @@ public class AdmobJNI {
   private static final int MSG_BANNER =               3;
   private static final int MSG_INITIALIZATION =       4;
   private static final int MSG_IDFA =                 5;
+  private static final int MSG_REWARDED_INTERSTITIAL =6;
 
   private static final int EVENT_CLOSED =             1;
   private static final int EVENT_FAILED_TO_SHOW =     2;
@@ -425,6 +429,105 @@ public class AdmobJNI {
 
   public boolean isRewardedLoaded() {
     return mRewardedAd != null;
+  }
+
+//--------------------------------------------------
+// Rewarded Interstitial ADS
+
+  private RewardedInterstitialAd mRewardedInterstitialAd;
+
+  public void loadRewardedInterstitial(final String unitId) {
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        AdRequest adRequest = createAdRequest();
+
+        RewardedInterstitialAd.load(activity, unitId,
+          adRequest, new RewardedInterstitialAdLoadCallback(){
+            @Override
+            public void onAdLoaded(@NonNull RewardedInterstitialAd rewardedAd) {
+              // Log.d(TAG, "onAdLoaded");
+              mRewardedInterstitialAd = rewardedAd;
+              sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_LOADED);
+              mRewardedInterstitialAd.setFullScreenContentCallback(new FullScreenContentCallback() {
+                @Override
+                public void onAdDismissedFullScreenContent() {
+                  // Called when ad is dismissed.
+                  // Don't forget to set the ad reference to null so you
+                  // don't show the ad a second time.
+                  // Log.d(TAG, "Ad was dismissed.");
+                  mRewardedInterstitialAd = null;
+                  sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_CLOSED);
+                }
+
+                @Override
+                public void onAdFailedToShowFullScreenContent(AdError adError) {
+                  // Called when ad fails to show.
+                  // Log.d(TAG, "Ad failed to show.");
+                  mRewardedInterstitialAd = null;
+                  sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_FAILED_TO_SHOW, "code", adError.getCode(),
+                          "error", String.format("Error domain: \"%s\". %s", adError.getDomain(), adError.getMessage()));
+                }
+
+                @Override
+                public void onAdShowedFullScreenContent() {
+                  // Called when ad is shown.
+                  // Log.d(TAG, "Ad was shown.");
+                  mRewardedInterstitialAd = null;
+                  sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_OPENING);
+                }
+
+                @Override
+                public void onAdImpression() {
+                  sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_IMPRESSION_RECORDED);
+                }
+
+                @Override
+                public void onAdClicked() {
+                  sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_CLICKED);
+                }
+
+              });
+            }
+
+            @Override
+            public void onAdFailedToLoad(@NonNull LoadAdError loadAdError) {
+              // Handle the error.
+              // Log.d(TAG, "onAdFailedToLoad");
+              mRewardedInterstitialAd = null;
+              sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_FAILED_TO_LOAD, "code", loadAdError.getCode(),
+                          "error", String.format("Error domain: \"%s\". %s", loadAdError.getDomain(), loadAdError.getMessage()));
+            }
+        });
+      }
+    });
+  }
+
+  public void showRewardedInterstitial() {
+    activity.runOnUiThread(new Runnable() {
+        @Override
+        public void run() {
+          if (isRewardedInterstitialLoaded()) {
+            mRewardedInterstitialAd.show(activity, new OnUserEarnedRewardListener() {
+              @Override
+              public void onUserEarnedReward(@NonNull RewardItem rewardItem) {
+                // Handle the reward.
+                // Log.d(TAG, "The user earned the reward.");
+                int rewardAmount = rewardItem.getAmount();
+                String rewardType = rewardItem.getType();
+                sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_EARNED_REWARD, "amount", rewardAmount, "type", rewardType);
+              }
+            });
+          } else {
+            // Log.d(TAG, "The rewarded ad wasn't ready yet.");
+            sendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_NOT_LOADED, "error", "Can't show Rewarded Interstitial AD that wasn't loaded.");
+          }
+        }
+    });
+  }
+
+  public boolean isRewardedInterstitialLoaded() {
+    return mRewardedInterstitialAd != null;
   }
 
 //--------------------------------------------------
