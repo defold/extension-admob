@@ -567,6 +567,11 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
     [self performSelector:@selector(UpdatePosition) withObject:nil afterDelay:0.1];
 }
 
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIDeviceOrientationDidChangeNotification object:nil];
+    [super dealloc];
+}
+
 @end
 
 #endif
