@@ -534,15 +534,19 @@ public class AdmobJNI {
           }
           layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
           int gravity = getGravity(pos);
-          if ((m_bannerPosition == Gravity.NO_GRAVITY || m_bannerPosition != gravity) && isBannerShown)
-          {
-            m_bannerPosition = gravity;
+          if ((m_bannerPosition == Gravity.NO_GRAVITY || m_bannerPosition != gravity) && isBannerShown) {
+            if (gravity != Gravity.NO_GRAVITY) {
+              m_bannerPosition = gravity;
+            }
             windowManager.updateViewLayout(layout, getParameters());
             return;
           }
           if (!layout.isShown())
           {
-            m_bannerPosition = gravity;
+
+            if (gravity != Gravity.NO_GRAVITY) {
+              m_bannerPosition = gravity;
+            }
             windowManager.addView(layout, getParameters());
             mBannerAdView.resume();
             isBannerShown = true;

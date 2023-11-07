@@ -339,8 +339,10 @@ namespace dmAdmob {
         }
         bannerAd.hidden = NO;
         if (bannerPos != lastBannerPos || lastBannerPos == POS_NONE) {
-            UpdatePosition(bannerPos);
-            lastBannerPos = bannerPos;
+            if (bannerPos != POS_NONE) {
+                lastBannerPos = bannerPos;
+            }
+            UpdatePosition(lastBannerPos);
         }
     }
 

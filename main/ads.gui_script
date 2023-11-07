@@ -295,7 +295,7 @@ function on_input(self, action_id, action)
     
     if gui.is_enabled(gui.get_node("hide_ad/larrybutton")) then
         dirtylarry:button("hide_ad", action_id, action, function ()
-            if self.ad_type == admob.MSG_BANNERu then
+            if self.ad_type == admob.MSG_BANNER then
                 print("admob.hide_banner()")
                 admob.hide_banner()
                 self.is_banner_shown = nil
