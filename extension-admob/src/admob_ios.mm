@@ -17,6 +17,9 @@
 @interface AdmobExtRewardedAdDelegate : NSObject<GADFullScreenContentDelegate>
 @end
 
+@interface AdmobExtRewardedInterstitialAdDelegate : NSObject<GADFullScreenContentDelegate>
+@end
+
 @interface AdmobExtBannerAdDelegate : NSObject<GADBannerViewDelegate>
 @end
 
@@ -224,6 +227,70 @@ namespace dmAdmob {
         }
     }
 
+//--------------------------------------------------
+// Rewarded Interstitial ADS
+
+    static GADRewardedInterstitialAd *rewardedInterstitialAd = nil;
+    static AdmobExtRewardedInterstitialAdDelegate *admobExtRewardedInterstitialAdDelegate;
+
+    void SetRewardedInterstitialAd(GADRewardedInterstitialAd *newAd) {
+        if (rewardedInterstitialAd == newAd) {
+            return;
+        }
+        if (newAd != nil) {
+            [newAd retain];
+        }
+        if (rewardedInterstitialAd != nil) {
+            [rewardedInterstitialAd release];
+        }
+        rewardedInterstitialAd = newAd;
+    }
+
+    void LoadRewardedInterstitial(const char* unitId) {
+        [GADRewardedInterstitialAd
+            loadWithAdUnitID:[NSString stringWithUTF8String:unitId]
+            request:createGADRequest()
+            completionHandler:^(GADRewardedInterstitialAd *ad, NSError *error) {
+                if (error) {
+                    SetRewardedInterstitialAd(nil);
+                    NSLog([NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
+                    SendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_FAILED_TO_LOAD, @"code", [error code],
+                          @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
+                    return;
+                }
+                SetRewardedInterstitialAd(ad);
+                SendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_LOADED);
+            }];
+    }
+
+    bool IsRewardedInterstitialLoaded() {
+        return rewardedInterstitialAd != nil;
+    }
+
+    void ShowRewardedInterstitial() {
+        if (IsRewardedInterstitialLoaded()) {
+            rewardedInterstitialAd.fullScreenContentDelegate = admobExtRewardedInterstitialAdDelegate;
+            NSError* error;
+            if ([rewardedInterstitialAd canPresentFromRootViewController:uiViewController error:&error]) {
+                [rewardedInterstitialAd presentFromRootViewController:uiViewController
+                    userDidEarnRewardHandler:^{
+                            GADAdReward *reward = rewardedInterstitialAd.adReward;
+                            SendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_EARNED_REWARD, @"amount", [reward.amount doubleValue], @"type", [reward type]);
+                        }];
+            } else {
+                if (error) {
+                    SendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_NOT_LOADED, @"code", [error code],
+                          @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
+                } else {
+                    SendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_NOT_LOADED, @"error", @"Can't present rewarded interstitial AD");
+                }
+            }
+        } else {
+            SendSimpleMessage(MSG_REWARDED_INTERSTITIAL, EVENT_NOT_LOADED, @"error", @"Can't show rewarded interstitial AD that wasn't loaded.");
+        }
+    }
+
+
 
 //--------------------------------------------------
 // Banner ADS
@@ -380,6 +447,7 @@ void Initialize_Ext() {
 
     admobExtInterstitialAdDelegate = [[AdmobExtInterstitialAdDelegate alloc] init];
     admobExtRewardedAdDelegate = [[AdmobExtRewardedAdDelegate alloc] init];
+    admobExtRewardedInterstitialAdDelegate = [[AdmobExtRewardedInterstitialAdDelegate alloc] init];
     admobExtBannerAdDelegate = [[AdmobExtBannerAdDelegate alloc] init];
     admobAppDelegate = [[AdMobAppDelegate alloc] init];
 
@@ -390,6 +458,7 @@ void Finalize_Ext() {
     dmExtension::UnregisteriOSUIApplicationDelegate(admobAppDelegate);
     [admobExtInterstitialAdDelegate dealloc];
     [admobExtRewardedAdDelegate dealloc];
+    [admobExtRewardedInterstitialAdDelegate dealloc];
     [admobExtBannerAdDelegate dealloc];
     [admobAppDelegate dealloc];
 }
@@ -504,6 +573,32 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
 }
 - (void)adDidRecordClick:(id)ad {
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED, dmAdmob::EVENT_CLICKED);
+}
+
+@end
+
+@implementation AdmobExtRewardedInterstitialAdDelegate
+
+- (void)adDidDismissFullScreenContent:(id)ad {
+    dmAdmob::SetRewardedInterstitialAd(nil);
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED_INTERSTITIAL, dmAdmob::EVENT_CLOSED);
+}
+
+- (void)ad:(id)ad didFailToPresentFullScreenContentWithError:(NSError *)error {
+    dmAdmob::SetRewardedInterstitialAd(nil);
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED_INTERSTITIAL, dmAdmob::EVENT_FAILED_TO_SHOW, @"code", [error code],
+        @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
+}
+
+- (void)adWillPresentFullScreenContent:(id)ad {
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED_INTERSTITIAL, dmAdmob::EVENT_OPENING);
+}
+
+- (void)adDidRecordImpression:(id)ad {
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED_INTERSTITIAL, dmAdmob::EVENT_IMPRESSION_RECORDED);
+}
+- (void)adDidRecordClick:(id)ad {
+    dmAdmob::SendSimpleMessage(dmAdmob::MSG_REWARDED_INTERSTITIAL, dmAdmob::EVENT_CLICKED);
 }
 
 @end

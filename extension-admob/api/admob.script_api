@@ -291,6 +291,54 @@
 
 #*****************************************************************************************************
 
+  - name: load_rewarded_interstitial
+    type: function
+    desc: Starts loading a Rewarded Interstitial Ad, can only be called after `admob.MSG_INITIALIZATION` event
+          Original docs
+          [Android](https://developers.google.com/admob/android/rewarded-interstitial#load_an_ad),
+          [iOS](https://developers.google.com/admob/ios/rewarded-interstitial#load_an_ad)
+
+    parameters:
+    - name: ad_unit_id
+      type: string
+      desc: Ad unit ID, for test ads use on Android `"ca-app-pub-3940256099942544/5354046379"`, or
+            on iOS `"ca-app-pub-3940256099942544/6978759866"`
+            Original docs
+            [Android](https://developers.google.com/admob/android/rewarded-interstitial#load_an_ad),
+            [iOS](https://developers.google.com/admob/ios/rewarded-interstitial#load_an_ad)
+
+#*****************************************************************************************************
+
+  - name: show_rewarded_interstitial
+    type: function
+    desc: Shows loaded Rewarded Interstitial Ad, can only be called after `admob.EVENT_LOADED`
+          Original docs
+          [Android](https://developers.google.com/admob/android/rewarded-interstitial#show_the_ad),
+          [iOS](https://developers.google.com/admob/ios/rewarded-interstitial#display_the_ad_and_handle_the_reward_event)
+
+    examples:
+      - desc: |-
+                 ```lua
+                 if admob and admob.is_rewarded_interstitial_loaded() then
+                     admob.show_rewarded_interstitial()
+                 end
+                 ```
+
+#*****************************************************************************************************
+
+  - name: is_rewarded_interstitial_loaded
+    type: function
+    desc: Checks if Rewarded Interstitial Ad is loaded and ready to show
+          Original docs
+          [Android](https://developers.google.com/admob/android/rewarded-interstitial),
+          [iOS](https://developers.google.com/admob/ios/rewarded-interstitial)
+
+    returns:
+    - name: is_ready
+      type: boolean
+
+#*****************************************************************************************************
+
   - name: load_banner
     type: function
     desc: Starts loading a Banner Ad, can only be called after `admob.MSG_INITIALIZATION` event
@@ -426,6 +474,9 @@
     type: number
 
   - name: MSG_IDFA
+    type: number
+
+  - name: MSG_REWARDED_INTERSTITIAL
     type: number
 
 #*****************************************************************************************************

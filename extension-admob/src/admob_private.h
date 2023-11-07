@@ -50,6 +50,8 @@ void LoadInterstitial(const char* unitId);
 void ShowInterstitial();
 void LoadRewarded(const char* unitId);
 void ShowRewarded();
+void LoadRewardedInterstitial(const char* unitId);
+void ShowRewardedInterstitial();
 void LoadBanner(const char* unitId, BannerSize bannerSize);
 void DestroyBanner();
 void ShowBanner(BannerPosition bannerPos);
@@ -62,6 +64,7 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating);
 
 bool IsInterstitialLoaded();
 bool IsRewardedLoaded();
+bool IsRewardedInterstitialLoaded();
 bool IsBannerLoaded();
 
 } //namespace dmAdmob

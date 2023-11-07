@@ -65,6 +65,24 @@ static int Lua_ShowRewarded(lua_State* L)
     return 0;
 }
 
+static int Lua_LoadRewardedInterstitial(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (lua_type(L, 1) != LUA_TSTRING) {
+        return DM_LUA_ERROR("Expected string, got %s. Wrong type for Rewarded Interstitial UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
+    }
+    const char* unitId_lua = luaL_checkstring(L, 1);
+    LoadRewardedInterstitial(unitId_lua);
+    return 0;
+}
+
+static int Lua_ShowRewardedInterstitial(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    ShowRewardedInterstitial();
+    return 0;
+}
+
 static int Lua_LoadBanner(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
@@ -121,6 +139,14 @@ static int Lua_IsInterstitialLoaded(lua_State* L)
     return 1;
 }
 
+static int Lua_IsRewardedInterstitialLoaded(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool is_loaded = IsRewardedInterstitialLoaded();
+    lua_pushboolean(L, is_loaded);
+    return 1;
+}
+
 static int Lua_IsBannerLoaded(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 1);
@@ -167,12 +193,15 @@ static const luaL_reg Module_methods[] =
     {"show_interstitial", Lua_ShowInterstitial},
     {"load_rewarded", Lua_LoadRewarded},
     {"show_rewarded", Lua_ShowRewarded},
+    {"load_rewarded_interstitial", Lua_LoadRewardedInterstitial},
+    {"show_rewarded_interstitial", Lua_ShowRewardedInterstitial},
     {"load_banner", Lua_LoadBanner},
     {"destroy_banner", Lua_DestroyBanner},
     {"show_banner", Lua_ShowBanner},
     {"hide_banner", Lua_HideBanner},
     {"is_rewarded_loaded", Lua_IsRewardedLoaded},
     {"is_interstitial_loaded", Lua_IsInterstitialLoaded},
+    {"is_rewarded_interstitial_loaded", Lua_IsRewardedInterstitialLoaded},
     {"is_banner_loaded", Lua_IsBannerLoaded},
     {"set_privacy_settings", Lua_SetPrivacySettings},
     {"request_idfa", Lua_RequestIDFA},
@@ -195,6 +224,7 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(MSG_BANNER)
     SETCONSTANT(MSG_INITIALIZATION)
     SETCONSTANT(MSG_IDFA)
+    SETCONSTANT(MSG_REWARDED_INTERSTITIAL)
 
     SETCONSTANT(EVENT_CLOSED)
     SETCONSTANT(EVENT_FAILED_TO_SHOW)
