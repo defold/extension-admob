@@ -226,7 +226,7 @@ namespace dmAdmob {
 
     static GADBannerView *bannerAd = nil;
     static AdmobExtBannerAdDelegate *admobExtBannerAdDelegate;
-    static BannerPosition lastBannerPos;
+    static BannerPosition lastBannerPos = POS_NONE;
 
     GADAdSize GetAdaptiveSize() {
         UIView *defoldView = uiViewController.view;
@@ -338,7 +338,7 @@ namespace dmAdmob {
           return;
         }
         bannerAd.hidden = NO;
-        if (bannerPos != lastBannerPos) {
+        if (bannerPos != lastBannerPos || lastBannerPos == POS_NONE) {
             UpdatePosition(bannerPos);
             lastBannerPos = bannerPos;
         }

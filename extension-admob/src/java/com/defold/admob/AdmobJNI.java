@@ -534,7 +534,7 @@ public class AdmobJNI {
           }
           layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
           int gravity = getGravity(pos);
-          if (m_bannerPosition != gravity && isBannerShown)
+          if ((m_bannerPosition == Gravity.NO_GRAVITY || m_bannerPosition != gravity) && isBannerShown)
           {
             m_bannerPosition = gravity;
             windowManager.updateViewLayout(layout, getParameters());
