@@ -128,6 +128,10 @@ void Initialize_Ext()
     g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz));
 }
 
+void Finalize_Ext()
+{
+}
+
 void Initialize(const char* defoldUserAgent)
 {
     CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_Initialize, defoldUserAgent);

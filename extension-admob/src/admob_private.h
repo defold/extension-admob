@@ -43,6 +43,7 @@ enum MaxAdRating
 };
 
 void Initialize_Ext();
+void Finalize_Ext();
 
 void Initialize(const char* defoldUserAgent);
 void LoadInterstitial(const char* unitId);

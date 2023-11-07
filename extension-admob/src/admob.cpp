@@ -13,7 +13,7 @@
 
 namespace dmAdmob {
 
-static const char DEFOLD_USERAGENT[] = "defold-3.2.0";
+static const char DEFOLD_USERAGENT[] = "defold-3.3.1";
 
 static int Lua_Initialize(lua_State* L)
 {
@@ -263,6 +263,7 @@ static dmExtension::Result InitializeAdmob(dmExtension::Params* params)
 
 static dmExtension::Result AppFinalizeAdmob(dmExtension::AppParams* params)
 {
+    Finalize_Ext();
     return dmExtension::RESULT_OK;
 }
 

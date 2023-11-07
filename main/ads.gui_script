@@ -278,7 +278,7 @@ function on_input(self, action_id, action)
                 admob.show_rewarded()
             elseif self.ad_type == admob.MSG_BANNER then
                 if self.is_banner_shown then
-                    print("admob.show_banner(admob."..self.banner_positions[self.show_pos]..") --("..self.show_pos..")")
+                    print("admob.show_banner( admob."..self.banner_positions[self.show_pos]..") --("..self.show_pos..")")
                     admob.show_banner(admob[self.banner_positions[self.show_pos]])
                     self.show_pos = self.show_pos + 1
                     if self.show_pos > #self.banner_positions then

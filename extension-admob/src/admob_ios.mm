@@ -20,11 +20,15 @@
 @interface AdmobExtBannerAdDelegate : NSObject<GADBannerViewDelegate>
 @end
 
+@interface AdMobAppDelegate : NSObject <UIApplicationDelegate>
+@end
+
 namespace dmAdmob {
 
     static const char* m_DefoldUserAgent = nil;
 
     static UIViewController *uiViewController = nil;
+    static AdMobAppDelegate *admobAppDelegate = nil;
 
     void SendSimpleMessage(MessageId msg, id obj) {
         NSError* error;
@@ -316,6 +320,10 @@ namespace dmAdmob {
         bannerAd.center = bannerPos;
     }
 
+    void UpdatePosition() {
+        UpdatePosition(lastBannerPos);
+    }
+
     bool IsBannerLoaded() {
         return bannerAd != nil;
     }
@@ -342,7 +350,7 @@ namespace dmAdmob {
             if (bannerPos != POS_NONE) {
                 lastBannerPos = bannerPos;
             }
-            UpdatePosition(lastBannerPos);
+            UpdatePosition();
         }
     }
 
@@ -373,6 +381,17 @@ void Initialize_Ext() {
     admobExtInterstitialAdDelegate = [[AdmobExtInterstitialAdDelegate alloc] init];
     admobExtRewardedAdDelegate = [[AdmobExtRewardedAdDelegate alloc] init];
     admobExtBannerAdDelegate = [[AdmobExtBannerAdDelegate alloc] init];
+    admobAppDelegate = [[AdMobAppDelegate alloc] init];
+
+    dmExtension::RegisteriOSUIApplicationDelegate(admobAppDelegate);
+}
+
+void Finalize_Ext() {
+    dmExtension::UnregisteriOSUIApplicationDelegate(admobAppDelegate);
+    [admobExtInterstitialAdDelegate dealloc];
+    [admobExtRewardedAdDelegate dealloc];
+    [admobExtBannerAdDelegate dealloc];
+    [admobAppDelegate dealloc];
 }
 
 void SetPrivacySettings(bool enable_rdp) {
@@ -526,6 +545,26 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
     // Tells the delegate that a full screen view will be presented in response to the user clicking on an ad.
     // The delegate may want to pause animations and time sensitive interactions.
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_BANNER, dmAdmob::EVENT_CLICKED);
+}
+
+@end
+
+@implementation AdMobAppDelegate
+
+- (instancetype)init {
+    self = [super init];
+    if (self) {
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(orientationDidChange:) name:UIDeviceOrientationDidChangeNotification object:nil];
+    }
+    return self;
+}
+
+- (void) UpdatePosition {
+    dmAdmob::UpdatePosition();
+}
+
+- (void)orientationDidChange:(NSNotification *)notification {
+    [self performSelector:@selector(UpdatePosition) withObject:nil afterDelay:0.1];
 }
 
 @end
