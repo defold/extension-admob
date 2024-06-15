@@ -441,7 +441,7 @@ namespace dmAdmob {
 
 //--------------------------------------------------
 
-void Initialize_Ext() {
+void Initialize_Ext(dmExtension::Params* params) {
     UIWindow* window = dmGraphics::GetNativeiOSUIWindow();
     uiViewController = window.rootViewController;
 

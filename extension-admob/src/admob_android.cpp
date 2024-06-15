@@ -121,7 +121,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_SetMaxAdContentRating = env->GetMethodID(cls, "setMaxAdContentRating", "(I)V");
 }
 
-void Initialize_Ext()
+void Initialize_Ext(dmExtension::Params* params)
 {
     dmAndroid::ThreadAttacher threadAttacher;
     JNIEnv* env = threadAttacher.GetEnv();
@@ -129,9 +129,11 @@ void Initialize_Ext()
 
     InitJNIMethods(env, cls);
 
-    jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;)V");
-
-    g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz));
+    const char* appOpenAdUnitId = dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_ad_unit_id", 0);
+    jstring jappOpenAdUnitId = env->NewStringUTF(appOpenAdUnitId);
+    jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;Ljava/lang/String;)V");
+    g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz, jappOpenAdUnitId));
+    env->DeleteLocalRef(jappOpenAdUnitId);
 }
 
 void Finalize_Ext()

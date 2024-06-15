@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <dmsdk/sdk.h>
+
 namespace dmAdmob {
 
 
@@ -42,7 +44,7 @@ enum MaxAdRating
     MAX_AD_CONTENT_RATING_MA     = 3
 };
 
-void Initialize_Ext();
+void Initialize_Ext(dmExtension::Params* params);
 void Finalize_Ext();
 
 void Initialize(const char* defoldUserAgent);

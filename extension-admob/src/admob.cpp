@@ -286,7 +286,7 @@ static dmExtension::Result AppInitializeAdmob(dmExtension::AppParams* params)
 static dmExtension::Result InitializeAdmob(dmExtension::Params* params)
 {
     LuaInit(params->m_L);
-    Initialize_Ext();
+    Initialize_Ext(params);
     InitializeCallback();
     return dmExtension::RESULT_OK;
 }
