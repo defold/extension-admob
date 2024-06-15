@@ -10,6 +10,12 @@
 #import <AppTrackingTransparency/ATTrackingManager.h>
 #endif
 
+@interface AdmobExtAppOpenAdDelegate : NSObject<GADFullScreenContentDelegate>
+@property(nonatomic, strong) GADAppOpenAd *appOpenAd;
+@property(nonatomic, assign) char *appOpenAdId;
+@property(nonatomic, assign) BOOL isLoadingAd;
+@property(nonatomic, assign) BOOL isShowingAd;
+@end
 
 @interface AdmobExtInterstitialAdDelegate : NSObject<GADFullScreenContentDelegate>
 @end
@@ -104,6 +110,12 @@ namespace dmAdmob {
         request.requestAgent = [NSString stringWithUTF8String: m_DefoldUserAgent];
         return request;
     }
+
+
+//--------------------------------------------------
+// App Open ADS
+
+    static AdmobExtAppOpenAdDelegate *admobExtAppOpenAdDelegate;
 
 //--------------------------------------------------
 // Interstitial ADS
@@ -449,9 +461,13 @@ void Initialize_Ext(dmExtension::Params* params) {
     admobExtRewardedAdDelegate = [[AdmobExtRewardedAdDelegate alloc] init];
     admobExtRewardedInterstitialAdDelegate = [[AdmobExtRewardedInterstitialAdDelegate alloc] init];
     admobExtBannerAdDelegate = [[AdmobExtBannerAdDelegate alloc] init];
+    admobExtAppOpenAdDelegate = [[AdmobExtAppOpenAdDelegate alloc] init];
     admobAppDelegate = [[AdMobAppDelegate alloc] init];
 
+    admobExtAppOpenAdDelegate.appOpenAdId = (char*)dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_ios", 0);
+
     dmExtension::RegisteriOSUIApplicationDelegate(admobAppDelegate);
+    dmExtension::RegisteriOSUIApplicationDelegate(admobExtAppOpenAdDelegate);
 }
 
 void Finalize_Ext() {
@@ -523,6 +539,77 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
 }
 
 } //namespace
+
+@implementation AdmobExtAppOpenAdDelegate
+
+- (void)loadAd {
+    // Do not load ad if there is an unused ad or one is already loading.
+    if (self.isLoadingAd || [self isAdAvailable]) {
+        return;
+    }
+    self.isLoadingAd = YES;
+
+    [GADAppOpenAd loadWithAdUnitID:[NSString stringWithUTF8String: self.appOpenAdId]
+                       request:[GADRequest request]
+             completionHandler:^(GADAppOpenAd *_Nullable appOpenAd, NSError *_Nullable error) {
+                 self.isLoadingAd = NO;
+                 if (error) {
+                     NSLog(@"Failed to load app open ad: %@", error);
+                     return;
+                 }
+                 self.appOpenAd = appOpenAd;
+                 self.appOpenAd.fullScreenContentDelegate = self;
+             }];
+}
+
+- (void)showAdIfAvailable {
+    // If the app open ad is already showing, do not show the ad again.
+    if (self.isShowingAd) {
+        return;
+    }
+
+    // If the app open ad is not available yet but is supposed to show, load a
+    // new ad.
+    if (![self isAdAvailable]) {
+        [self loadAd];
+        return;
+    }
+
+    self.isShowingAd = YES;
+    [self.appOpenAd presentFromRootViewController:nil];
+}
+
+- (BOOL)isAdAvailable {
+  // Check if ad exists and can be shown.
+  return self.appOpenAd != nil;
+}
+
+- (void) applicationDidBecomeActive:(UIApplication *)application {
+    // Show the app open ad when the app is foregrounded.
+    [self showAdIfAvailable];
+}
+
+#pragma mark - GADFullScreenContentDelegate methods
+
+- (void)adWillPresentFullScreenContent:(nonnull id<GADFullScreenPresentingAd>)ad {
+    NSLog(@"App open ad is will be presented.");
+}
+
+- (void)adDidDismissFullScreenContent:(nonnull id<GADFullScreenPresentingAd>)ad {
+    self.appOpenAd = nil;
+    self.isShowingAd = NO;
+    // Reload an ad.
+    [self loadAd];
+}
+
+- (void)ad:(nonnull id<GADFullScreenPresentingAd>)ad didFailToPresentFullScreenContentWithError:(nonnull NSError *)error {
+    self.appOpenAd = nil;
+    self.isShowingAd = NO;
+    // Reload an ad.
+    [self loadAd];
+}
+
+@end
 
 @implementation AdmobExtInterstitialAdDelegate
 

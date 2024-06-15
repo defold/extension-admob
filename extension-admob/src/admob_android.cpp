@@ -129,7 +129,7 @@ void Initialize_Ext(dmExtension::Params* params)
 
     InitJNIMethods(env, cls);
 
-    const char* appOpenAdUnitId = dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_ad_unit_id", 0);
+    const char* appOpenAdUnitId = dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_android", 0);
     jstring jappOpenAdUnitId = env->NewStringUTF(appOpenAdUnitId);
     jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;Ljava/lang/String;)V");
     g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz, jappOpenAdUnitId));
