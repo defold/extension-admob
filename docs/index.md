@@ -28,6 +28,8 @@ The extension can be configured by adding the following fields to `game.project`
 [admob]
 app_id_ios = ca-app-pub-3940256099942544~1458002511
 app_id_android = ca-app-pub-3940256099942544~3347511713
+app_open_android = ca-app-pub-3940256099942544/9257395921
+app_open_ios = ca-app-pub-3940256099942544/5575463023
 ios_tracking_usage_description = Your data will be used to provide you a better and personalized ad experience.
 ```
 
@@ -36,6 +38,12 @@ This is your iOS AdMob app ID. An app ID is a unique ID number assigned to your 
 
 ### app_id_android
 This is your Android AdMob app ID. An app ID is a unique ID number assigned to your apps when they're added to AdMob. The app ID is used to identify your apps.
+
+### app_open_android
+Ad unit to use for App Open ads on Android. If this value is set App Open Ads will be shown when the app is brought to the foreground.
+
+### app_open_ios
+Ad unit to use for App Open ads on iOS. If this value is set App Open Ads will be shown when the app is brought to the foreground.
 
 ### ios_tracking_usage_description
 
@@ -120,16 +128,26 @@ local function admob_callback(self, message_id, message)
     end
 ```
 
+### Ad formats
+
+The extension supports the following ad formats:
+
+* App Open Ads - App open ads are a special ad format intended for publishers wishing to monetize their app load screens. App open ads can be closed by your users at any time. App open ads can be shown when users bring your app to the foreground.
+* Banner Ads - Banner ads are rectangular ads that occupy a portion of an app's layout. They stay on screen while users are interacting with the app.
+* Interstitial Ads - Interstitial ads are full-screen ads that cover the interface of an app until closed by the user.
+* Rewarded Ads - Rewarded ads are ads that users have the option of interacting with in exchange for in-app rewards.
+* Rewarded Interstitial Ads - Rewarded interstitial is a type of incentivized ad format that allows you offer rewards for ads that appear automatically during natural app transitions. Unlike rewarded ads, users aren't required to opt-in to view a rewarded interstitial.
+
 
 ### Loading ads
 
 Before an ad unit can be displayed it has to be loaded:
 
 ```lua
+admob.load_banner(ad_unit, size)
 admob.load_interstitial(ad_unit)
 admob.load_rewarded(ad_unit)
 admob.load_rewarded_interstitial(ad_unit)
-admob.load_banner(ad_unit, size)
 ```
 
 The callback function will be invoked when the ad unit is ready:
@@ -150,6 +168,8 @@ local function admob_callback(self, message_id, message)
         -- same as above
     elseif message_id == admob.MSG_BANNER then
         -- same as above
+    elseif message_id == admob.MSG_APPOPEN then
+        -- same as above
     end
 ```
 
@@ -162,15 +182,14 @@ admob.is_rewarded_loaded()
 admob.is_rewarded_interstitial_loaded()
 ```
 
-
 ### Showing ads
 Once an ad unit has been loaded it is ready to be shown:
 
 ```lua
+admob.show_banner(position)
 admob.show_interstitial()
 admob.show_rewarded()
 admob.show_rewarded_interstitial()
-admob.show_banner(position)
 ```
 
 The callback function will be invoked when the ad unit is shown:
@@ -197,10 +216,24 @@ local function admob_callback(self, message_id, message)
         -- same as above
     elseif message_id == admob.MSG_BANNER then
         -- same as above
+    elseif message_id == admob.MSG_APPOPEN then
+        -- same as above
     end
 ```
 
-Banner ads can be hidden and destroyed:
+### App Open Ads
+
+App Open Ads will automatically be loaded and shown if an ad unit id is provided in the `game.project` configuration (see above). If you wish to manually load and show App Open Ads you can leave the `game.project` configuration blank and instead use the following functions:
+
+```lua
+admob.load_appopen(ad_unit)
+admob.show_appopen()
+admob.is_appopen_loaded()
+```
+
+### Banner ads
+
+In addition to loading and showing Banner Ads they can also be hidden and destroyed:
 
 ```lua
 admob.hide_banner()
