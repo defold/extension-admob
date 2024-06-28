@@ -44,10 +44,12 @@ enum MaxAdRating
     MAX_AD_CONTENT_RATING_MA     = 3
 };
 
-void Initialize_Ext(dmExtension::Params* params);
+void Initialize_Ext(dmExtension::Params* params, const char* defoldUserAgent);
 void Finalize_Ext();
 
-void Initialize(const char* defoldUserAgent);
+void Initialize();
+void LoadAppOpen(const char* unitId);
+void ShowAppOpen();
 void LoadInterstitial(const char* unitId);
 void ShowInterstitial();
 void LoadRewarded(const char* unitId);
@@ -64,6 +66,7 @@ void ShowAdInspector();
 void ActivateApp();
 void SetMaxAdContentRating(MaxAdRating max_ad_rating);
 
+bool IsAppOpenLoaded();
 bool IsInterstitialLoaded();
 bool IsRewardedLoaded();
 bool IsRewardedInterstitialLoaded();
