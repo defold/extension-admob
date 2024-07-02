@@ -150,7 +150,7 @@ void Finalize_Ext()
 
 void Initialize()
 {
-    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_Initialize);
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_Initialize);
 }
 
 void LoadAppOpen(const char* unitId)
