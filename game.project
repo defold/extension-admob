@@ -35,5 +35,7 @@ include_dirs = extension-admob
 [admob]
 app_id_ios = ca-app-pub-3940256099942544~1458002511
 app_id_android = ca-app-pub-3940256099942544~3347511713
+app_open_android = ca-app-pub-3940256099942544/9257395921
+app_open_ios = ca-app-pub-3940256099942544/5575463023
 ios_tracking_usage_description = Your data will be used to provide you a better and personalized ad experience.
 

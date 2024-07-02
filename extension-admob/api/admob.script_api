@@ -195,6 +195,54 @@
 
 #*****************************************************************************************************
 
+  - name: load_appopen
+    type: function
+    desc: Starts loading an AppOpen Ad, can only be called after `admob.MSG_INITIALIZATION` event
+          Original docs
+          [Android](https://developers.google.com/admob/android/app-open),
+          [iOS](https://developers.google.com/admob/ios/app-open)
+
+    parameters:
+    - name: ad_unit_id
+      type: string
+      desc: Ad unit ID, for test ads use on Android `"ca-app-pub-3940256099942544/9257395921"`, or
+            on iOS `"ca-app-pub-3940256099942544/5575463023"`
+            Original docs
+            [Android](https://developers.google.com/admob/android/app-open),
+            [iOS](https://developers.google.com/admob/ios/app-open)
+
+#*****************************************************************************************************
+
+  - name: show_appopen
+    type: function
+    desc: Shows loaded AppOpen Ad, can only be called after `admob.EVENT_LOADED`
+          Original docs
+          [Android](https://developers.google.com/admob/android/app-open),
+          [iOS](https://developers.google.com/admob/ios/app-open)
+
+    examples:
+      - desc: |-
+                 ```lua
+                 if admob and admob.is_appopen_loaded() then
+                     admob.show_appopen()
+                 end
+                 ```
+
+#*****************************************************************************************************
+
+  - name: is_appopen_loaded
+    type: function
+    desc: Checks if AppOpen Ad is loaded and ready to show
+          Original docs
+          [Android](https://developers.google.com/admob/android/app-open),
+          [iOS](https://developers.google.com/admob/ios/app-open)
+
+    returns:
+    - name: is_ready
+      type: boolean
+
+#*****************************************************************************************************
+
   - name: load_interstitial
     type: function
     desc: Starts loading an Interstitial Ad, can only be called after `admob.MSG_INITIALIZATION` event
@@ -477,6 +525,9 @@
     type: number
 
   - name: MSG_REWARDED_INTERSTITIAL
+    type: number
+
+  - name: MSG_APPOPEN
     type: number
 
 #*****************************************************************************************************
