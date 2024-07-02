@@ -48,7 +48,7 @@ void Initialize_Ext(dmExtension::Params* params, const char* defoldUserAgent);
 void Finalize_Ext();
 
 void Initialize();
-void LoadAppOpen(const char* unitId);
+void LoadAppOpen(const char* unitId, bool showImmediately);
 void ShowAppOpen();
 void LoadInterstitial(const char* unitId);
 void ShowInterstitial();

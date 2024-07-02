@@ -129,7 +129,7 @@ namespace dmAdmob {
         appOpenAd = newAd;
     }
 
-    void LoadAppOpen(const char* unitId) {
+    void LoadAppOpen(const char* unitId, bool showImmediately) {
         // Do not load ad if one is already loading.
         if (isLoadingAppOpenAd) {
             NSLog(@"Already loading app open ad.");
@@ -139,6 +139,9 @@ namespace dmAdmob {
         // Do not load ad if there is an unused ad.
         if (IsAppOpenLoaded()) {
             SendSimpleMessage(MSG_APPOPEN, EVENT_LOADED);
+            if (showImmediately) {
+                ShowAppOpen();
+            }
             return;
         }
 
@@ -158,7 +161,10 @@ namespace dmAdmob {
                 }
                 SetAppOpenAd(ad);
                 SendSimpleMessage(MSG_APPOPEN, EVENT_LOADED);
-            }];
+                if (showImmediately) {
+                    ShowAppOpen();
+                }
+         }];
     }
 
     bool IsAppOpenLoaded() {
@@ -173,7 +179,7 @@ namespace dmAdmob {
         }
 
         if (!IsAppOpenLoaded()) {
-            LoadAppOpen(appOpenAdId);
+            LoadAppOpen(appOpenAdId, false);
             return;
         }
         isShowingAppOpenAd = true;
@@ -542,7 +548,9 @@ void Initialize_Ext(dmExtension::Params* params, const char* defoldUserAgent) {
     admobAppDelegate = [[AdMobAppDelegate alloc] init];
 
     appOpenAdId = (char*)dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_ios", 0);
-    LoadAppOpen(appOpenAdId);
+    if (appOpenAdId) {
+        LoadAppOpen(appOpenAdId, true);
+    }
 
     dmExtension::RegisteriOSUIApplicationDelegate(admobAppDelegate);
     dmExtension::RegisteriOSUIApplicationDelegate(admobExtAppOpenAdDelegate);
@@ -628,14 +636,14 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
 - (void)adDidDismissFullScreenContent:(nonnull id<GADFullScreenPresentingAd>)ad {
     dmAdmob::isShowingAppOpenAd = false;
     dmAdmob::SetAppOpenAd(nil);
-    dmAdmob::LoadAppOpen(dmAdmob::appOpenAdId);
+    dmAdmob::LoadAppOpen(dmAdmob::appOpenAdId, false);
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_APPOPEN, dmAdmob::EVENT_CLOSED);
 }
 
 - (void)ad:(nonnull id<GADFullScreenPresentingAd>)ad didFailToPresentFullScreenContentWithError:(nonnull NSError *)error {
     dmAdmob::isShowingAppOpenAd = false;
     dmAdmob::SetAppOpenAd(nil);
-    dmAdmob::LoadAppOpen(dmAdmob::appOpenAdId);
+    dmAdmob::LoadAppOpen(dmAdmob::appOpenAdId, false);
     dmAdmob::SendSimpleMessage(dmAdmob::MSG_APPOPEN, dmAdmob::EVENT_FAILED_TO_SHOW, @"code", [error code],
         @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
 }
@@ -790,7 +798,8 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
 
 - (void) applicationDidBecomeActive:(UIApplication *)application {
     NSLog(@"applicationDidBecomeActive.");
-    dmAdmob::ShowAppOpen();
+    //dmAdmob::ShowAppOpen();
+    dmAdmob::LoadAppOpen(dmAdmob::appOpenAdId, true);
 }
 
 - (void)dealloc {

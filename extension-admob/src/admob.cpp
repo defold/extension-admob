@@ -36,7 +36,7 @@ static int Lua_LoadAppOpen(lua_State* L)
         return DM_LUA_ERROR("Expected string, got %s. Wrong type for App Open Ad UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
     }
     const char* unitId_lua = luaL_checkstring(L, 1);
-    LoadAppOpen(unitId_lua);
+    LoadAppOpen(unitId_lua, false);
     return 0;
 }
 

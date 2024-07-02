@@ -83,6 +83,16 @@ static void CallVoidMethodCharInt(jobject instance, jmethodID method, const char
     env->DeleteLocalRef(jstr);
 }
 
+static void CallVoidMethodCharBoolean(jobject instance, jmethodID method, const char* cstr, bool cbool)
+{
+    dmAndroid::ThreadAttacher threadAttacher;
+    JNIEnv* env = threadAttacher.GetEnv();
+
+    jstring jstr = env->NewStringUTF(cstr);
+    env->CallVoidMethod(instance, method, jstr, cbool);
+    env->DeleteLocalRef(jstr);
+}
+
 static void CallVoidMethodInt(jobject instance, jmethodID method, int cint)
 {
     dmAndroid::ThreadAttacher threadAttacher;
@@ -153,9 +163,9 @@ void Initialize()
     CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_Initialize);
 }
 
-void LoadAppOpen(const char* unitId)
+void LoadAppOpen(const char* unitId, bool showImmediately)
 {
-    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_LoadAppOpen, unitId);
+    CallVoidMethodCharBoolean(g_admob.m_AdmobJNI, g_admob.m_LoadAppOpen, unitId, showImmediately);
 }
 
 void ShowAppOpen()
