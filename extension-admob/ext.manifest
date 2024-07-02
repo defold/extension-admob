@@ -1,9 +1,6 @@
 name: "AdMobExt"
 
 platforms:
-    android:
-        context:
-            aaptExtraPackages: ["androidx.work", "com.google.android.gms.common", "androidx.startup", "androidx.lifecycle"]
 
     ios:
         context:
