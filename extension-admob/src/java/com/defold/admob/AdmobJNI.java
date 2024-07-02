@@ -14,8 +14,16 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.lifecycle.LifecycleObserver;
+import androidx.lifecycle.ProcessLifecycleOwner;
+import androidx.lifecycle.OnLifecycleEvent;
+import androidx.lifecycle.Lifecycle.Event;
+
 import com.google.android.gms.ads.AdSize;
 import com.google.android.gms.ads.AdView;
+import com.google.android.gms.ads.appopen.AppOpenAd;
+import com.google.android.gms.ads.appopen.AppOpenAd.AppOpenAdLoadCallback;
+import com.google.android.gms.ads.FullScreenContentCallback;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdError;
@@ -43,7 +51,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONException;
 
-public class AdmobJNI {
+public class AdmobJNI implements LifecycleObserver {
 
   private static final String TAG = "AdmobJNI";
 
@@ -57,6 +65,7 @@ public class AdmobJNI {
   private static final int MSG_INITIALIZATION =       4;
   private static final int MSG_IDFA =                 5;
   private static final int MSG_REWARDED_INTERSTITIAL =6;
+  private static final int MSG_APPOPEN =              7;
 
   private static final int EVENT_CLOSED =             1;
   private static final int EVENT_FAILED_TO_SHOW =     2;
@@ -102,15 +111,27 @@ public class AdmobJNI {
 
   private String defoldUserAgent = "defold-x.y.z";
 
-
   private Activity activity;
 
-  public AdmobJNI(Activity activity) {
+
+  public AdmobJNI(Activity activity, String appOpenAdUnitId, String defoldUserAgent) {
       this.activity = activity;
+      this.mAppOpenAdUnitId = appOpenAdUnitId;
+      this.defoldUserAgent = defoldUserAgent;
+
+      if (isAutomaticAppOpenEnabled()) {
+        activity.runOnUiThread(new Runnable() {
+          @Override
+          public void run() {
+            initialize();
+            ProcessLifecycleOwner.get().getLifecycle().addObserver(AdmobJNI.this);
+            loadAppOpen(appOpenAdUnitId, true);
+          }
+        });
+      }
   }
 
-  public void initialize(String defoldUserAgent) {
-    this.defoldUserAgent = defoldUserAgent;
+  public void initialize() {
       MobileAds.initialize(activity, new OnInitializationCompleteListener() {
           @Override
           public void onInitializationComplete(InitializationStatus initializationStatus) {
@@ -241,6 +262,153 @@ public class AdmobJNI {
 
   private AdRequest createAdRequest() {
     return new AdRequest.Builder().setRequestAgent(defoldUserAgent).build();
+  }
+
+//--------------------------------------------------
+// App Open Ads
+
+  private String mAppOpenAdUnitId = null;
+  private AppOpenAd mAppOpenAd = null;
+  private boolean mIsLoadingAppOpenAd = false;
+  private boolean mIsShowingAppOpenAd = false;
+
+  @OnLifecycleEvent(Event.ON_START)
+  protected void onMoveToForeground() {
+    Log.d(TAG, "onMoveToForeground");
+    showAppOpen();
+  }
+
+  private boolean isAutomaticAppOpenEnabled() {
+    return mAppOpenAdUnitId != null;
+  }
+
+  public boolean isAppOpenLoaded() {
+    return mAppOpenAd != null;
+  }
+
+  public void showAppOpen() {
+    // If the app open ad is already showing, do not show the ad again
+    if (mIsShowingAppOpenAd) {
+      Log.d(TAG, "The app open ad is already showing.");
+      return;
+    }
+
+    // If the app open ad is not available yet then load it
+    if (!isAppOpenLoaded() && isAutomaticAppOpenEnabled()) {
+      Log.d(TAG, "The app open ad is not ready yet.");
+      loadAppOpen(mAppOpenAdUnitId, true);
+      return;
+    }
+
+    Log.d(TAG, "Showing app open ad.");
+    mIsShowingAppOpenAd = true;
+    activity.runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        mAppOpenAd.setFullScreenContentCallback(
+            new FullScreenContentCallback() {
+
+              @Override
+              public void onAdDismissedFullScreenContent() {
+                // Called when fullscreen content is dismissed.
+                // Clean up state and load a new ad
+                Log.d(TAG, "Ad dismissed fullscreen content.");
+                sendSimpleMessage(MSG_APPOPEN, EVENT_CLOSED);
+                mAppOpenAd = null;
+                mIsShowingAppOpenAd = false;
+                if (isAutomaticAppOpenEnabled()) {
+                  loadAppOpen(mAppOpenAdUnitId, false);
+                }
+              }
+
+              @Override
+              public void onAdFailedToShowFullScreenContent(AdError adError) {
+                // Called when fullscreen content failed to show.
+                // Clean up state and load a new ad
+                Log.d(TAG, adError.getMessage());
+                sendSimpleMessage(MSG_APPOPEN, EVENT_FAILED_TO_SHOW, "code", adError.getCode(),
+                                "error", String.format("Error domain: \"%s\". %s", adError.getDomain(), adError.getMessage()));
+                mAppOpenAd = null;
+                mIsShowingAppOpenAd = false;
+                if (isAutomaticAppOpenEnabled()) {
+                  loadAppOpen(mAppOpenAdUnitId, false);
+                }
+              }
+
+              @Override
+              public void onAdShowedFullScreenContent() {
+                // Called when fullscreen content is shown.
+                Log.d(TAG, "Ad showed fullscreen content.");
+                sendSimpleMessage(MSG_APPOPEN, EVENT_OPENING);
+              }
+
+              @Override
+              public void onAdImpression() {
+                sendSimpleMessage(MSG_APPOPEN, EVENT_IMPRESSION_RECORDED);
+              }
+
+              @Override
+              public void onAdClicked() {
+                sendSimpleMessage(MSG_APPOPEN, EVENT_CLICKED);
+              }
+            });
+        mAppOpenAd.show(activity);
+      }
+    });
+  }
+
+  // Load an app open ad with the provided ad unit id, optionally also showing it
+  // immediately when it loaded
+  public void loadAppOpen(String adUnitId, boolean showImmediately) {
+    // Do not load ad if one is already loading.
+    if (mIsLoadingAppOpenAd) {
+      Log.d(TAG, "Already loading app open ad.");
+      return;
+    }
+
+    // Do not load ad if there is an unused ad.
+    if (isAppOpenLoaded()) {
+      Log.d(TAG, "App open ad was already loaded.");
+      sendSimpleMessage(MSG_APPOPEN, EVENT_LOADED);
+      if (showImmediately) {
+        showAppOpen();
+      }
+      return;
+    }
+
+    Log.d(TAG, "Loading app open ad.");
+    mIsLoadingAppOpenAd = true;
+    AdRequest request = new AdRequest.Builder().build();
+    AppOpenAd.load(
+      activity, adUnitId, request,
+      AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT,
+      new AppOpenAdLoadCallback() {
+        @Override
+        public void onAdLoaded(AppOpenAd ad) {
+          // Called when an app open ad has loaded.
+          Log.d(TAG, "Ad was loaded.");
+          sendSimpleMessage(MSG_APPOPEN, EVENT_LOADED);
+          mAppOpenAd = ad;
+          mIsLoadingAppOpenAd = false;
+          if (showImmediately) {
+            showAppOpen();
+          }
+        }
+
+        @Override
+        public void onAdFailedToLoad(LoadAdError loadAdError) {
+          // Called when an app open ad has failed to load.
+          Log.d(TAG, loadAdError.getMessage());
+          sendSimpleMessage(MSG_APPOPEN, EVENT_FAILED_TO_SHOW, "code", loadAdError.getCode(),
+                          "error", String.format("Error domain: \"%s\". %s", loadAdError.getDomain(), loadAdError.getMessage()));
+          mIsLoadingAppOpenAd = false;
+        }
+      });
+  }
+
+  // Load an app open ad with the provided ad unit id but don't show it
+  public void loadAppOpen(String adUnitId) {
+    loadAppOpen(adUnitId, false);
   }
 
 //--------------------------------------------------

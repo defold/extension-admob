@@ -16,7 +16,8 @@ enum MessageId
     MSG_BANNER =                    3,
     MSG_INITIALIZATION =            4,
     MSG_IDFA =                      5,
-    MSG_REWARDED_INTERSTITIAL =     6
+    MSG_REWARDED_INTERSTITIAL =     6,
+    MSG_APPOPEN =                   7
 };
 
 enum MessageEvent

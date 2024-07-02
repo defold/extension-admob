@@ -19,6 +19,8 @@ struct Admob
     jobject        m_AdmobJNI;
 
     jmethodID      m_Initialize;
+    jmethodID      m_LoadAppOpen;
+    jmethodID      m_ShowAppOpen;
     jmethodID      m_LoadInterstitial;
     jmethodID      m_ShowInterstitial;
     jmethodID      m_LoadRewarded;
@@ -29,6 +31,7 @@ struct Admob
     jmethodID      m_DestroyBanner;
     jmethodID      m_ShowBanner;
     jmethodID      m_HideBanner;
+    jmethodID      m_IsAppOpenLoaded;
     jmethodID      m_IsRewardedLoaded;
     jmethodID      m_IsInterstitialLoaded;
     jmethodID      m_IsRewardedInterstitialLoaded;
@@ -80,6 +83,16 @@ static void CallVoidMethodCharInt(jobject instance, jmethodID method, const char
     env->DeleteLocalRef(jstr);
 }
 
+static void CallVoidMethodCharBoolean(jobject instance, jmethodID method, const char* cstr, bool cbool)
+{
+    dmAndroid::ThreadAttacher threadAttacher;
+    JNIEnv* env = threadAttacher.GetEnv();
+
+    jstring jstr = env->NewStringUTF(cstr);
+    env->CallVoidMethod(instance, method, jstr, cbool);
+    env->DeleteLocalRef(jstr);
+}
+
 static void CallVoidMethodInt(jobject instance, jmethodID method, int cint)
 {
     dmAndroid::ThreadAttacher threadAttacher;
@@ -98,7 +111,9 @@ static void CallVoidMethodBool(jobject instance, jmethodID method, bool cbool)
 
 static void InitJNIMethods(JNIEnv* env, jclass cls)
 {
-    g_admob.m_Initialize = env->GetMethodID(cls, "initialize", "(Ljava/lang/String;)V");
+    g_admob.m_Initialize = env->GetMethodID(cls, "initialize", "()V");
+    g_admob.m_LoadAppOpen = env->GetMethodID(cls, "loadAppOpen", "(Ljava/lang/String;)V");
+    g_admob.m_ShowAppOpen = env->GetMethodID(cls, "showAppOpen", "()V");
     g_admob.m_LoadInterstitial = env->GetMethodID(cls, "loadInterstitial", "(Ljava/lang/String;)V");
     g_admob.m_ShowInterstitial = env->GetMethodID(cls, "showInterstitial", "()V");
     g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;)V");
@@ -114,6 +129,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_ShowAdInspector = env->GetMethodID(cls, "showAdInspector", "()V");
     g_admob.m_UpdateBannerLayout= env->GetMethodID(cls, "updateBannerLayout", "()V");
 
+    g_admob.m_IsAppOpenLoaded = env->GetMethodID(cls, "isAppOpenLoaded", "()Z");
     g_admob.m_IsRewardedLoaded = env->GetMethodID(cls, "isRewardedLoaded", "()Z");
     g_admob.m_IsInterstitialLoaded = env->GetMethodID(cls, "isInterstitialLoaded", "()Z");
     g_admob.m_IsRewardedInterstitialLoaded = env->GetMethodID(cls, "isRewardedInterstitialLoaded", "()Z");
@@ -121,7 +137,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_SetMaxAdContentRating = env->GetMethodID(cls, "setMaxAdContentRating", "(I)V");
 }
 
-void Initialize_Ext()
+void Initialize_Ext(dmExtension::Params* params, const char* defoldUserAgent)
 {
     dmAndroid::ThreadAttacher threadAttacher;
     JNIEnv* env = threadAttacher.GetEnv();
@@ -129,18 +145,37 @@ void Initialize_Ext()
 
     InitJNIMethods(env, cls);
 
-    jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;)V");
-
-    g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz));
+    const char* appOpenAdUnitId = dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_android", 0);
+    jstring jappOpenAdUnitId = env->NewStringUTF(appOpenAdUnitId);
+    jstring jdefoldUserAgent = env->NewStringUTF(defoldUserAgent);
+    jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;)V");
+    g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz, jappOpenAdUnitId, jdefoldUserAgent));
+    env->DeleteLocalRef(jappOpenAdUnitId);
+    env->DeleteLocalRef(jdefoldUserAgent);
 }
 
 void Finalize_Ext()
 {
 }
 
-void Initialize(const char* defoldUserAgent)
+void Initialize()
 {
-    CallVoidMethodChar(g_admob.m_AdmobJNI, g_admob.m_Initialize, defoldUserAgent);
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_Initialize);
+}
+
+void LoadAppOpen(const char* unitId, bool showImmediately)
+{
+    CallVoidMethodCharBoolean(g_admob.m_AdmobJNI, g_admob.m_LoadAppOpen, unitId, showImmediately);
+}
+
+void ShowAppOpen()
+{
+    CallVoidMethod(g_admob.m_AdmobJNI, g_admob.m_ShowAppOpen);
+}
+
+bool IsAppOpenLoaded()
+{
+    return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsAppOpenLoaded);
 }
 
 void LoadInterstitial(const char* unitId)

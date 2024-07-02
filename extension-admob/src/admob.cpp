@@ -18,7 +18,7 @@ static const char DEFOLD_USERAGENT[] = "defold-3.4.1";
 static int Lua_Initialize(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
-    Initialize(DEFOLD_USERAGENT);
+    Initialize();
     return 0;
 }
 
@@ -26,6 +26,24 @@ static int Lua_SetCallback(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
     SetLuaCallback(L, 1);
+    return 0;
+}
+
+static int Lua_LoadAppOpen(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    if (lua_type(L, 1) != LUA_TSTRING) {
+        return DM_LUA_ERROR("Expected string, got %s. Wrong type for App Open Ad UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
+    }
+    const char* unitId_lua = luaL_checkstring(L, 1);
+    LoadAppOpen(unitId_lua, false);
+    return 0;
+}
+
+static int Lua_ShowAppOpen(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 0);
+    ShowAppOpen();
     return 0;
 }
 
@@ -155,6 +173,14 @@ static int Lua_IsBannerLoaded(lua_State* L)
     return 1;
 }
 
+static int Lua_IsAppOpenLoaded(lua_State* L)
+{
+    DM_LUA_STACK_CHECK(L, 1);
+    bool is_loaded = IsAppOpenLoaded();
+    lua_pushboolean(L, is_loaded);
+    return 1;
+}
+
 static int Lua_SetPrivacySettings(lua_State* L)
 {
     DM_LUA_STACK_CHECK(L, 0);
@@ -189,6 +215,8 @@ static const luaL_reg Module_methods[] =
 {
     {"initialize", Lua_Initialize},
     {"set_callback", Lua_SetCallback},
+    {"load_appopen", Lua_LoadAppOpen},
+    {"show_appopen", Lua_ShowAppOpen},
     {"load_interstitial", Lua_LoadInterstitial},
     {"show_interstitial", Lua_ShowInterstitial},
     {"load_rewarded", Lua_LoadRewarded},
@@ -203,6 +231,7 @@ static const luaL_reg Module_methods[] =
     {"is_interstitial_loaded", Lua_IsInterstitialLoaded},
     {"is_rewarded_interstitial_loaded", Lua_IsRewardedInterstitialLoaded},
     {"is_banner_loaded", Lua_IsBannerLoaded},
+    {"is_appopen_loaded", Lua_IsAppOpenLoaded},
     {"set_privacy_settings", Lua_SetPrivacySettings},
     {"request_idfa", Lua_RequestIDFA},
     {"show_ad_inspector", Lua_ShowAdInspector},
@@ -225,6 +254,7 @@ static void LuaInit(lua_State* L)
     SETCONSTANT(MSG_INITIALIZATION)
     SETCONSTANT(MSG_IDFA)
     SETCONSTANT(MSG_REWARDED_INTERSTITIAL)
+    SETCONSTANT(MSG_APPOPEN)
 
     SETCONSTANT(EVENT_CLOSED)
     SETCONSTANT(EVENT_FAILED_TO_SHOW)
@@ -280,13 +310,15 @@ static void LuaInit(lua_State* L)
 
 static dmExtension::Result AppInitializeAdmob(dmExtension::AppParams* params)
 {
+    dmLogInfo("AppInitializeAdmob");
     return dmExtension::RESULT_OK;
 }
 
 static dmExtension::Result InitializeAdmob(dmExtension::Params* params)
 {
+    dmLogInfo("InitializeAdmob");
     LuaInit(params->m_L);
-    Initialize_Ext();
+    Initialize_Ext(params, DEFOLD_USERAGENT);
     InitializeCallback();
     return dmExtension::RESULT_OK;
 }
