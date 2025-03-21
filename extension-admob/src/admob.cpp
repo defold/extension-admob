@@ -72,7 +72,12 @@ static int Lua_LoadRewarded(lua_State* L)
         return DM_LUA_ERROR("Expected string, got %s. Wrong type for Rewarded UnitId variable '%s'.", luaL_typename(L, 1), lua_tostring(L, 1));
     }
     const char* unitId_lua = luaL_checkstring(L, 1);
-    LoadRewarded(unitId_lua);
+    if (lua_type(L, 2) == LUA_TNONE) {
+        LoadRewarded(unitId_lua, nullptr);
+        return 0;
+    }
+    const char* customData_lua = luaL_checkstring(L, 2);
+    LoadRewarded(unitId_lua, customData_lua);
     return 0;
 }
 
