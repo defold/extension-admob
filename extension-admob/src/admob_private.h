@@ -50,7 +50,7 @@ void LoadAppOpen(const char* unitId, bool showImmediately);
 void ShowAppOpen();
 void LoadInterstitial(const char* unitId);
 void ShowInterstitial();
-void LoadRewarded(const char* unitId, const char* customData);
+void LoadRewarded(const char* unitId, const char* userId,  const char* customData);
 void ShowRewarded();
 void LoadRewardedInterstitial(const char* unitId);
 void ShowRewardedInterstitial();

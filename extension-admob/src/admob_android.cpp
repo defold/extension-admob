@@ -93,16 +93,18 @@ static void CallVoidMethodCharBoolean(jobject instance, jmethodID method, const 
     env->DeleteLocalRef(jstr);
 }
 
-static void CallVoidMethodCharChar(jobject instance, jmethodID method, const char* cstr, const char* cstr2)
+static void CallVoidMethodCharCharChar(jobject instance, jmethodID method, const char* cstr, const char* cstr2, const char* cstr3)
 {
     dmAndroid::ThreadAttacher threadAttacher;
     JNIEnv* env = threadAttacher.GetEnv();
 
     jstring jstr = env->NewStringUTF(cstr);
     jstring jstr2 = env->NewStringUTF(cstr2);
-    env->CallVoidMethod(instance, method, jstr, jstr2);
+    jstring jstr3 = env->NewStringUTF(cstr3);
+    env->CallVoidMethod(instance, method, jstr, jstr2, jstr3);
     env->DeleteLocalRef(jstr);
     env->DeleteLocalRef(jstr2);
+    env->DeleteLocalRef(jstr3);
 }
 
 static void CallVoidMethodInt(jobject instance, jmethodID method, int cint)
@@ -128,7 +130,7 @@ static void InitJNIMethods(JNIEnv* env, jclass cls)
     g_admob.m_ShowAppOpen = env->GetMethodID(cls, "showAppOpen", "()V");
     g_admob.m_LoadInterstitial = env->GetMethodID(cls, "loadInterstitial", "(Ljava/lang/String;)V");
     g_admob.m_ShowInterstitial = env->GetMethodID(cls, "showInterstitial", "()V");
-    g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;Ljava/lang/String;)V");
+    g_admob.m_LoadRewarded = env->GetMethodID(cls, "loadRewarded", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V");
     g_admob.m_ShowRewarded = env->GetMethodID(cls, "showRewarded", "()V");
     g_admob.m_LoadRewardedInterstitial  = env->GetMethodID(cls, "loadRewardedInterstitial", "(Ljava/lang/String;)V");
     g_admob.m_ShowRewardedInterstitial  = env->GetMethodID(cls, "showRewardedInterstitial", "()V");
@@ -205,9 +207,9 @@ bool IsInterstitialLoaded()
     return CallBoolMethod(g_admob.m_AdmobJNI, g_admob.m_IsInterstitialLoaded);
 }
 
-void LoadRewarded(const char* unitId, const char* customData)
+void LoadRewarded(const char* unitId, const char* userId, const char* customData)
 {
-    CallVoidMethodCharChar(g_admob.m_AdmobJNI, g_admob.m_LoadRewarded, unitId, customData);
+    CallVoidMethodCharCharChar(g_admob.m_AdmobJNI, g_admob.m_LoadRewarded, unitId, userId, customData);
 }
 
 void ShowRewarded()

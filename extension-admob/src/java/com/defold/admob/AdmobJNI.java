@@ -503,17 +503,18 @@ public class AdmobJNI implements LifecycleObserver {
 
   private RewardedAd mRewardedAd;
 
-  private void setRewardedCustomData(final String customData) {
-    if(customData != null)  
+  private void setRewardedCustomData(final String userId, final String customData) {
+    if( userId != null)  
     {
       ServerSideVerificationOptions options = new ServerSideVerificationOptions.Builder()
-        .setCustomData(customData)
+        .setUserId(userId)
+        .setCustomData(customData != null ? customData : "")
         .build();
       mRewardedAd.setServerSideVerificationOptions(options);
     }
   }
 
-  public void loadRewarded(final String unitId, final String customData) {
+  public void loadRewarded(final String unitId, final String userId,  final String customData) {
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -526,7 +527,7 @@ public class AdmobJNI implements LifecycleObserver {
               // Log.d(TAG, "onAdLoaded");
               mRewardedAd = rewardedAd;
               sendSimpleMessage(MSG_REWARDED, EVENT_LOADED);
-              setRewardedCustomData(customData);
+              setRewardedCustomData(userId, customData);
               mRewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                 @Override
                 public void onAdDismissedFullScreenContent() {
