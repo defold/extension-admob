@@ -548,7 +548,7 @@ void Initialize_Ext(dmExtension::Params* params, const char* defoldUserAgent) {
     admobAppDelegate = [[AdMobAppDelegate alloc] init];
 
     appOpenAdId = (char*)dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_ios", 0);
-    if (appOpenAdId) {
+    if (appOpenAdId && strlen(appOpenAdId) > 0) {
         LoadAppOpen(appOpenAdId, true);
     }
 
