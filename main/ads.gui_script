@@ -69,6 +69,7 @@ local function set_block_height(height)
     gui.set_size(height_b_node, size)
 end
 
+if admob then
 local EVENT_TEXTS = {
     [admob.EVENT_CLOSED] =              "EVENT_CLOSED: %s closed",
     [admob.EVENT_FAILED_TO_SHOW] =      "EVENT_FAILED_TO_SHOW: %s failed to show",
@@ -81,6 +82,8 @@ local EVENT_TEXTS = {
     [admob.EVENT_CLICKED] =             "EVENT_CLICKED: %s clicked",
     [admob.EVENT_JSON_ERROR] =          "EVENT_JSON_ERROR: %s Internal NE json error",
 }
+end
+
 local function print_event(ad_type, message)
     local text = EVENT_TEXTS[message.event]
     if text then
