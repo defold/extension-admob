@@ -406,7 +406,7 @@ namespace dmAdmob {
 
     GADAdSize GetSizeConstant(BannerSize bannerSizeConst) {
         GADAdSize bannerSize = GetAdaptiveSize(); // SIZE_ADAPTIVE_BANNER
-        //SIZE_FLUID, SIZE_SEARH, SIZE_SKYSCRAPER, SIZE_SMART_BANNER are not available on iOS
+        //SIZE_FLUID, SIZE_SMART_BANNER are not available on iOS
         switch (bannerSizeConst) {
           case SIZE_BANNER:
             bannerSize = GADAdSizeBanner;
