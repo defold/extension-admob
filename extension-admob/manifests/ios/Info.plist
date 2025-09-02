@@ -15,7 +15,7 @@
         </dict>
         <key>NSUserTrackingUsageDescription</key>
         <string>{{admob.ios_tracking_usage_description}}</string>
-        <key>SKAdNetworkItems</key>
+        <key merge='keep'>SKAdNetworkItems</key>
         <array>
           <dict>
             <key>SKAdNetworkIdentifier</key>
