@@ -89,8 +89,6 @@ public class AdmobJNI implements LifecycleObserver {
   private static final int SIZE_LARGE_BANNER =        4;
   private static final int SIZE_LEADEARBOARD =        5;
   private static final int SIZE_MEDIUM_RECTANGLE =    6;
-  private static final int SIZE_SEARH =               7;
-  private static final int SIZE_SKYSCRAPER =          8;
   private static final int SIZE_SMART_BANNER =        9;
 
   private static final int POS_NONE =                 0;
@@ -381,7 +379,6 @@ public class AdmobJNI implements LifecycleObserver {
     AdRequest request = new AdRequest.Builder().build();
     AppOpenAd.load(
       activity, adUnitId, request,
-      AppOpenAd.APP_OPEN_AD_ORIENTATION_PORTRAIT,
       new AppOpenAdLoadCallback() {
         @Override
         public void onAdLoaded(AppOpenAd ad) {
@@ -916,12 +913,6 @@ public class AdmobJNI implements LifecycleObserver {
         break;
       case SIZE_MEDIUM_RECTANGLE:
         bannerSize = AdSize.MEDIUM_RECTANGLE;
-        break;
-      case SIZE_SEARH:
-        bannerSize = AdSize.SEARCH;
-        break;
-      case SIZE_SKYSCRAPER:
-        bannerSize = AdSize.WIDE_SKYSCRAPER;
         break;
       case SIZE_SMART_BANNER:
         bannerSize = AdSize.SMART_BANNER;

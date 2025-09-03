@@ -414,8 +414,6 @@
             `admob.SIZE_LARGE_BANNER`,
             `admob.SIZE_LEADEARBOARD`,
             `admob.SIZE_MEDIUM_RECTANGLE`,
-            `admob.SIZE_SEARH`,
-            `admob.SIZE_SKYSCRAPER`,
             `admob.SIZE_SMART_BANNER`.
             Original docs
             [Android](https://developers.google.com/admob/android/banner#banner_sizes),
@@ -604,12 +602,6 @@
     type: number
 
   - name: SIZE_MEDIUM_RECTANGLE
-    type: number
-
-  - name: SIZE_SEARH
-    type: number
-
-  - name: SIZE_SKYSCRAPER
     type: number
 
   - name: SIZE_SMART_BANNER

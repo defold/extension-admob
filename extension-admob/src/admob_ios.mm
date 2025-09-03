@@ -406,7 +406,7 @@ namespace dmAdmob {
 
     GADAdSize GetSizeConstant(BannerSize bannerSizeConst) {
         GADAdSize bannerSize = GetAdaptiveSize(); // SIZE_ADAPTIVE_BANNER
-        //SIZE_FLUID, SIZE_SEARH, SIZE_SKYSCRAPER, SIZE_SMART_BANNER are not available on iOS
+        //SIZE_FLUID, SIZE_SMART_BANNER are not available on iOS
         switch (bannerSizeConst) {
           case SIZE_BANNER:
             bannerSize = GADAdSizeBanner;
@@ -547,8 +547,8 @@ void Initialize_Ext(dmExtension::Params* params, const char* defoldUserAgent) {
     admobExtAppOpenAdDelegate = [[AdmobExtAppOpenAdDelegate alloc] init];
     admobAppDelegate = [[AdMobAppDelegate alloc] init];
 
-    appOpenAdId = (char*)dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_ios", 0);
-    if (appOpenAdId) {
+    appOpenAdId = (char*)dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_ios", "");
+    if (appOpenAdId && strlen(appOpenAdId) > 0) {
         LoadAppOpen(appOpenAdId, true);
     }
 

@@ -4,8 +4,8 @@ repositories {
 
 dependencies {
   // https://developers.google.com/admob/android/quick-start#example_app-level_buildgradle_excerpt
-  implementation 'com.google.android.gms:play-services-ads:22.6.0'
-  implementation "androidx.lifecycle:lifecycle-common:2.3.1"
-  implementation "androidx.lifecycle:lifecycle-process:2.3.1"
-  annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.3.1"
+  implementation "com.google.android.gms:play-services-ads:24.5.0"
+  implementation "androidx.lifecycle:lifecycle-common:2.8.3"
+  implementation "androidx.lifecycle:lifecycle-process:2.8.3"
+  annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.8.3"
 }

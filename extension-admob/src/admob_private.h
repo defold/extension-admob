@@ -19,8 +19,6 @@ enum BannerSize
     SIZE_LARGE_BANNER =     4,
     SIZE_LEADEARBOARD =     5,
     SIZE_MEDIUM_RECTANGLE = 6,
-    SIZE_SEARH =            7,
-    SIZE_SKYSCRAPER =       8,
     SIZE_SMART_BANNER =     9
 };
 
