@@ -306,6 +306,22 @@
             Original docs
             [Android](https://developers.google.com/admob/android/rewarded-fullscreen),
             [iOS](https://developers.google.com/admob/ios/rewarded-ads)
+    - name: options
+      type: table
+      optional: true
+      desc: ServerSideVerificationOptions
+            [Android](https://developers.google.com/admob/android/rewarded#validate-ssv),
+            [iOS](https://developers.google.com/admob/ios/rewarded#validate-ssv)
+      fields:
+          - name: user_id
+            type: string
+            optional: true
+            desc: A unique identifier assigned to each user.
+          - name: custom_data 
+            type: string
+            optional: true
+            desc: Custom Data attached to server-side reward callbacks. 
+
 
 #*****************************************************************************************************
 
