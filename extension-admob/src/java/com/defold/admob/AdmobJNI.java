@@ -504,14 +504,11 @@ public class AdmobJNI implements LifecycleObserver {
   private RewardedAd mRewardedAd;
 
   private void setRewardedCustomData(final String userId, final String customData) {
-    if( userId != null)  
-    {
-      ServerSideVerificationOptions options = new ServerSideVerificationOptions.Builder()
-        .setUserId(userId)
-        .setCustomData(customData != null ? customData : "")
-        .build();
-      mRewardedAd.setServerSideVerificationOptions(options);
-    }
+    ServerSideVerificationOptions options = new ServerSideVerificationOptions.Builder()
+      .setUserId(userId != null ? userId : "")
+      .setCustomData(customData != null ? customData : "")
+      .build();
+    mRewardedAd.setServerSideVerificationOptions(options);
   }
 
   public void loadRewarded(final String unitId, final String userId,  final String customData) {
