@@ -43,6 +43,7 @@ import com.google.android.gms.ads.OnUserEarnedRewardListener;
 import com.google.android.gms.ads.rewarded.RewardItem;
 import com.google.android.gms.ads.rewarded.RewardedAd;
 import com.google.android.gms.ads.rewarded.RewardedAdLoadCallback;
+import com.google.android.gms.ads.rewarded.ServerSideVerificationOptions;
 
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAd;
 import com.google.android.gms.ads.rewardedinterstitial.RewardedInterstitialAdLoadCallback;
@@ -502,7 +503,15 @@ public class AdmobJNI implements LifecycleObserver {
 
   private RewardedAd mRewardedAd;
 
-  public void loadRewarded(final String unitId) {
+  private void setRewardedCustomData(final String userId, final String customData) {
+    ServerSideVerificationOptions options = new ServerSideVerificationOptions.Builder()
+      .setUserId(userId != null ? userId : "")
+      .setCustomData(customData != null ? customData : "")
+      .build();
+    mRewardedAd.setServerSideVerificationOptions(options);
+  }
+
+  public void loadRewarded(final String unitId, final String userId,  final String customData) {
     activity.runOnUiThread(new Runnable() {
       @Override
       public void run() {
@@ -515,6 +524,7 @@ public class AdmobJNI implements LifecycleObserver {
               // Log.d(TAG, "onAdLoaded");
               mRewardedAd = rewardedAd;
               sendSimpleMessage(MSG_REWARDED, EVENT_LOADED);
+              setRewardedCustomData(userId, customData);
               mRewardedAd.setFullScreenContentCallback(new FullScreenContentCallback() {
                 @Override
                 public void onAdDismissedFullScreenContent() {

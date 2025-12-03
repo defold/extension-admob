@@ -276,7 +276,14 @@ namespace dmAdmob {
         rewardedAd = newAd;
     }
 
-    void LoadRewarded(const char* unitId) {
+    void LoadRewarded(const char* unitId, const char* userId, const char* customData) {
+        GADServerSideVerificationOptions *ssvOptions = [[GADServerSideVerificationOptions alloc] init];
+        if (userId) {
+            ssvOptions.userIdentifier = [NSString stringWithUTF8String:userId];
+        }
+        if (customData) {
+            ssvOptions.customRewardString = [NSString stringWithUTF8String:customData];
+        }
         [GADRewardedAd
             loadWithAdUnitID:[NSString stringWithUTF8String:unitId]
             request:createGADRequest()
@@ -288,6 +295,7 @@ namespace dmAdmob {
                           @"error", [NSString stringWithFormat:@"Error domain: \"%@\". %@", [error domain], [error localizedDescription]]);
                     return;
                 }
+                ad.serverSideVerificationOptions = ssvOptions;
                 SetRewardedAd(ad);
                 SendSimpleMessage(MSG_REWARDED, EVENT_LOADED);
             }];
