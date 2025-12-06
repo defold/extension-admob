@@ -142,7 +142,7 @@ public class AdmobJNI implements LifecycleObserver {
   public void setPrivacySettings(boolean enable_rdp) {
     SharedPreferences sharedPref = activity.getPreferences(Context.MODE_PRIVATE);
     SharedPreferences.Editor editor = sharedPref.edit();
-    editor.putInt("gad_rdp", 1);
+    editor.putInt("gad_rdp", enable_rdp ? 1 : 0);
     editor.commit();
   }
 

@@ -58,7 +58,8 @@
                       `admob.EVENT_EARNED_REWARD`,
                       `admob.EVENT_COMPLETE`,
                       `admob.EVENT_CLICKED`,
-                      `admob.EVENT_DESTROYED`
+                      `admob.EVENT_DESTROYED`,
+                      `admob.EVENT_IMPRESSION_RECORDED`,
                       `admob.EVENT_JSON_ERROR`"
 
               - name: code
