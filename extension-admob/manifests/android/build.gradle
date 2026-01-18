@@ -26,7 +26,7 @@ repositories {
 }
 
 dependencies {
-  implementation "com.google.android.gms:play-services-ads:24.8.0"
+  implementation "com.google.android.gms:play-services-ads:24.9.0"
   implementation "androidx.lifecycle:lifecycle-common:2.8.3"
   implementation "androidx.lifecycle:lifecycle-process:2.8.3"
   annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.8.3"
@@ -36,11 +36,11 @@ dependencies {
   {{/admob.applovin_android}}
 
   {{#admob.chartboost_android}}
-  implementation 'com.google.ads.mediation:chartboost:9.10.2.0'
+  implementation 'com.google.ads.mediation:chartboost:9.11.0.0'
   {{/admob.chartboost_android}}
 
   {{#admob.dt_exchange_android}}
-  implementation 'com.google.ads.mediation:fyber:8.4.1.0'
+  implementation 'com.google.ads.mediation:fyber:8.4.2.0'
   {{/admob.dt_exchange_android}}
 
   {{#admob.imobile_android}}
@@ -56,15 +56,15 @@ dependencies {
   {{/admob.ironsource_android}}
 
   {{#admob.liftoff_android}}
-  implementation 'com.google.ads.mediation:vungle:7.6.1.0'
+  implementation 'com.google.ads.mediation:vungle:7.6.3.0'
   {{/admob.liftoff_android}}
 
   {{#admob.line_android}}
-  implementation 'com.google.ads.mediation:line:2.9.20251028.0'
+  implementation 'com.google.ads.mediation:line:3.0.0.0'
   {{/admob.line_android}}
 
   {{#admob.maio_android}}
-  implementation 'com.google.ads.mediation:maio:2.0.7.0'
+  implementation 'com.google.ads.mediation:maio:2.0.8.0'
   {{/admob.maio_android}}
 
   {{#admob.meta_android}}
@@ -72,11 +72,11 @@ dependencies {
   {{/admob.meta_android}}
 
   {{#admob.mintegral_android}}
-  implementation 'com.google.ads.mediation:mintegral:17.0.31.0'
+  implementation 'com.google.ads.mediation:mintegral:17.0.61.0'
   {{/admob.mintegral_android}}
 
   {{#admob.moloco_android}}
-  implementation 'com.google.ads.mediation:moloco:4.3.1.0'
+  implementation 'com.google.ads.mediation:moloco:4.4.0.0'
   {{/admob.moloco_android}}
 
   {{#admob.mytarget_android}}
@@ -84,15 +84,15 @@ dependencies {
   {{/admob.mytarget_android}}
 
   {{#admob.pangle_android}}
-  implementation 'com.google.ads.mediation:pangle:7.8.0.7.0'
+  implementation 'com.google.ads.mediation:pangle:7.8.5.2.0'
   {{/admob.pangle_android}}
 
   {{#admob.pubmatic_android}}
-  implementation 'com.google.ads.mediation:pubmatic:4.10.0.1'
+  implementation 'com.google.ads.mediation:pubmatic:4.11.0.0'
   {{/admob.pubmatic_android}}
 
   {{#admob.unity_android}}
   implementation 'com.unity3d.ads:unity-ads:4.16.2'
-  implementation 'com.google.ads.mediation:unity:4.16.4.0'
+  implementation 'com.google.ads.mediation:unity:4.16.5.0'
   {{/admob.unity_android}}
 }
