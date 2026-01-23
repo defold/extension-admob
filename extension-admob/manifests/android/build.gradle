@@ -88,11 +88,11 @@ dependencies {
   {{/admob.pangle_android}}
 
   {{#admob.pubmatic_android}}
-  implementation 'com.google.ads.mediation:pubmatic:4.11.0.0'
+  implementation 'com.google.ads.mediation:pubmatic:4.11.0.1'
   {{/admob.pubmatic_android}}
 
   {{#admob.unity_android}}
-  implementation 'com.unity3d.ads:unity-ads:4.16.2'
+  implementation 'com.unity3d.ads:unity-ads:4.16.5'
   implementation 'com.google.ads.mediation:unity:4.16.5.0'
   {{/admob.unity_android}}
 }

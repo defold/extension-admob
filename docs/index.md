@@ -28,6 +28,7 @@ The extension can be configured by adding the following fields to `game.project`
 [admob]
 app_id_ios = ca-app-pub-3940256099942544~1458002511
 app_id_android = ca-app-pub-3940256099942544~3347511713
+test_ads_in_debug = 1
 app_open_android = ca-app-pub-3940256099942544/9257395921
 app_open_ios = ca-app-pub-3940256099942544/5575463023
 ios_tracking_usage_description = Your data will be used to provide you a better and personalized ad experience.
@@ -38,6 +39,9 @@ This is your iOS AdMob app ID. An app ID is a unique ID number assigned to your 
 
 ### app_id_android
 This is your Android AdMob app ID. An app ID is a unique ID number assigned to your apps when they're added to AdMob. The app ID is used to identify your apps.
+
+### test_ads_in_debug
+Android only. When set to `1`, the extension enables test ads in non-release builds.
 
 ### app_open_android
 Ad unit to use for App Open ads on Android. If this value is set App Open Ads will be shown when the app is brought to the foreground.

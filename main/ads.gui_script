@@ -69,19 +69,20 @@ local function set_block_height(height)
     gui.set_size(height_b_node, size)
 end
 
+local EVENT_TEXTS = {}
 if admob then
-local EVENT_TEXTS = {
-    [admob.EVENT_CLOSED] =              "EVENT_CLOSED: %s closed",
-    [admob.EVENT_FAILED_TO_SHOW] =      "EVENT_FAILED_TO_SHOW: %s failed to show",
-    [admob.EVENT_OPENING] =             "EVENT_OPENING: %s is opening",
-    [admob.EVENT_FAILED_TO_LOAD] =      "EVENT_FAILED_TO_LOAD: %s failed to load",
-    [admob.EVENT_LOADED] =              "EVENT_LOADED: %s loaded",
-    [admob.EVENT_NOT_LOADED] =          "EVENT_NOT_LOADED: %s can't call show before EVENT_LOADED",
-    [admob.EVENT_EARNED_REWARD] =       "EVENT_EARNED_REWARD: %s Reward",
-    [admob.EVENT_IMPRESSION_RECORDED] = "EVENT_IMPRESSION_RECORDED: %s did record impression",
-    [admob.EVENT_CLICKED] =             "EVENT_CLICKED: %s clicked",
-    [admob.EVENT_JSON_ERROR] =          "EVENT_JSON_ERROR: %s Internal NE json error",
-}
+    EVENT_TEXTS = {
+        [admob.EVENT_CLOSED] =              "EVENT_CLOSED: %s closed",
+        [admob.EVENT_FAILED_TO_SHOW] =      "EVENT_FAILED_TO_SHOW: %s failed to show",
+        [admob.EVENT_OPENING] =             "EVENT_OPENING: %s is opening",
+        [admob.EVENT_FAILED_TO_LOAD] =      "EVENT_FAILED_TO_LOAD: %s failed to load",
+        [admob.EVENT_LOADED] =              "EVENT_LOADED: %s loaded",
+        [admob.EVENT_NOT_LOADED] =          "EVENT_NOT_LOADED: %s can't call show before EVENT_LOADED",
+        [admob.EVENT_EARNED_REWARD] =       "EVENT_EARNED_REWARD: %s Reward",
+        [admob.EVENT_IMPRESSION_RECORDED] = "EVENT_IMPRESSION_RECORDED: %s did record impression",
+        [admob.EVENT_CLICKED] =             "EVENT_CLICKED: %s clicked",
+        [admob.EVENT_JSON_ERROR] =          "EVENT_JSON_ERROR: %s Internal NE json error",
+    }
 end
 
 local function print_event(ad_type, message)

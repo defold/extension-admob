@@ -13,3 +13,4 @@ builtins
 /debug.keystore.pass.txt
 /.editor_settings
 /.vscode
+*.eclipse.buildship.core.prefs

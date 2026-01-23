@@ -13,6 +13,7 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.provider.Settings;
 
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.ProcessLifecycleOwner;
@@ -33,8 +34,14 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.AdInspectorError;
 import com.google.android.gms.ads.OnAdInspectorClosedListener;
 import com.google.android.gms.ads.RequestConfiguration;
+import com.google.android.gms.ads.initialization.AdapterStatus;
 import com.google.android.gms.ads.initialization.InitializationStatus;
 import com.google.android.gms.ads.initialization.OnInitializationCompleteListener;
+
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import com.google.android.gms.ads.interstitial.InterstitialAd;
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback;
@@ -113,10 +120,12 @@ public class AdmobJNI implements LifecycleObserver {
   private Activity activity;
 
 
-  public AdmobJNI(Activity activity, String appOpenAdUnitId, String defoldUserAgent) {
+  public AdmobJNI(Activity activity, String appOpenAdUnitId, String defoldUserAgent, boolean testAdsInDebug) {
       this.activity = activity;
       this.mAppOpenAdUnitId = appOpenAdUnitId;
       this.defoldUserAgent = defoldUserAgent;
+
+      configureTestAdsIfNeeded(testAdsInDebug);
 
       if (isAutomaticAppOpenEnabled()) {
         activity.runOnUiThread(new Runnable() {
@@ -130,13 +139,70 @@ public class AdmobJNI implements LifecycleObserver {
       }
   }
 
+  private void configureTestAdsIfNeeded(boolean testAdsInDebug) {
+    if (!testAdsInDebug) {
+      return;
+    }
+    List<String> testDeviceIds = new ArrayList<String>();
+    testDeviceIds.add(AdRequest.DEVICE_ID_EMULATOR);
+    String deviceId = getHashedDeviceId();
+    if (deviceId != null && deviceId.length() > 0) {
+      testDeviceIds.add(deviceId);
+    }
+    RequestConfiguration requestConfiguration = MobileAds.getRequestConfiguration()
+        .toBuilder()
+        .setTestDeviceIds(testDeviceIds)
+        .build();
+    MobileAds.setRequestConfiguration(requestConfiguration);
+    Log.d(TAG, "Test ads enabled for this device: " + (deviceId != null ? deviceId : "unknown"));
+  }
+
+  private String getHashedDeviceId() {
+    String androidId = Settings.Secure.getString(activity.getContentResolver(), Settings.Secure.ANDROID_ID);
+    if (androidId == null || androidId.length() == 0) {
+      return null;
+    }
+    try {
+      MessageDigest md = MessageDigest.getInstance("MD5");
+      md.update(androidId.getBytes("UTF-8"));
+      byte[] digest = md.digest();
+      StringBuilder builder = new StringBuilder();
+      for (int i = 0; i < digest.length; i++) {
+        builder.append(String.format("%02X", digest[i] & 0xFF));
+      }
+      return builder.toString();
+    } catch (Exception e) {
+      Log.w(TAG, "Failed to compute test device id", e);
+      return null;
+    }
+  }
+
   public void initialize() {
-      MobileAds.initialize(activity, new OnInitializationCompleteListener() {
-          @Override
-          public void onInitializationComplete(InitializationStatus initializationStatus) {
-            sendSimpleMessage(MSG_INITIALIZATION, EVENT_COMPLETE);
-          }
-      });
+      new Thread(new Runnable() {
+        @Override
+        public void run() {
+          MobileAds.initialize(activity, new OnInitializationCompleteListener() {
+            @Override
+            public void onInitializationComplete(InitializationStatus initializationStatus) {
+              logAdapterStatus(initializationStatus);
+              sendSimpleMessage(MSG_INITIALIZATION, EVENT_COMPLETE);
+            }
+          });
+        }
+      }).start();
+  }
+
+  private void logAdapterStatus(InitializationStatus initializationStatus) {
+    Map<String, AdapterStatus> statusMap = initializationStatus.getAdapterStatusMap();
+    for (Map.Entry<String, AdapterStatus> entry : statusMap.entrySet()) {
+      String adapterClass = entry.getKey();
+      AdapterStatus status = entry.getValue();
+      Log.d(
+          TAG,
+          String.format(
+              "Adapter name: %s, Description: %s, Latency: %d",
+              adapterClass, status.getDescription(), status.getLatency()));
+    }
   }
 
   public void setPrivacySettings(boolean enable_rdp) {

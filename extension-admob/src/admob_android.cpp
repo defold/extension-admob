@@ -159,11 +159,16 @@ void Initialize_Ext(dmExtension::Params* params, const char* defoldUserAgent)
 
     InitJNIMethods(env, cls);
 
+    bool enableTestAds = false;
+#ifdef DM_DEBUG
+    enableTestAds = dmConfigFile::GetInt(params->m_ConfigFile, "admob.test_ads_in_debug", 0) != 0;
+#endif
+
     const char* appOpenAdUnitId = dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_android", 0);
     jstring jappOpenAdUnitId = env->NewStringUTF(appOpenAdUnitId);
     jstring jdefoldUserAgent = env->NewStringUTF(defoldUserAgent);
-    jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;)V");
-    g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz, jappOpenAdUnitId, jdefoldUserAgent));
+    jmethodID jni_constructor = env->GetMethodID(cls, "<init>", "(Landroid/app/Activity;Ljava/lang/String;Ljava/lang/String;Z)V");
+    g_admob.m_AdmobJNI = env->NewGlobalRef(env->NewObject(cls, jni_constructor, threadAttacher.GetActivity()->clazz, jappOpenAdUnitId, jdefoldUserAgent, (jboolean)enableTestAds));
     env->DeleteLocalRef(jappOpenAdUnitId);
     env->DeleteLocalRef(jdefoldUserAgent);
 }
