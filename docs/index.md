@@ -56,6 +56,17 @@ Before requesting the unique IDFA string for a device on iOS 14 the application 
 Apple documentation: https://developer.apple.com/documentation/apptrackingtransparency?language=objc
 
 
+## Mediation (Android)
+
+For now mediation is supported on Android only. To enable it:
+
+- Enable the adapters you need in the `[admob]` section of `game.project` (for example `unity_android = 1`).
+- Follow [each network’s official mediation guide](https://developers.google.com/admob/android/mediation/applovin) end-to-end. There is no partial “adapter added but not initialized” state.
+- You must use your own ad unit IDs. Google’s demo IDs only show Google ads and won’t exercise mediation.
+- If something is missing in the dashboard configuration, there may be no logs or Ad Inspector hints; when it is correct it simply reports as working.
+- For testing the AdMob network, set `admob.test_ads_in_debug = 1` to mark the device as a test device in debug builds.
+- The extension supports all officially supported adapters, except for Chartboost.
+
 ## Usage
 
 ### Setup
