@@ -59,14 +59,22 @@ local function update_ui(self)
 end
 
 local function set_block_height(height)
-    -- use banner height in gui
+    -- AdMob reports banner size in physical pixels; convert to GUI units.
     local screen_width, screen_height = window.get_size()
-    local settings_height = tonumber(sys.get_config("display.height"))
-    local mult = screen_height/settings_height
+    local project_width = tonumber(sys.get_config("display.width")) or screen_width
+    local project_height = tonumber(sys.get_config("display.height")) or screen_height
+    local scale_x = screen_width / project_width
+    local scale_y = screen_height / project_height
+    local scale = math.min(scale_x, scale_y)
+    if scale <= 0 then
+        return
+    end
+
     local height_b_node = gui.get_node("height_b")
     local size = gui.get_size(height_b_node)
-    size.y = height/mult
+    size.y = height / scale
     gui.set_size(height_b_node, size)
+    gui.set_screen_position(height_b_node, vmath.vector3(0))
 end
 
 local EVENT_TEXTS = {}

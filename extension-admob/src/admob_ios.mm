@@ -400,22 +400,37 @@ namespace dmAdmob {
     static AdmobExtBannerAdDelegate *admobExtBannerAdDelegate;
     static BannerPosition lastBannerPos = POS_NONE;
 
-    GADAdSize GetAdaptiveSize() {
+    CGFloat GetAdaptiveWidth() {
         UIView *defoldView = uiViewController.view;
-        CGRect frame = defoldView.frame;
+        CGRect bounds = defoldView.bounds;
 
         if (@available(iOS 11.0, *)) {
-            frame = UIEdgeInsetsInsetRect(defoldView.frame, defoldView.safeAreaInsets);
+            CGRect safeAreaFrame = defoldView.safeAreaLayoutGuide.layoutFrame;
+            if (!CGSizeEqualToSize(CGSizeZero, safeAreaFrame.size)) {
+                bounds = safeAreaFrame;
+            }
         }
 
-        CGFloat viewWidth = frame.size.width;
+        return CGRectGetWidth(bounds);
+    }
+
+    GADAdSize GetAdaptiveSize() {
+        CGFloat viewWidth = GetAdaptiveWidth();
         return GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(viewWidth);
+    }
+
+    GADAdSize GetLargeAdaptiveSize() {
+        CGFloat viewWidth = GetAdaptiveWidth();
+        return GADLargeAnchoredAdaptiveBannerAdSizeWithWidth(viewWidth);
     }
 
     GADAdSize GetSizeConstant(BannerSize bannerSizeConst) {
         GADAdSize bannerSize = GetAdaptiveSize(); // SIZE_ADAPTIVE_BANNER
         //SIZE_FLUID, SIZE_SMART_BANNER are not available on iOS
         switch (bannerSizeConst) {
+          case SIZE_LARGE_ADAPTIVE_BANNER:
+            bannerSize = GetLargeAdaptiveSize();
+            break;
           case SIZE_BANNER:
             bannerSize = GADAdSizeBanner;
             break;
@@ -449,16 +464,27 @@ namespace dmAdmob {
         CGFloat bottom = CGRectGetMaxY(bounds) - CGRectGetMidY(bannerAd.bounds);
         CGFloat centerY = CGRectGetMidY(bounds);
 
-        if (CGRectGetHeight(bannerAd.bounds) >= CGRectGetHeight(defoldView.bounds)) {
-            top = CGRectGetMidY(defoldView.bounds);
+        if (CGRectGetHeight(bannerAd.bounds) >= CGRectGetHeight(bounds)) {
+            top = centerY;
+            bottom = centerY;
         }
 
         CGFloat left = CGRectGetMinX(bounds) + CGRectGetMidX(bannerAd.bounds);
         CGFloat right = CGRectGetMaxX(bounds) - CGRectGetMidX(bannerAd.bounds);
         CGFloat centerX = CGRectGetMidX(bounds);
 
-        if (CGRectGetWidth(bannerAd.bounds) >= CGRectGetWidth(defoldView.bounds)) {
-            left = CGRectGetMidX(defoldView.bounds);
+        if (CGRectGetWidth(bannerAd.bounds) >= CGRectGetWidth(bounds)) {
+            left = centerX;
+            right = centerX;
+        }
+
+        if (left > right) {
+            left = centerX;
+            right = centerX;
+        }
+        if (top > bottom) {
+            top = centerY;
+            bottom = centerY;
         }
 
         CGPoint bannerPos = CGPointMake(centerX, centerY);

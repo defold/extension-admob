@@ -39,3 +39,7 @@ app_open_android = ca-app-pub-3940256099942544/9257395921
 app_open_ios = ca-app-pub-3940256099942544/5575463023
 ios_tracking_usage_description = Your data will be used to provide you a better and personalized ad experience.
 test_ads_in_debug = 1
+
+[gui]
+safe_area_mode = both
+
