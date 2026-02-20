@@ -777,18 +777,18 @@ public class AdmobJNI implements LifecycleObserver {
 // Banner ADS
 
   private LinearLayout layout;
-  private AdView mBannerAdView;
+  private AdView bannerAdView;
   private WindowManager windowManager;
   private boolean isBannerShown = false;
-  private int m_bannerPosition = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
-  private int m_BannerSizeConst = SIZE_ADAPTIVE_BANNER;
+  private int bannerPosition = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+  private int bannerSizeConst = SIZE_ADAPTIVE_BANNER;
 
   public void loadBanner(final String unitId, int bannerSize) {
     if (isBannerLoaded())
     {
       return;
     }
-    m_BannerSizeConst = bannerSize;
+    bannerSizeConst = bannerSize;
     final AdView view = new AdView(activity);
     view.setAdUnitId(unitId);
     AdSize adSize = getSizeConstant(bannerSize);
@@ -807,7 +807,7 @@ public class AdmobJNI implements LifecycleObserver {
               // Code to be executed when an ad finishes loading and when banner refreshed.
               // Log.d(TAG, "onAdLoaded");
               if (!isBannerLoaded()) {
-                mBannerAdView = view;
+                bannerAdView = view;
                 createLayout();
               }
               sendSimpleMessage(MSG_BANNER, EVENT_LOADED, "height", bannerHeight, "width", bannerWidth);
@@ -864,9 +864,9 @@ public class AdmobJNI implements LifecycleObserver {
           if (isBannerShown) {
             windowManager.removeView(layout);
           }
-          mBannerAdView.destroy();
+          bannerAdView.destroy();
           layout = null;
-          mBannerAdView = null;
+          bannerAdView = null;
           isBannerShown = false;
           sendSimpleMessage(MSG_BANNER, EVENT_DESTROYED);
         }
@@ -883,9 +883,9 @@ public class AdmobJNI implements LifecycleObserver {
           layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
           int gravity = normalizeAdaptiveGravity(getGravity(pos));
           if (gravity != Gravity.NO_GRAVITY) {
-            m_bannerPosition = gravity;
+            bannerPosition = gravity;
           }
-          layout.setGravity(m_bannerPosition);
+          layout.setGravity(bannerPosition);
           if (isBannerShown) {
             windowManager.updateViewLayout(layout, getParameters());
             return;
@@ -893,7 +893,7 @@ public class AdmobJNI implements LifecycleObserver {
           if (!layout.isShown())
           {
             windowManager.addView(layout, getParameters());
-            mBannerAdView.resume();
+            bannerAdView.resume();
             isBannerShown = true;
           }
         }
@@ -909,13 +909,13 @@ public class AdmobJNI implements LifecycleObserver {
           }
           isBannerShown = false;
           windowManager.removeView(layout);
-          mBannerAdView.pause();
+          bannerAdView.pause();
         }
     });
   }
 
   public boolean isBannerLoaded() {
-    return mBannerAdView != null;
+    return bannerAdView != null;
   }
 
   public void updateBannerLayout() {
@@ -926,7 +926,7 @@ public class AdmobJNI implements LifecycleObserver {
             return;
           }
           layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
-          layout.setGravity(m_bannerPosition);
+          layout.setGravity(bannerPosition);
           if (!isBannerShown) {
             return;
           }
@@ -971,7 +971,7 @@ public class AdmobJNI implements LifecycleObserver {
     if (gravity == Gravity.NO_GRAVITY) {
       return gravity;
     }
-    if (m_BannerSizeConst != SIZE_ADAPTIVE_BANNER && m_BannerSizeConst != SIZE_LARGE_ADAPTIVE_BANNER) {
+    if (bannerSizeConst != SIZE_ADAPTIVE_BANNER && bannerSizeConst != SIZE_LARGE_ADAPTIVE_BANNER) {
       return gravity;
     }
     int vertical = gravity & Gravity.VERTICAL_GRAVITY_MASK;
@@ -1056,13 +1056,13 @@ public class AdmobJNI implements LifecycleObserver {
     windowManager = activity.getWindowManager();
     layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
-    layout.setGravity(m_bannerPosition);
+    layout.setGravity(bannerPosition);
 
     MarginLayoutParams params = new MarginLayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     params.setMargins(0, 0, 0, 0);
     layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
 
-    layout.addView(mBannerAdView, params);
+    layout.addView(bannerAdView, params);
   }
 
   private WindowManager.LayoutParams getParameters() {
@@ -1072,9 +1072,9 @@ public class AdmobJNI implements LifecycleObserver {
     windowParams.width = WindowManager.LayoutParams.MATCH_PARENT;
     windowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
     windowParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-    windowParams.gravity = (m_bannerPosition & Gravity.VERTICAL_GRAVITY_MASK) == 0
+    windowParams.gravity = (bannerPosition & Gravity.VERTICAL_GRAVITY_MASK) == 0
         ? Gravity.BOTTOM
-        : (m_bannerPosition & Gravity.VERTICAL_GRAVITY_MASK);
+        : (bannerPosition & Gravity.VERTICAL_GRAVITY_MASK);
     return windowParams;
   }
 
