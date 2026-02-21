@@ -431,7 +431,8 @@
             `admob.SIZE_LARGE_BANNER`,
             `admob.SIZE_LEADEARBOARD`,
             `admob.SIZE_MEDIUM_RECTANGLE`,
-            `admob.SIZE_SMART_BANNER`.
+            `admob.SIZE_SMART_BANNER`,
+            `admob.SIZE_LARGE_ADAPTIVE_BANNER`
             Original docs
             [Android](https://developers.google.com/admob/android/banner#banner_sizes),
             [iOS](https://developers.google.com/admob/ios/banner#banner_sizes)"
@@ -601,6 +602,9 @@
 #*****************************************************************************************************
 
   - name: SIZE_ADAPTIVE_BANNER
+    type: number
+
+  - name: SIZE_LARGE_ADAPTIVE_BANNER
     type: number
 
   - name: SIZE_BANNER

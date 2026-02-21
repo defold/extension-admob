@@ -5,6 +5,7 @@ import android.util.Log;
 import android.util.DisplayMetrics;
 import android.app.Activity;
 import android.view.Display;
+import android.graphics.Rect;
 import android.view.Gravity;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
@@ -98,6 +99,7 @@ public class AdmobJNI implements LifecycleObserver {
   private static final int SIZE_LEADEARBOARD =        5;
   private static final int SIZE_MEDIUM_RECTANGLE =    6;
   private static final int SIZE_SMART_BANNER =        9;
+  private static final int SIZE_LARGE_ADAPTIVE_BANNER = 10;
 
   private static final int POS_NONE =                 0;
   private static final int POS_TOP_LEFT =             1;
@@ -775,16 +777,18 @@ public class AdmobJNI implements LifecycleObserver {
 // Banner ADS
 
   private LinearLayout layout;
-  private AdView mBannerAdView;
+  private AdView bannerAdView;
   private WindowManager windowManager;
   private boolean isBannerShown = false;
-  private int m_bannerPosition = Gravity.NO_GRAVITY;
+  private int bannerPosition = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
+  private int bannerSizeConst = SIZE_ADAPTIVE_BANNER;
 
   public void loadBanner(final String unitId, int bannerSize) {
     if (isBannerLoaded())
     {
       return;
     }
+    bannerSizeConst = bannerSize;
     final AdView view = new AdView(activity);
     view.setAdUnitId(unitId);
     AdSize adSize = getSizeConstant(bannerSize);
@@ -803,7 +807,7 @@ public class AdmobJNI implements LifecycleObserver {
               // Code to be executed when an ad finishes loading and when banner refreshed.
               // Log.d(TAG, "onAdLoaded");
               if (!isBannerLoaded()) {
-                mBannerAdView = view;
+                bannerAdView = view;
                 createLayout();
               }
               sendSimpleMessage(MSG_BANNER, EVENT_LOADED, "height", bannerHeight, "width", bannerWidth);
@@ -860,9 +864,9 @@ public class AdmobJNI implements LifecycleObserver {
           if (isBannerShown) {
             windowManager.removeView(layout);
           }
-          mBannerAdView.destroy();
+          bannerAdView.destroy();
           layout = null;
-          mBannerAdView = null;
+          bannerAdView = null;
           isBannerShown = false;
           sendSimpleMessage(MSG_BANNER, EVENT_DESTROYED);
         }
@@ -877,22 +881,19 @@ public class AdmobJNI implements LifecycleObserver {
             return;
           }
           layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
-          int gravity = getGravity(pos);
-          if ((m_bannerPosition == Gravity.NO_GRAVITY || m_bannerPosition != gravity) && isBannerShown) {
-            if (gravity != Gravity.NO_GRAVITY) {
-              m_bannerPosition = gravity;
-            }
+          int gravity = normalizeAdaptiveGravity(getGravity(pos));
+          if (gravity != Gravity.NO_GRAVITY) {
+            bannerPosition = gravity;
+          }
+          layout.setGravity(bannerPosition);
+          if (isBannerShown) {
             windowManager.updateViewLayout(layout, getParameters());
             return;
           }
           if (!layout.isShown())
           {
-
-            if (gravity != Gravity.NO_GRAVITY) {
-              m_bannerPosition = gravity;
-            }
             windowManager.addView(layout, getParameters());
-            mBannerAdView.resume();
+            bannerAdView.resume();
             isBannerShown = true;
           }
         }
@@ -908,13 +909,13 @@ public class AdmobJNI implements LifecycleObserver {
           }
           isBannerShown = false;
           windowManager.removeView(layout);
-          mBannerAdView.pause();
+          bannerAdView.pause();
         }
     });
   }
 
   public boolean isBannerLoaded() {
-    return mBannerAdView != null;
+    return bannerAdView != null;
   }
 
   public void updateBannerLayout() {
@@ -925,17 +926,14 @@ public class AdmobJNI implements LifecycleObserver {
             return;
           }
           layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
+          layout.setGravity(bannerPosition);
           if (!isBannerShown) {
             return;
           }
-          windowManager.removeView(layout);
-          if (isBannerShown)
-          {
+          if (layout.isShown()) {
             windowManager.updateViewLayout(layout, getParameters());
-            if (!layout.isShown())
-            {
-              windowManager.addView(layout, getParameters());
-            }
+          } else {
+            windowManager.addView(layout, getParameters());
           }
         }
     });
@@ -945,22 +943,22 @@ public class AdmobJNI implements LifecycleObserver {
     int bannerPos = Gravity.NO_GRAVITY; //POS_NONE
     switch (bannerPosConst) {
       case POS_TOP_LEFT:
-        bannerPos = Gravity.TOP | Gravity.LEFT;
+        bannerPos = Gravity.TOP | Gravity.START;
         break;
       case POS_TOP_CENTER:
         bannerPos = Gravity.TOP | Gravity.CENTER_HORIZONTAL;
         break;
       case POS_TOP_RIGHT:
-        bannerPos = Gravity.TOP | Gravity.RIGHT;
+        bannerPos = Gravity.TOP | Gravity.END;
         break;
       case POS_BOTTOM_LEFT:
-        bannerPos = Gravity.BOTTOM | Gravity.LEFT;
+        bannerPos = Gravity.BOTTOM | Gravity.START;
         break;
       case POS_BOTTOM_CENTER:
         bannerPos = Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL;
         break;
       case POS_BOTTOM_RIGHT:
-        bannerPos = Gravity.BOTTOM | Gravity.RIGHT;
+        bannerPos = Gravity.BOTTOM | Gravity.END;
         break;
       case POS_CENTER:
         bannerPos = Gravity.CENTER;
@@ -969,9 +967,27 @@ public class AdmobJNI implements LifecycleObserver {
     return bannerPos;
   }
 
+  private int normalizeAdaptiveGravity(int gravity) {
+    if (gravity == Gravity.NO_GRAVITY) {
+      return gravity;
+    }
+    if (bannerSizeConst != SIZE_ADAPTIVE_BANNER && bannerSizeConst != SIZE_LARGE_ADAPTIVE_BANNER) {
+      return gravity;
+    }
+    int vertical = gravity & Gravity.VERTICAL_GRAVITY_MASK;
+    int horizontal = gravity & Gravity.HORIZONTAL_GRAVITY_MASK;
+    if (horizontal == Gravity.START || horizontal == Gravity.END || horizontal == Gravity.LEFT || horizontal == Gravity.RIGHT) {
+      gravity = vertical | Gravity.CENTER_HORIZONTAL;
+    }
+    return gravity;
+  }
+
   private AdSize getSizeConstant(int bannerSizeConst) {
     AdSize bannerSize = getAdaptiveSize(); // SIZE_ADAPTIVE_BANNER
     switch (bannerSizeConst) {
+      case SIZE_LARGE_ADAPTIVE_BANNER:
+        bannerSize = getLargeAdaptiveSize();
+        break;
       case SIZE_BANNER:
         bannerSize = AdSize.BANNER;
         break;
@@ -997,45 +1013,68 @@ public class AdmobJNI implements LifecycleObserver {
     return bannerSize;
   }
 
+  private int getAdaptiveWidthDp(DisplayMetrics outMetrics) {
+    // Determine visible width to avoid requesting banners wider than the viewport.
+    Rect visibleFrame = new Rect();
+    activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(visibleFrame);
+
+    int visibleWidth = visibleFrame.width() > 0 ? visibleFrame.width() : outMetrics.widthPixels;
+    float adWidthPixels = layout != null ? layout.getWidth() : 0;
+    if (adWidthPixels <= 0 || adWidthPixels > visibleWidth) {
+      adWidthPixels = visibleWidth;
+    }
+    return Math.max(1, (int) (adWidthPixels / outMetrics.density));
+  }
+
   private AdSize getAdaptiveSize() {
-    // Determine the screen width (less decorations) to use for the ad width.
     Display display = activity.getWindowManager().getDefaultDisplay();
     DisplayMetrics outMetrics = new DisplayMetrics();
     display.getMetrics(outMetrics);
 
-    float density = outMetrics.density;
-
-    float adWidthPixels = layout != null ? layout.getWidth() : 0;
-
-    // If the ad width isn't known, default to the full screen width.
-    if (adWidthPixels == 0) {
-      adWidthPixels = outMetrics.widthPixels;
-    }
-
-    int adWidth = (int) (adWidthPixels / density);
+    int adWidth = getAdaptiveWidthDp(outMetrics);
     return AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(activity, adWidth);
+  }
+
+  private AdSize getLargeAdaptiveSize() {
+    Display display = activity.getWindowManager().getDefaultDisplay();
+    DisplayMetrics outMetrics = new DisplayMetrics();
+    display.getMetrics(outMetrics);
+
+    Rect visibleFrame = new Rect();
+    activity.getWindow().getDecorView().getWindowVisibleDisplayFrame(visibleFrame);
+    int visibleWidth = visibleFrame.width() > 0 ? visibleFrame.width() : outMetrics.widthPixels;
+    int visibleHeight = visibleFrame.height() > 0 ? visibleFrame.height() : outMetrics.heightPixels;
+    int adWidth = getAdaptiveWidthDp(outMetrics);
+
+    if (visibleWidth > visibleHeight) {
+      return AdSize.getLargeLandscapeAnchoredAdaptiveBannerAdSize(activity, adWidth);
+    }
+    return AdSize.getLargePortraitAnchoredAdaptiveBannerAdSize(activity, adWidth);
   }
 
   private void createLayout() {
     windowManager = activity.getWindowManager();
     layout = new LinearLayout(activity);
     layout.setOrientation(LinearLayout.VERTICAL);
+    layout.setGravity(bannerPosition);
 
-    MarginLayoutParams params = new MarginLayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+    MarginLayoutParams params = new MarginLayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
     params.setMargins(0, 0, 0, 0);
     layout.setSystemUiVisibility(activity.getWindow().getDecorView().getSystemUiVisibility());
 
-    layout.addView(mBannerAdView, params);
+    layout.addView(bannerAdView, params);
   }
 
   private WindowManager.LayoutParams getParameters() {
     WindowManager.LayoutParams windowParams = new WindowManager.LayoutParams();
-    windowParams.x = WindowManager.LayoutParams.WRAP_CONTENT;
-    windowParams.y = WindowManager.LayoutParams.WRAP_CONTENT;
-    windowParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+    windowParams.x = 0;
+    windowParams.y = 0;
+    windowParams.width = WindowManager.LayoutParams.MATCH_PARENT;
     windowParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
     windowParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
-    windowParams.gravity = m_bannerPosition;
+    windowParams.gravity = (bannerPosition & Gravity.VERTICAL_GRAVITY_MASK) == 0
+        ? Gravity.BOTTOM
+        : (bannerPosition & Gravity.VERTICAL_GRAVITY_MASK);
     return windowParams;
   }
 

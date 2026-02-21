@@ -20,7 +20,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "extension-admob" / "manifests" / "ios" / "Podfile"
 EXT_PROPERTIES = ROOT / "extension-admob" / "ext.properties"
 
-IOS_PLATFORM = "12.0"
+IOS_PLATFORM = "13.0"
 
 # Map the "name" attribute from the checkbox to the ext.properties key.
 NETWORK_MAP = {
