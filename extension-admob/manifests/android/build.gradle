@@ -31,10 +31,11 @@ configurations.configureEach {
 }
 
 dependencies {
-  implementation "com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.2.1"
+  implementation "com.google.android.libraries.ads.mobile.sdk:ads-mobile-sdk:1.3.0"
   implementation "androidx.lifecycle:lifecycle-common:2.8.3"
   implementation "androidx.lifecycle:lifecycle-process:2.8.3"
   annotationProcessor "androidx.lifecycle:lifecycle-compiler:2.8.3"
+
   {{#admob.applovin_android}}
   implementation 'com.google.ads.mediation:applovin:13.6.3.0'
   {{/admob.applovin_android}}
@@ -44,11 +45,11 @@ dependencies {
   {{/admob.bidmachine_android}}
 
   {{#admob.chartboost_android}}
-  implementation 'com.google.ads.mediation:chartboost:9.12.1.1'
+  implementation 'com.google.ads.mediation:chartboost:9.13.0.0'
   {{/admob.chartboost_android}}
 
   {{#admob.dt_exchange_android}}
-  implementation 'com.google.ads.mediation:fyber:8.4.5.1'
+  implementation 'com.google.ads.mediation:fyber:8.4.6.0'
   {{/admob.dt_exchange_android}}
 
   {{#admob.imobile_android}}
@@ -56,15 +57,15 @@ dependencies {
   {{/admob.imobile_android}}
 
   {{#admob.inmobi_android}}
-  implementation 'com.google.ads.mediation:inmobi:11.3.0.1'
+  implementation 'com.google.ads.mediation:inmobi:11.4.0.0'
   {{/admob.inmobi_android}}
 
   {{#admob.ironsource_android}}
-  implementation 'com.google.ads.mediation:ironsource:9.4.4.0'
+  implementation 'com.google.ads.mediation:ironsource:9.5.0.0'
   {{/admob.ironsource_android}}
 
   {{#admob.liftoff_android}}
-  implementation 'com.google.ads.mediation:vungle:7.7.4.2'
+  implementation 'com.google.ads.mediation:vungle:7.7.6.0'
   {{/admob.liftoff_android}}
 
   {{#admob.line_android}}
@@ -84,7 +85,7 @@ dependencies {
   {{/admob.mintegral_android}}
 
   {{#admob.moloco_android}}
-  implementation 'com.google.ads.mediation:moloco:4.10.0.0'
+  implementation 'com.google.ads.mediation:moloco:4.10.1.0'
   {{/admob.moloco_android}}
 
   {{#admob.mytarget_android}}
@@ -96,7 +97,7 @@ dependencies {
   {{/admob.pangle_android}}
 
   {{#admob.pubmatic_android}}
-  implementation 'com.google.ads.mediation:pubmatic:5.1.2.2'
+  implementation 'com.google.ads.mediation:pubmatic:5.2.0.0'
   {{/admob.pubmatic_android}}
 
   {{#admob.unity_android}}
