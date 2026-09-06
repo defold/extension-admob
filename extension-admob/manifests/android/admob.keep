@@ -1,0 +1,3 @@
+# Native AdMob code loads the extension's Java classes and methods by name through JNI.
+-keepattributes *Annotation*
+-keep,allowoptimization class com.defold.admob.** { *; }
