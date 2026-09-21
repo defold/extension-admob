@@ -25,7 +25,7 @@
 @interface AdmobExtBannerAdDelegate : NSObject<GADBannerViewDelegate>
 @end
 
-@interface AdMobAppDelegate : NSObject <UIApplicationDelegate>
+@interface AdMobSceneDelegate : NSObject <UISceneDelegate>
 @end
 
 namespace dmAdmob {
@@ -33,7 +33,7 @@ namespace dmAdmob {
     static const char* m_DefoldUserAgent = nil;
 
     static UIViewController *uiViewController = nil;
-    static AdMobAppDelegate *admobAppDelegate = nil;
+    static AdMobSceneDelegate *admobSceneDelegate = nil;
 
     void SendSimpleMessage(MessageId msg, id obj) {
         NSError* error;
@@ -130,6 +130,10 @@ namespace dmAdmob {
     }
 
     void LoadAppOpen(const char* unitId, bool showImmediately) {
+        // An empty unit disables app-open ads, including reloads after reboot.
+        if (!unitId || !unitId[0])
+            return;
+
         // Do not load ad if one is already loading.
         if (isLoadingAppOpenAd) {
             NSLog(@"Already loading app open ad.");
@@ -579,24 +583,24 @@ void Initialize_Ext(dmExtension::Params* params, const char* defoldUserAgent) {
     admobExtRewardedInterstitialAdDelegate = [[AdmobExtRewardedInterstitialAdDelegate alloc] init];
     admobExtBannerAdDelegate = [[AdmobExtBannerAdDelegate alloc] init];
     admobExtAppOpenAdDelegate = [[AdmobExtAppOpenAdDelegate alloc] init];
-    admobAppDelegate = [[AdMobAppDelegate alloc] init];
+    admobSceneDelegate = [[AdMobSceneDelegate alloc] init];
 
     appOpenAdId = (char*)dmConfigFile::GetString(params->m_ConfigFile, "admob.app_open_ios", "");
     if (appOpenAdId && strlen(appOpenAdId) > 0) {
         LoadAppOpen(appOpenAdId, true);
     }
 
-    dmExtension::RegisteriOSUIApplicationDelegate(admobAppDelegate);
-    dmExtension::RegisteriOSUIApplicationDelegate(admobExtAppOpenAdDelegate);
+    dmExtension::RegisteriOSUISceneDelegate(admobSceneDelegate);
 }
 
 void Finalize_Ext() {
-    dmExtension::UnregisteriOSUIApplicationDelegate(admobAppDelegate);
+    dmExtension::UnregisteriOSUISceneDelegate(admobSceneDelegate);
     [admobExtInterstitialAdDelegate dealloc];
     [admobExtRewardedAdDelegate dealloc];
     [admobExtRewardedInterstitialAdDelegate dealloc];
     [admobExtBannerAdDelegate dealloc];
-    [admobAppDelegate dealloc];
+    [admobSceneDelegate release];
+    admobSceneDelegate = nil;
 }
 
 void SetPrivacySettings(bool enable_rdp) {
@@ -639,7 +643,7 @@ void ShowAdInspector() {
 }
 
 void ActivateApp() {
-    ShowAppOpen();
+    // iOS activation is handled once by AdMobSceneDelegate.
 }
 
 void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
@@ -812,7 +816,7 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
 
 @end
 
-@implementation AdMobAppDelegate
+@implementation AdMobSceneDelegate
 
 - (instancetype)init {
     self = [super init];
@@ -830,9 +834,7 @@ void SetMaxAdContentRating(MaxAdRating max_ad_rating) {
     [self performSelector:@selector(UpdatePosition) withObject:nil afterDelay:0.1];
 }
 
-- (void) applicationDidBecomeActive:(UIApplication *)application {
-    NSLog(@"applicationDidBecomeActive.");
-    //dmAdmob::ShowAppOpen();
+- (void)sceneDidBecomeActive:(UIScene*)scene {
     dmAdmob::LoadAppOpen(dmAdmob::appOpenAdId, true);
 }
 

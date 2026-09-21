@@ -31,7 +31,7 @@ bundle_identifier = com.defold.adtest
 
 [library]
 include_dirs = extension-admob
-defold_min_version = 1.13.0
+defold_min_version = 1.14.0
 
 [admob]
 app_id_ios = ca-app-pub-3940256099942544~1458002511
