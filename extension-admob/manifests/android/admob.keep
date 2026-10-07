@@ -1,3 +1,9 @@
 # Native AdMob code loads the extension's Java classes and methods by name through JNI.
 -keepattributes *Annotation*
 -keep,allowoptimization class com.defold.admob.** { *; }
+
+# WebView calls the SDK's JavaScript bridge methods by name. Keeping annotations
+# alone does not prevent R8 from removing these methods.
+-keepclassmembers class * {
+    @android.webkit.JavascriptInterface <methods>;
+}
