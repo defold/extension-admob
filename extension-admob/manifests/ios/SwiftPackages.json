@@ -1,0 +1,61 @@
+{
+  "platform": "ios",
+  "minVersion": "13.0",
+{{#admob.ironsource_ios}}
+  "wrapperType": "dynamic",
+{{/admob.ironsource_ios}}
+  "packages": [
+    {"url": "https://github.com/googleads/swift-package-manager-google-mobile-ads.git", "version": "13.6.0", "products": ["GoogleMobileAds"]}
+{{#admob.applovin_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-applovin.git", "from": "13.6.400", "products": ["AppLovinAdapterTarget"]}
+{{/admob.applovin_ios}}
+{{#admob.bidmachine_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-bidmachine.git", "from": "3.8.200", "products": ["BidMachineAdapterTarget"]}
+{{/admob.bidmachine_ios}}
+{{#admob.chartboost_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-chartboost.git", "from": "9.14.200", "products": ["ChartboostAdapterTarget"]}
+{{/admob.chartboost_ios}}
+{{#admob.dt_exchange_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-dtexchange.git", "from": "8.5.100", "products": ["DTExchangeAdapterTarget"]}
+{{/admob.dt_exchange_ios}}
+{{#admob.imobile_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-imobile.git", "from": "2.3.408", "products": ["IMobileAdapterTarget"]}
+{{/admob.imobile_ios}}
+{{#admob.inmobi_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-inmobi.git", "from": "11.5.000", "products": ["InMobiAdapterTarget"]}
+{{/admob.inmobi_ios}}
+{{#admob.ironsource_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-ironsource.git", "from": "9.7.00000", "products": ["IronSourceAdapterTarget"]}
+{{/admob.ironsource_ios}}
+{{#admob.liftoff_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-liftoffmonetize.git", "from": "7.7.800", "products": ["LiftoffMonetizeAdapterTarget"]}
+{{/admob.liftoff_ios}}
+{{#admob.line_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-line.git", "from": "3.1.100", "products": ["LineAdapterTarget"]}
+{{/admob.line_ios}}
+{{#admob.maio_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-maio.git", "from": "2.2.300", "products": ["MaioAdapterTarget"]}
+{{/admob.maio_ios}}
+{{#admob.meta_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-meta.git", "from": "6.22.100", "products": ["MetaAdapterTarget"]}
+{{/admob.meta_ios}}
+{{#admob.mintegral_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-mintegral.git", "from": "8.1.800", "products": ["MintegralAdapterTarget"]}
+{{/admob.mintegral_ios}}
+{{#admob.moloco_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-moloco.git", "from": "4.11.100", "products": ["MolocoAdapterTarget"]}
+{{/admob.moloco_ios}}
+{{#admob.mytarget_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-mytarget.git", "from": "5.47.000", "products": ["MyTargetAdapterTarget"]}
+{{/admob.mytarget_ios}}
+{{#admob.pangle_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-pangle.git", "from": "8.4.00500", "products": ["PangleAdapterTarget"]}
+{{/admob.pangle_ios}}
+{{#admob.pubmatic_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-pubmatic.git", "from": "5.4.100", "products": ["PubMaticAdapterTarget"]}
+{{/admob.pubmatic_ios}}
+{{#admob.unity_ios}}
+    ,{"url": "https://github.com/googleads/googleads-mobile-ios-mediation-unity.git", "from": "4.21.000", "products": ["UnityAdapterTarget"]}
+{{/admob.unity_ios}}
+  ]
+}

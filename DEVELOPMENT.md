@@ -24,6 +24,6 @@ The extension's `admob.keep` preserves both the JNI bridge and methods annotated
 
 ## iOS SDK update
 
-Open `extension-admob/manifests/ios/Podfile` and change version in `pod 'Google-Mobile-Ads-SDK', 'X.X.X'` to the latest.
+Open `extension-admob/manifests/ios/SwiftPackages.json` and change the `version` of the `swift-package-manager-google-mobile-ads` package to the latest, or run `python3 updater/ios.py` to regenerate the file together with the mediation adapters.
 
 Check [Release Notes](https://developers.google.com/admob/ios/rel-notes) to make sure there are no breaking changes and all new APIs implemented.
