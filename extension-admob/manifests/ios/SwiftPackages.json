@@ -1,9 +1,6 @@
 {
   "platform": "ios",
   "minVersion": "13.0",
-{{#admob.ironsource_ios}}
-  "wrapperType": "dynamic",
-{{/admob.ironsource_ios}}
   "packages": [
     {"url": "https://github.com/googleads/swift-package-manager-google-mobile-ads.git", "version": "13.6.0", "products": ["GoogleMobileAds"]}
 {{#admob.applovin_ios}}

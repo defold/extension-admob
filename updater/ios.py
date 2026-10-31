@@ -68,10 +68,6 @@ SPM_ADAPTERS = {
     "unity": ("unity", "UnityAdapterTarget"),
 }
 
-# Adapters whose package graph feeds the same binary library to the static
-# SPM wrapper twice; Extender links such graphs only with a dynamic wrapper.
-DYNAMIC_WRAPPER_ADAPTERS = {"ironsource"}
-
 LABEL_MAP = {
     "applovin": "AppLovin iOS",
     "bidmachine": "BidMachine iOS",
@@ -261,10 +257,6 @@ def render_swift_packages(data: Dict[str, Dict[str, str]], sdk_info: Dict[str, s
     lines.append("{")
     lines.append('  "platform": "ios",')
     lines.append(f'  "minVersion": "{IOS_PLATFORM}",')
-    for key in sorted(DYNAMIC_WRAPPER_ADAPTERS & data.keys()):
-        lines.append(f"{{{{#admob.{key}_ios}}}}")
-        lines.append('  "wrapperType": "dynamic",')
-        lines.append(f"{{{{/admob.{key}_ios}}}}")
     lines.append('  "packages": [')
     lines.append("    " + package_entry(GMA_PACKAGE_URL, "version", gma_version, "GoogleMobileAds"))
     for key, meta in sorted(data.items()):
